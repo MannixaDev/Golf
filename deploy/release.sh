@@ -19,7 +19,7 @@ set -euo pipefail
 GODOT="${GODOT:-/c/Users/jak_m/Desktop/Godot_v4.7.2-stable_win64.exe/Godot_v4.7.2-stable_win64_console.exe}"
 # user/game on itch. The channel name after the colon is how itch decides which
 # platform a build is for: "html" is played in the browser, "windows" downloads.
-ITCH_TARGET="${ITCH_TARGET:-mannixadev/fairway-fiends}"
+ITCH_TARGET="${ITCH_TARGET:-mannixa/fairwayfiends}"
 
 cd "$(dirname "$0")/.."
 PUSH=1

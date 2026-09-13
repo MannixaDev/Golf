@@ -14,6 +14,10 @@ now makes a noise.
 Still no binary assets: every shape is drawn and every sound is synthesised at
 startup, so the repository remains text only.
 
+## Play it
+
+<https://mannixa.itch.io/fairwayfiends> — plays in the browser, no download.
+
 ## Running it
 
 Open `project.godot` in Godot and press **F5**, or:
