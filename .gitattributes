@@ -1,0 +1,12 @@
+# One line so a Windows checkout does not report every file as modified.
+# The repository is stored with Unix endings; Git converts on the way in and
+# out rather than rewriting history every time somebody opens it.
+* text=auto eol=lf
+
+# Godot resources are text and diff well. Saying so explicitly keeps Git from
+# guessing on a .tres it has not seen the like of before.
+*.gd    text
+*.tres  text
+*.tscn  text
+*.godot text
+*.cfg   text
