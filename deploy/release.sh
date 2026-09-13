@@ -8,8 +8,13 @@
 # release instead of reaching players. Balance on this project is measured
 # rather than guessed, and shipping should be too.
 #
-#   ./deploy/release.sh            check, build, and push to itch
-#   ./deploy/release.sh --no-push  check and build only
+#   ./deploy/release.sh "what changed"   commit, publish, and record it
+#   ./deploy/release.sh                  same, with nothing left to commit
+#   ./deploy/release.sh --no-push        check and build only, touch nothing
+#
+# Git and itch are done together on purpose. Kept apart they drift, and then
+# the source on GitHub is no longer the source that made the build people are
+# playing -- which is the one thing a repository is for.
 #
 # butler does differential uploads, so only the changed chunks of a 40MB build
 # actually travel. Install it once from https://itch.io/docs/butler/ and run
@@ -23,7 +28,12 @@ ITCH_TARGET="${ITCH_TARGET:-mannixa/fairwayfiends}"
 
 cd "$(dirname "$0")/.."
 PUSH=1
-[ "${1:-}" = "--no-push" ] && PUSH=0
+MESSAGE=""
+case "${1:-}" in
+    --no-push) PUSH=0 ;;
+    "")        ;;
+    *)         MESSAGE="$1" ;;
+esac
 
 SUITES=(palette_check texture_check audio_check card_check card_fit_check
         relic_check rules_check effects_test hand_check map_check route_check
@@ -82,6 +92,33 @@ if [ "$PUSH" -eq 0 ]; then
     exit 0
 fi
 
+# Recorded before it is published, and only once everything above is green, so
+# what is on GitHub is always exactly what made the build on itch.
+echo
+echo "=== source ==="
+if [ -n "$(git status --porcelain)" ]; then
+    if [ -z "$MESSAGE" ]; then
+        echo "  There are uncommitted changes and no message to commit them with."
+        echo "  Either say what changed:"
+        echo "      ./deploy/release.sh \"what changed\""
+        echo "  or commit them yourself first. Not publishing a build whose"
+        echo "  source is not written down."
+        exit 1
+    fi
+    git add -A
+    git commit -q -m "$MESSAGE"
+    echo "  committed: $MESSAGE"
+else
+    echo "  nothing to commit"
+fi
+
+if git remote get-url origin >/dev/null 2>&1; then
+    git push -q origin HEAD
+    echo "  pushed to $(git remote get-url origin)"
+else
+    echo "  no remote configured, so nothing pushed"
+fi
+
 BUTLER=""
 # Found rather than demanded. Getting one .exe onto the PATH is a fight on
 # Windows that has nothing to do with shipping a game, so look where it
@@ -121,3 +158,4 @@ echo "  using $BUTLER"
 "$BUTLER" push build/windows "$ITCH_TARGET:windows"
 echo
 echo "Live. https://${ITCH_TARGET%%/*}.itch.io/${ITCH_TARGET##*/}"
+echo "Built from $(git rev-parse --short HEAD)."
