@@ -12,3 +12,11 @@ build/
 export.cfg
 export_credentials.cfg
 *.tmp
+
+# butler, if it is ever dropped in here. It is a 24MB binary that belongs on
+# your PATH, not in the history of a text-only repository.
+butler
+butler.exe
+# butler ships these beside it and will not run without them.
+7z.dll
+c7zip.dll

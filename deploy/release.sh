@@ -82,18 +82,42 @@ if [ "$PUSH" -eq 0 ]; then
     exit 0
 fi
 
-if ! command -v butler >/dev/null 2>&1; then
+BUTLER=""
+# Found rather than demanded. Getting one .exe onto the PATH is a fight on
+# Windows that has nothing to do with shipping a game, so look where it
+# actually ends up -- including right here, beside the project.
+CANDIDATES=(
+    "${BUTLER_PATH:-}"
+    "$(command -v butler 2>/dev/null || true)"
+    "./butler.exe"
+    "$HOME/butler/butler.exe"
+    "$HOME/Downloads/butler/butler.exe"
+    "$HOME/Desktop/butler/butler.exe"
+)
+for candidate in "${CANDIDATES[@]}"; do
+    if [ -n "$candidate" ] && [ -x "$candidate" ]; then
+        BUTLER="$candidate"
+        break
+    fi
+done
+
+if [ -z "$BUTLER" ]; then
     echo
-    echo "butler is not on PATH. Install it from https://itch.io/docs/butler/"
-    echo "and run 'butler login' once. Builds are in build/ meanwhile."
+    echo "butler not found. Download the WINDOWS build -- the macOS one will not"
+    echo "run here, and the download page offers both:"
+    echo "  https://broth.itch.zone/butler/windows-amd64/LATEST/archive/default"
+    echo "Unzip it to ~/butler/ (keep butler.exe and the .dll together), then:"
+    echo "  ~/butler/butler.exe login"
+    echo "Builds are in build/ meanwhile, ready to upload by hand."
     exit 1
 fi
 
 echo
 echo "=== publish ==="
+echo "  using $BUTLER"
 # butler takes a directory rather than a zip, and works out for itself what has
 # changed since last time.
-butler push build/web     "$ITCH_TARGET:html"
-butler push build/windows "$ITCH_TARGET:windows"
+"$BUTLER" push build/web     "$ITCH_TARGET:html"
+"$BUTLER" push build/windows "$ITCH_TARGET:windows"
 echo
 echo "Live. https://${ITCH_TARGET%%/*}.itch.io/${ITCH_TARGET##*/}"
