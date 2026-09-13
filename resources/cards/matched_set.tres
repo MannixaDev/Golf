@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/bag_synergy_effect.gd" id="2_synergy"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_tweak"]
+
+[sub_resource type="Resource" id="Effect_matched_set"]
+script = ExtResource("2_synergy")
+summary = "Longer and truer for every iron past the fifth."
+counts = 4
+pivot = 5
+max_steps = 3
+distance_per_step = 0.04
+dispersion_per_step = -0.05
+
+[sub_resource type="Resource" id="Upgrade_matched_set"]
+script = ExtResource("3_tweak")
+summary = "Costs nothing."
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"matched_set"
+display_name = "Matched Set"
+description = "Same shaft, same feel, all the way down."
+type = 1
+rarity = 1
+cost = 1
+effects = Array[CardEffect]([SubResource("Effect_matched_set")])
+upgraded = false
+upgraded_name = "Matched Set+"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_matched_set")])
+upgrade_cost_delta = -1
+upgrade_note = "Costs nothing."

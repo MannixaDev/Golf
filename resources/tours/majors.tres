@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TourSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/tour_spec.gd" id="1_tour"]
+
+[resource]
+script = ExtResource("1_tour")
+id = &"majors"
+display_name = "The Majors"
+blurb = "Everyone here has won something. Level par will not be close."
+rung = 3
+colour = Color(0.94, 0.55, 0.42, 1)
+field_skill_delta = -0.39
+cut_share = 0.46
+difficulty_delta = 1
+winnings_multiplier = 1.50

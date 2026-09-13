@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/bag_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_token"]
+script = ExtResource("2_effect")
+summary = "Your first technique each hole is free."
+free_techniques = 1
+
+[resource]
+script = ExtResource("1_relic")
+id = &"range_token"
+display_name = "Bucket of Range Tokens"
+description = "Brass, dented, and apparently endless."
+short_label = "TKN"
+colour = Color(0.44, 0.69, 0.86, 1)
+rarity = 1
+price = 95
+weight = 9.0
+effects = Array[RelicEffect]([SubResource("Effect_token")])

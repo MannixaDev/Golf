@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/scoring_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_sponsor"]
+script = ExtResource("2_effect")
+summary = "Birdies pay 30 more. Bogeys pay nothing extra."
+bonus_for_birdie = 30
+
+[resource]
+script = ExtResource("1_relic")
+id = &"sponsors_bonus"
+display_name = "Sponsor's Bonus"
+description = "A logo on the bag and a clause about birdies."
+short_label = "SPN"
+colour = Color(0.94, 0.78, 0.38, 1)
+rarity = 1
+price = 90
+weight = 9.0
+effects = Array[RelicEffect]([SubResource("Effect_sponsor")])

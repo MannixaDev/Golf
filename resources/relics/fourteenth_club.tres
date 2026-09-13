@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/bag_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_fourteenth"]
+script = ExtResource("2_effect")
+summary = "Hold one more club."
+hand_size_delta = 1
+
+[resource]
+script = ExtResource("1_relic")
+id = &"fourteenth_club"
+display_name = "The Fourteenth Slot"
+description = "There was always room. You had simply never filled it."
+short_label = "14"
+colour = Color(0.62, 0.79, 0.45, 1)
+rarity = 1
+price = 105
+weight = 8.0
+effects = Array[RelicEffect]([SubResource("Effect_fourteenth")])

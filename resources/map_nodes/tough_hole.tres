@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MapNodeSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/map/map_node_spec.gd" id="1_spec"]
+
+[resource]
+script = ExtResource("1_spec")
+id = &"tough_hole"
+display_name = "Tough Hole"
+short_label = "TOUGH"
+description = "Longer, meaner, and better defended. Worth more when it goes well."
+colour = Color(0.949, 0.694, 0.302, 1)
+shape = 0
+plays_hole = true
+difficulty = 2
+weight = 15.0
+min_layer = 2
+max_layer = -1
+max_per_run = 0
+avoid_repeat = false

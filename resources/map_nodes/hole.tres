@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MapNodeSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/map/map_node_spec.gd" id="1_spec"]
+
+[resource]
+script = ExtResource("1_spec")
+id = &"hole"
+display_name = "Hole"
+short_label = "HOLE"
+description = "An ordinary hole. Make your par and move on."
+colour = Color(0.494, 0.788, 0.416, 1)
+shape = 0
+plays_hole = true
+difficulty = 1
+weight = 30.0
+min_layer = 0
+max_layer = -1
+max_per_run = 0
+avoid_repeat = false

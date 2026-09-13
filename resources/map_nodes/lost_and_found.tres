@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MapNodeSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/map/map_node_spec.gd" id="1_spec"]
+
+[resource]
+script = ExtResource("1_spec")
+id = &"lost_and_found"
+display_name = "Lost and Found"
+short_label = "FOUND"
+description = "Somebody left something behind. Finders keepers."
+colour = Color(0.906, 0.851, 0.475, 1)
+shape = 4
+plays_hole = false
+difficulty = 1
+weight = 8.0
+min_layer = 1
+max_layer = -1
+max_per_run = 0
+avoid_repeat = true

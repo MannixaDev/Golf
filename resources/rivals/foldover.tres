@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="RivalSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/rival_spec.gd" id="1_rival"]
+
+[resource]
+script = ExtResource("1_rival")
+id = &"foldover"
+display_name = "Nick Foldover"
+short_name = "FOLDOVER"
+flavour = "Immaculate until it matters."
+colour = Color(0.435, 0.69, 0.859, 1)
+skill = 0.04
+steadiness = 0.62
+nerve = 0.4
+best_hole = -2
+worst_hole = 4

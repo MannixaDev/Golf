@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SurfaceType" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/surface_type.gd" id="1_surface"]
+
+[resource]
+script = ExtResource("1_surface")
+id = &"water"
+display_name = "Water"
+summary = "Wet. One penalty stroke."
+colour = Color(0.141, 0.325, 0.420, 1)
+outline_colour = Color(0.243, 0.494, 0.588, 1)
+style = 2
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+arc_multiplier = 1.0
+roll_multiplier = 1.0
+blocks_ground_shots = false
+roll_friction = 1.0
+catches_ball = true
+penalty_strokes = 1

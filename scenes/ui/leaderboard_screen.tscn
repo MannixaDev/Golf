@@ -1,0 +1,110 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/leaderboard_screen.gd" id="1_board"]
+[ext_resource type="Script" path="res://scripts/ui/turf_backdrop.gd" id="2_turf"]
+[ext_resource type="FontFile" path="res://resources/fonts/Lato-Bold.ttf" id="3_bold"]
+[ext_resource type="FontFile" path="res://resources/fonts/Lato-Light.ttf" id="4_light"]
+
+[sub_resource type="StyleBoxFlat" id="SBBoard"]
+content_margin_left = 30.0
+content_margin_top = 22.0
+content_margin_right = 30.0
+content_margin_bottom = 22.0
+bg_color = Color(0.055, 0.098, 0.07, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.561, 0.8, 0.42, 0.35)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 22
+shadow_offset = Vector2(0, 8)
+
+[node name="LeaderboardScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_board")
+
+[node name="Background" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_turf")
+turf_mix = 0.22
+vignette_depth = 200.0
+
+[node name="BoardTitle" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 54.0
+offset_right = 400.0
+offset_bottom = 98.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 1)
+theme_override_font_sizes/font_size = 34
+theme_override_fonts/font = ExtResource("3_bold")
+text = "AFTER 1"
+horizontal_alignment = 1
+
+[node name="BoardSubtitle" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 100.0
+offset_right = 400.0
+offset_bottom = 128.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.6)
+theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("4_light")
+text = ""
+horizontal_alignment = 1
+
+[node name="Board" type="PanelContainer" parent="."]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 152.0
+offset_right = 300.0
+offset_bottom = 152.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("SBBoard")
+
+[node name="BoardRows" type="VBoxContainer" parent="Board"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="ContinueButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -120.0
+offset_top = 546.0
+offset_right = 120.0
+offset_bottom = 598.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 17
+text = "Play on"

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/free_recovery_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_balls"]
+script = ExtResource("2_effect")
+summary = "The first ball you lose on a hole costs you nothing."
+uses_per_hole = 1
+
+[resource]
+script = ExtResource("1_relic")
+id = &"new_balls"
+display_name = "Sleeve of New Balls"
+description = "Still in the wrapper. Not for long."
+short_label = "BAL"
+colour = Color(0.85, 0.9, 0.82, 1)
+rarity = 1
+price = 70
+weight = 9.0
+effects = Array[RelicEffect]([SubResource("Effect_balls")])

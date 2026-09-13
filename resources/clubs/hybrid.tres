@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ClubSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/club_spec.gd" id="1_clubspec"]
+
+[resource]
+script = ExtResource("1_clubspec")
+id = &"hybrid"
+display_name = "Hybrid"
+family = 0
+short_label = "HY"
+sort_order = 1
+description = "Long, and far kinder than the iron it replaces."
+carry_yards_max = 195.0
+roll_ratio = 0.12
+distance_variance = 0.032
+dispersion_deg = 5.2
+arc_factor = 0.72
+is_ground_shot = false

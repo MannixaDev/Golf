@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ClubSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/club_spec.gd" id="1_clubspec"]
+
+[resource]
+script = ExtResource("1_clubspec")
+id = &"wood_3"
+display_name = "3 Wood"
+family = 0
+short_label = "3W"
+sort_order = 1
+description = "Nearly the distance, far less of the drama."
+carry_yards_max = 215.0
+roll_ratio = 0.13
+distance_variance = 0.038
+dispersion_deg = 5.6
+arc_factor = 0.6
+is_ground_shot = false

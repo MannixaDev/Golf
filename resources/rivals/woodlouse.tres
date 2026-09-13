@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="RivalSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/rival_spec.gd" id="1_rival"]
+
+[resource]
+script = ExtResource("1_rival")
+id = &"woodlouse"
+display_name = "Tiger Woodlouse"
+short_name = "WOODLOUSE"
+flavour = "Wins. Keeps winning. Is not sorry."
+colour = Color(0.941, 0.784, 0.376, 1)
+skill = -0.62
+steadiness = 0.45
+nerve = -0.06
+best_hole = -3
+worst_hole = 2

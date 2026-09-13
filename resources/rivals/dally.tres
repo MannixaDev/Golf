@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="RivalSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/rival_spec.gd" id="1_rival"]
+
+[resource]
+script = ExtResource("1_rival")
+id = &"dally"
+display_name = "Big John Dally"
+short_name = "DALLY"
+flavour = "Grip it, rip it, and find it later."
+colour = Color(0.878, 0.416, 0.329, 1)
+skill = 0.24
+steadiness = 1.15
+nerve = 0.0
+best_hole = -3
+worst_hole = 5

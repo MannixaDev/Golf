@@ -1,0 +1,166 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/fusion_screen.gd" id="1_fusion"]
+[ext_resource type="Script" path="res://scripts/ui/turf_backdrop.gd" id="2_turf"]
+[ext_resource type="Script" path="res://scripts/ui/club_portrait.gd" id="3_portrait"]
+[ext_resource type="FontFile" path="res://resources/fonts/Lato-Bold.ttf" id="4_bold"]
+[ext_resource type="FontFile" path="res://resources/fonts/Lato-Light.ttf" id="5_light"]
+
+[sub_resource type="StyleBoxFlat" id="SBFrame"]
+bg_color = Color(0.043, 0.078, 0.055, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.941, 0.784, 0.376, 0.55)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 26
+shadow_offset = Vector2(0, 10)
+
+[sub_resource type="StyleBoxFlat" id="SBClip"]
+bg_color = Color(0.043, 0.078, 0.055, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="FusionScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_fusion")
+
+[node name="Background" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_turf")
+turf_mix = 0.18
+vignette_depth = 240.0
+
+[node name="FusionHeadline" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -420.0
+offset_top = 52.0
+offset_right = 420.0
+offset_bottom = 96.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.941, 0.784, 0.376, 1)
+theme_override_constants/line_spacing = 0
+theme_override_font_sizes/font_size = 34
+theme_override_fonts/font = ExtResource("4_bold")
+text = "CONGRATULATIONS"
+horizontal_alignment = 1
+
+[node name="PortraitFrame" type="Panel" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 122.0
+offset_right = 300.0
+offset_bottom = 462.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBFrame")
+
+[node name="Clip" type="Panel" parent="PortraitFrame"]
+clip_children = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = -3.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBClip")
+
+[node name="Portrait" type="Control" parent="PortraitFrame/Clip"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_portrait")
+
+[node name="FusionClubName" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -420.0
+offset_top = 476.0
+offset_right = 420.0
+offset_bottom = 510.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_fonts/font = ExtResource("4_bold")
+text = "DRIRON"
+horizontal_alignment = 1
+
+[node name="FusionLineage" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -420.0
+offset_top = 512.0
+offset_right = 420.0
+offset_bottom = 538.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.6)
+theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("5_light")
+text = ""
+horizontal_alignment = 1
+
+[node name="CardSlot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -68.0
+offset_top = 552.0
+offset_right = 68.0
+offset_bottom = 740.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="FusionButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -140.0
+offset_top = 764.0
+offset_right = 140.0
+offset_bottom = 816.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 17
+text = "Put it in the bag"

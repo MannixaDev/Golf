@@ -1,0 +1,17 @@
+# nginx snippet for a Godot 4 web export served from /golf/.
+# Drop inside your existing server { } block and reload nginx.
+
+types {
+    application/wasm  wasm;
+}
+
+location /golf/ {
+    # Only needed if you exported with thread support ON.
+    add_header Cross-Origin-Opener-Policy  same-origin  always;
+    add_header Cross-Origin-Embedder-Policy require-corp always;
+
+    gzip on;
+    gzip_types application/wasm application/javascript application/octet-stream;
+
+    try_files $uri $uri/ =404;
+}

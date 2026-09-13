@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="RivalSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/rival_spec.gd" id="1_rival"]
+
+[resource]
+script = ExtResource("1_rival")
+id = &"club_pro"
+display_name = "The Club Pro"
+short_name = "CLUB PRO"
+flavour = "Runs the shop. Beats you anyway."
+colour = Color(0.561, 0.8, 0.42, 1)
+skill = 0.62
+steadiness = 0.65
+nerve = 0.0
+best_hole = -1
+worst_hole = 4

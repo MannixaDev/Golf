@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SurfaceType" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/surface_type.gd" id="1_surface"]
+
+[resource]
+script = ExtResource("1_surface")
+id = &"rough"
+display_name = "Rough"
+summary = "Grabby. Shorter and wilder."
+colour = Color(0.196, 0.353, 0.180, 1)
+outline_colour = Color(0.306, 0.506, 0.251, 1)
+style = 0
+distance_multiplier = 0.85
+dispersion_multiplier = 1.6
+arc_multiplier = 0.92
+roll_multiplier = 1.15
+blocks_ground_shots = false
+roll_friction = 2.2
+catches_ball = false
+penalty_strokes = 0

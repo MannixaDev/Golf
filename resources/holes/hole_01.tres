@@ -1,0 +1,95 @@
+[gd_resource type="Resource" script_class="HoleData" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/hole_data.gd" id="1_holedata"]
+[ext_resource type="Script" path="res://scripts/golf/hazard_region.gd" id="2_region"]
+
+[sub_resource type="Resource" id="Deep_north"]
+script = ExtResource("2_region")
+surface_id = &"deep_rough"
+shape = 0
+centre = Vector2(1010, 130)
+radius = 135.0
+
+[sub_resource type="Resource" id="Deep_south"]
+script = ExtResource("2_region")
+surface_id = &"deep_rough"
+shape = 0
+centre = Vector2(660, 790)
+radius = 125.0
+
+[sub_resource type="Resource" id="Wet_left"]
+script = ExtResource("2_region")
+surface_id = &"wet_patch"
+shape = 0
+centre = Vector2(430, 585)
+radius = 34.0
+
+[sub_resource type="Resource" id="Divot_mid"]
+script = ExtResource("2_region")
+surface_id = &"divot"
+shape = 0
+centre = Vector2(612, 505)
+radius = 19.0
+
+[sub_resource type="Resource" id="Divot_late"]
+script = ExtResource("2_region")
+surface_id = &"divot"
+shape = 0
+centre = Vector2(1006, 392)
+radius = 16.0
+
+[sub_resource type="Resource" id="Bunker_fairway_left"]
+script = ExtResource("2_region")
+surface_id = &"bunker"
+shape = 0
+centre = Vector2(690, 512)
+radius = 34.0
+
+[sub_resource type="Resource" id="Bunker_fairway_right"]
+script = ExtResource("2_region")
+surface_id = &"bunker"
+shape = 0
+centre = Vector2(982, 522)
+radius = 36.0
+
+[sub_resource type="Resource" id="Water_approach"]
+script = ExtResource("2_region")
+surface_id = &"water"
+shape = 1
+polygon = PackedVector2Array(1040, 470, 1122, 414, 1226, 424, 1266, 482, 1220, 552, 1108, 560, 1040, 524)
+
+[sub_resource type="Resource" id="Bunker_green_front"]
+script = ExtResource("2_region")
+surface_id = &"bunker"
+shape = 0
+centre = Vector2(1338, 446)
+radius = 44.0
+
+[sub_resource type="Resource" id="Bunker_green_back"]
+script = ExtResource("2_region")
+surface_id = &"bunker"
+shape = 0
+centre = Vector2(1372, 232)
+radius = 34.0
+
+[resource]
+script = ExtResource("1_holedata")
+hole_number = 1
+hole_name = "Opening Drive"
+par = 4
+strategy_hint = "A gentle dogleg right with sand in the driver's landing zone. The breeze pushes everything short and right, straight at the pond guarding the front of the green, so a Punch bores through it and a Fade holds the line."
+tee_position = Vector2(170, 640)
+pin_position = Vector2(1290, 320)
+green_center = Vector2(1300, 330)
+green_radius = 92.0
+fairway_polygon = PackedVector2Array(150, 585, 420, 545, 760, 470, 1030, 375, 1240, 300, 1265, 375, 1075, 455, 800, 560, 450, 640, 160, 690)
+bounds = Rect2(30, 30, 1540, 840)
+hazards = Array[HazardRegion]([SubResource("Deep_north"), SubResource("Deep_south"), SubResource("Wet_left"), SubResource("Divot_mid"), SubResource("Divot_late"), SubResource("Bunker_fairway_left"), SubResource("Bunker_fairway_right"), SubResource("Water_approach"), SubResource("Bunker_green_front"), SubResource("Bunker_green_back")])
+fairway_surface_id = &"fairway"
+green_surface_id = &"green"
+rough_surface_id = &"rough"
+tee_surface_id = &"tee"
+wind_direction = Vector2(-0.34, 0.94)
+wind_yards_per_100 = 5.5
+pixels_per_yard = 3.0
+cup_radius = 2.5

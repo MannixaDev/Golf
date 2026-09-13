@@ -1,0 +1,14 @@
+# Godot's import cache and generated data. Regenerated on first open.
+.godot/
+*.import.md5
+*.translation
+
+# Builds. 144MB of them at the last count, and every one is reproducible from
+# the source beside it -- the exe belongs on a Releases page, never in history.
+build/
+
+# Godot editor leftovers
+.import/
+export.cfg
+export_credentials.cfg
+*.tmp

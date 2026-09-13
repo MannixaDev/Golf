@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ClubSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/club_spec.gd" id="1_clubspec"]
+
+[resource]
+script = ExtResource("1_clubspec")
+id = &"driver"
+display_name = "Driver"
+family = 0
+short_label = "DR"
+sort_order = 0
+description = "Huge distance, huge spray. Full send."
+carry_yards_max = 250.0
+roll_ratio = 0.16
+distance_variance = 0.045
+dispersion_deg = 7.5
+arc_factor = 0.50
+is_ground_shot = false

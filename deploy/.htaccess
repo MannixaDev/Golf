@@ -1,0 +1,30 @@
+# Godot 4 web export on Namecheap shared hosting (cPanel + LiteSpeed).
+# Upload this into the same folder as index.html, named exactly ".htaccess".
+#
+# This is the THREADS-OFF version and deliberately sets no cross-origin
+# isolation headers. See threads-on.htaccess if you ever switch that on.
+
+# --- MIME types -----------------------------------------------------------
+# A browser will refuse to compile WebAssembly served as the wrong type.
+AddType application/wasm .wasm
+AddType application/octet-stream .pck
+
+# --- Compression ----------------------------------------------------------
+# This is the setting that matters most for load time. The engine binary is
+# tens of megabytes raw and compresses to roughly a quarter of that. Servers
+# often compress html/css/js by default but not wasm, so say so explicitly.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE application/wasm
+  AddOutputFilterByType DEFLATE application/octet-stream
+  AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE text/html
+</IfModule>
+
+# --- Caching --------------------------------------------------------------
+# The engine binary only changes when you re-export, so let repeat visitors
+# skip the download entirely.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType application/wasm "access plus 1 month"
+  ExpiresByType application/octet-stream "access plus 1 month"
+</IfModule>

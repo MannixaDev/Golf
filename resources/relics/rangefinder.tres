@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/conditional_profile_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_range"]
+script = ExtResource("2_effect")
+summary = "Every stroke is a little more accurate."
+condition = 0
+dispersion_multiplier = 0.85
+
+[resource]
+script = ExtResource("1_relic")
+id = &"rangefinder"
+display_name = "Rangefinder"
+description = "You no longer guess. You measure."
+short_label = "RNG"
+colour = Color(0.45, 0.72, 0.87, 1)
+rarity = 0
+price = 65
+weight = 12.0
+effects = Array[RelicEffect]([SubResource("Effect_range")])

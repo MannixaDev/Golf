@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="2_tweak"]
+
+[sub_resource type="Resource" id="Effect_clean_lie"]
+script = ExtResource("2_tweak")
+summary = "Largely ignores whatever the ball is sitting on."
+lie_resistance = 0.8
+
+[sub_resource type="Resource" id="Upgrade_clean_lie"]
+script = ExtResource("2_tweak")
+summary = "Ignores the lie completely."
+lie_resistance = 1.0
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"clean_lie"
+display_name = "Preferred Lies"
+description = "Winter rules. Everyone does it."
+type = 1
+rarity = 2
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Effect_clean_lie")])
+upgraded = false
+upgraded_name = "Winter Rules"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_clean_lie")])
+upgrade_cost_delta = 0
+upgrade_note = "Ignores the lie completely."

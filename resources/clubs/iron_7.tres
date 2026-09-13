@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ClubSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/club_spec.gd" id="1_clubspec"]
+
+[resource]
+script = ExtResource("1_clubspec")
+id = &"iron_7"
+display_name = "7 Iron"
+family = 1
+short_label = "7i"
+sort_order = 2
+description = "The club everybody is comfortable with."
+carry_yards_max = 152.0
+roll_ratio = 0.07
+distance_variance = 0.028
+dispersion_deg = 4.4
+arc_factor = 0.88
+is_ground_shot = false

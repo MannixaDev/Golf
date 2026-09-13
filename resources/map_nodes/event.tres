@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MapNodeSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/map/map_node_spec.gd" id="1_spec"]
+
+[resource]
+script = ExtResource("1_spec")
+id = &"event"
+display_name = "Something Happens"
+short_label = "EVENT"
+description = "The course is not always fair, and rarely sensible."
+colour = Color(0.851, 0.788, 0.400, 1)
+shape = 3
+plays_hole = false
+difficulty = 1
+weight = 13.0
+min_layer = 1
+max_layer = -1
+max_per_run = 0
+avoid_repeat = false

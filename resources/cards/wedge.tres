@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Resource" path="res://resources/clubs/wedge.tres" id="2_club"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_upgrade"]
+
+[sub_resource type="Resource" id="Upgrade_wedge"]
+script = ExtResource("3_upgrade")
+summary = "Higher, softer, and far more accurate."
+arc_multiplier = 1.2
+dispersion_multiplier = 0.7
+roll_multiplier = 0.5
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"wedge"
+display_name = "Wedge"
+description = "Up, over, and down with barely a bounce."
+type = 0
+rarity = 0
+cost = 1
+club = ExtResource("2_club")
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+upgraded = false
+upgraded_name = "Lob Wedge"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_wedge")])
+upgrade_cost_delta = 0
+upgrade_note = "Higher, softer, and far more accurate."

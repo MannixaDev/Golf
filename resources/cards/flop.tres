@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="2_tweak"]
+
+[sub_resource type="Resource" id="Effect_flop"]
+script = ExtResource("2_tweak")
+summary = "Barely goes anywhere. Very high, stops dead."
+arc_multiplier = 2.2
+dispersion_multiplier = 0.8
+distance_multiplier = 0.45
+roll_multiplier = 0.05
+
+[sub_resource type="Resource" id="Upgrade_flop"]
+script = ExtResource("2_tweak")
+summary = "Far more accurate with it."
+dispersion_multiplier = 0.55
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"flop"
+display_name = "Flop Shot"
+description = "All wrist, all nerve."
+type = 1
+rarity = 2
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Effect_flop")])
+upgraded = false
+upgraded_name = "Perfect Flop"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_flop")])
+upgrade_cost_delta = 0
+upgrade_note = "Far more accurate with it."

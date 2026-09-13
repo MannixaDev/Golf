@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MapNodeSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/map/map_node_spec.gd" id="1_spec"]
+
+[resource]
+script = ExtResource("1_spec")
+id = &"clubhouse"
+display_name = "Clubhouse"
+short_label = "CLUB"
+description = "A quiet word with yourself about that one club. Remove a card."
+colour = Color(0.678, 0.596, 0.851, 1)
+shape = 2
+plays_hole = false
+difficulty = 1
+weight = 8.0
+min_layer = 1
+max_layer = -1
+max_per_run = 0
+avoid_repeat = true

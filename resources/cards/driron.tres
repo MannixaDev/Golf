@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Resource" path="res://resources/clubs/driron.tres" id="2_club"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_tweak"]
+
+[sub_resource type="Resource" id="Driron_forgiving"]
+script = ExtResource("3_tweak")
+summary = "Huge sweet spot."
+sweet_spot_multiplier = 1.40
+
+[sub_resource type="Resource" id="Driron_anywhere"]
+script = ExtResource("3_tweak")
+summary = "Plays off anything."
+lie_resistance = 0.45
+
+[sub_resource type="Resource" id="Driron_shape"]
+script = ExtResource("3_tweak")
+summary = "Bend it either way."
+shape_choice_deg = 7.0
+
+[sub_resource type="Resource" id="Driron_upgrade"]
+script = ExtResource("3_tweak")
+summary = "Longer, straighter still."
+dispersion_multiplier = 0.80
+distance_multiplier = 1.06
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"driron"
+display_name = "Driron"
+description = "Two clubs, one shaft, no regrets."
+type = 0
+rarity = 4
+cost = 1
+club = ExtResource("2_club")
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Driron_forgiving"), SubResource("Driron_anywhere"), SubResource("Driron_shape")])
+upgraded = false
+upgraded_name = "Driron Mk II"
+upgrade_effects = Array[CardEffect]([SubResource("Driron_upgrade")])
+upgrade_cost_delta = 0
+upgrade_note = "Longer, straighter still."

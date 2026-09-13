@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="2_tweak"]
+
+[sub_resource type="Resource" id="Effect_caddie_read"]
+script = ExtResource("2_tweak")
+summary = "Much more accurate."
+dispersion_multiplier = 0.45
+
+[sub_resource type="Resource" id="Upgrade_caddie_read"]
+script = ExtResource("2_tweak")
+summary = "More accurate still."
+dispersion_multiplier = 0.7
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"caddie_read"
+display_name = "Caddie's Read"
+description = "She has walked this hole a thousand times."
+type = 1
+rarity = 1
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Effect_caddie_read")])
+upgraded = false
+upgraded_name = "Perfect Read"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_caddie_read")])
+upgrade_cost_delta = 0
+upgrade_note = "More accurate still."

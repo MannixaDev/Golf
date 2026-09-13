@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="RivalSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/rival_spec.gd" id="1_rival"]
+
+[resource]
+script = ExtResource("1_rival")
+id = &"singalong"
+display_name = "Vijay Singalong"
+short_name = "SINGALONG"
+flavour = "On the range since four this morning."
+colour = Color(0.902, 0.918, 0.871, 1)
+skill = -0.14
+steadiness = 0.5
+nerve = 0.0
+best_hole = -2
+worst_hole = 2

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_repair"]
+script = ExtResource("2_outcome")
+label = "Pay for a repair"
+result_text = "The pro shop works a small miracle with a vice and some epoxy."
+requires_winnings = 40
+winnings_delta = -40
+
+[sub_resource type="Resource" id="Out_play_on"]
+script = ExtResource("2_outcome")
+label = "Play on without it"
+result_text = "You leave the pieces in the bin by the tenth tee."
+removes_random_card = true
+
+[resource]
+script = ExtResource("1_spec")
+id = &"broken_shaft"
+title = "That Did Not Sound Right"
+body = "Something went at the bottom of your backswing, and it was not the turf. One of your clubs is now two of your clubs."
+colour = Color(0.88, 0.45, 0.38, 1)
+weight = 9.0
+min_holes_played = 2
+outcomes = Array[EventOutcome]([SubResource("Out_repair"), SubResource("Out_play_on")])

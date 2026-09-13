@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://scripts/rules/effects/roving_hazards_rule.gd" id="2_rule"]
+
+[sub_resource type="Resource" id="Rule_rove"]
+script = ExtResource("2_rule")
+summary = "The hazards move between strokes."
+drift = 52.0
+
+[resource]
+script = ExtResource("1_set")
+id = &"the_groundskeeper"
+display_name = "The Groundskeeper"
+description = "He has strong opinions about where the bunkers ought to be."
+colour = Color(0.62, 0.8, 0.45, 1)
+min_difficulty = 4
+weight = 12.0
+rules = Array[CourseRule]([SubResource("Rule_rove")])
+force_par = 0
+force_length_yards = 0.0
+extra_greenside_hazards = 0
+fairway_scale = 1.0

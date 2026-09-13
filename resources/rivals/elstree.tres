@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="RivalSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/rival_spec.gd" id="1_rival"]
+
+[resource]
+script = ExtResource("1_rival")
+id = &"elstree"
+display_name = "Ernie Elstree"
+short_name = "ELSTREE"
+flavour = "Never once looked like he was trying."
+colour = Color(0.902, 0.918, 0.871, 1)
+skill = -0.08
+steadiness = 0.6
+nerve = 0.02
+best_hole = -2
+worst_hole = 3

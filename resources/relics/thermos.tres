@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/bag_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_thermos"]
+script = ExtResource("2_effect")
+summary = "One more focus each stroke, one fewer club in hand."
+focus_delta = 1
+hand_size_delta = -1
+
+[resource]
+script = ExtResource("1_relic")
+id = &"thermos"
+display_name = "Flask of Something"
+description = "Steadies the hands. Narrows the thinking."
+short_label = "FLK"
+colour = Color(0.85, 0.62, 0.35, 1)
+rarity = 0
+price = 60
+weight = 11.0
+effects = Array[RelicEffect]([SubResource("Effect_thermos")])

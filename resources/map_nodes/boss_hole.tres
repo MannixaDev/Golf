@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MapNodeSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/map/map_node_spec.gd" id="1_spec"]
+
+[resource]
+script = ExtResource("1_spec")
+id = &"boss_hole"
+display_name = "Signature Hole"
+short_label = "FINISH"
+description = "The hole this course is famous for. It has rules of its own."
+colour = Color(0.792, 0.290, 0.451, 1)
+shape = 5
+plays_hole = true
+difficulty = 4
+weight = 0.0
+min_layer = 0
+max_layer = -1
+max_per_run = 0
+avoid_repeat = true

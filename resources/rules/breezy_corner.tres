@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://scripts/rules/effects/shifting_wind_rule.gd" id="2_rule"]
+
+[sub_resource type="Resource" id="Rule_breeze"]
+script = ExtResource("2_rule")
+summary = "The wind turns between strokes."
+max_turn_degrees = 110.0
+minimum_strength = 5.0
+maximum_strength = 9.0
+
+[resource]
+script = ExtResource("1_set")
+id = &"breezy_corner"
+display_name = "The Breezy Corner"
+description = "Nothing here holds its line for long."
+colour = Color(0.45, 0.72, 0.87, 1)
+min_difficulty = 3
+weight = 12.0
+rules = Array[CourseRule]([SubResource("Rule_breeze")])
+force_par = 0
+force_length_yards = 0.0
+extra_greenside_hazards = 0
+fairway_scale = 1.0

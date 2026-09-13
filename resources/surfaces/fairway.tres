@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SurfaceType" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/surface_type.gd" id="1_surface"]
+
+[resource]
+script = ExtResource("1_surface")
+id = &"fairway"
+display_name = "Fairway"
+summary = "A clean lie."
+colour = Color(0.455, 0.663, 0.310, 1)
+outline_colour = Color(1, 1, 1, 0.1)
+style = 0
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+arc_multiplier = 1.0
+roll_multiplier = 1.0
+blocks_ground_shots = false
+roll_friction = 1.0
+catches_ball = false
+penalty_strokes = 0

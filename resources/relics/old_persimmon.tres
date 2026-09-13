@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/conditional_profile_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_persimmon"]
+script = ExtResource("2_effect")
+summary = "Every stroke carries further, and sprays a little more."
+condition = 0
+distance_multiplier = 1.12
+dispersion_multiplier = 1.15
+
+[resource]
+script = ExtResource("1_relic")
+id = &"old_persimmon"
+display_name = "Persimmon Driver"
+description = "Heavy, beautiful, and entirely unforgiving."
+short_label = "PER"
+colour = Color(0.78, 0.55, 0.35, 1)
+rarity = 2
+price = 90
+weight = 5.0
+effects = Array[RelicEffect]([SubResource("Effect_persimmon")])

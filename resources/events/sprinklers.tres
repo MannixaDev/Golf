@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_0"]
+script = ExtResource("2_outcome")
+label = "Run for it"
+result_text = "You make it. Your bag does not. Something in there is now considerably lighter."
+removes_random_card = true
+
+[sub_resource type="Resource" id="Out_1"]
+script = ExtResource("2_outcome")
+label = "Stand there and take it"
+result_text = "Soaked to the skin, and weirdly calm about everything now."
+winnings_delta = -20
+strokes_delta = -1
+
+[resource]
+script = ExtResource("1_spec")
+id = &"sprinklers"
+title = "The Sprinklers Come On"
+body = "All of them. At once. At two in the afternoon, across the fairway you are standing in the middle of."
+colour = Color(0.46, 0.74, 0.85, 1)
+weight = 10.0
+min_holes_played = 1
+outcomes = Array[EventOutcome]([SubResource("Out_0"), SubResource("Out_1")])

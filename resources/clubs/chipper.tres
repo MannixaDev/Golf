@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ClubSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/club_spec.gd" id="1_clubspec"]
+
+[resource]
+script = ExtResource("1_clubspec")
+id = &"chipper"
+display_name = "Chipper"
+family = 2
+short_label = "CH"
+sort_order = 4
+description = "Barely leaves the ground and runs like a putt."
+carry_yards_max = 42.0
+roll_ratio = 0.85
+distance_variance = 0.022
+dispersion_deg = 2.2
+arc_factor = 0.3
+is_ground_shot = false

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ClubSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/club_spec.gd" id="1_clubspec"]
+
+[resource]
+script = ExtResource("1_clubspec")
+id = &"wedge"
+display_name = "Wedge"
+family = 2
+short_label = "PW"
+sort_order = 3
+description = "High and soft. Barely rolls."
+carry_yards_max = 95.0
+roll_ratio = 0.02
+distance_variance = 0.028
+dispersion_deg = 3.5
+arc_factor = 1.20
+is_ground_shot = false

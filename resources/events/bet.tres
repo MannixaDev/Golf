@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_0"]
+script = ExtResource("2_outcome")
+label = "Take the bet  ·  60"
+result_text = "You win it on the last green. He pays up in coins, slowly, to make a point."
+winnings_delta = 95
+requires_winnings = 60
+
+[sub_resource type="Resource" id="Out_1"]
+script = ExtResource("2_outcome")
+label = "Double it, and give him a shot  ·  60"
+result_text = "He uses the shot. You win anyway, on the last, and you have aged noticeably."
+winnings_delta = 185
+strokes_delta = 2
+requires_winnings = 60
+
+[sub_resource type="Resource" id="Out_2"]
+script = ExtResource("2_outcome")
+label = "Decline politely"
+result_text = "He tells the clubhouse you bottled it. You play the rest angry, and better."
+upgrades_random_card = true
+
+[resource]
+script = ExtResource("1_spec")
+id = &"bet"
+title = "A Gentleman's Wager"
+body = "He has a handicap of eighteen, a swing like a gate in a gale, and the confidence of a man who has done this many times before."
+colour = Color(0.9, 0.73, 0.36, 1)
+weight = 10.0
+min_holes_played = 2
+outcomes = Array[EventOutcome]([SubResource("Out_0"), SubResource("Out_1"), SubResource("Out_2")])

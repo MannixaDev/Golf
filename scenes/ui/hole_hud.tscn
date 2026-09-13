@@ -1,0 +1,531 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/hole_hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://scripts/ui/power_meter.gd" id="2_meter"]
+[ext_resource type="Script" path="res://scripts/ui/hand_view.gd" id="3_hand"]
+[ext_resource type="Script" path="res://scripts/ui/wind_arrow.gd" id="4_wind"]
+[ext_resource type="FontFile" path="res://resources/fonts/Lato-Bold.ttf" id="5_bold"]
+[ext_resource type="FontFile" path="res://resources/fonts/Lato-Semibold.ttf" id="6_semi"]
+[ext_resource type="FontFile" path="res://resources/fonts/Lato-Light.ttf" id="7_light"]
+
+[sub_resource type="StyleBoxFlat" id="SBPanel"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 13.0
+bg_color = Color(0.055, 0.094, 0.071, 0.85)
+border_width_left = 3
+border_color = Color(0.522, 0.706, 0.341, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 3
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 10
+shadow_offset = Vector2(2, 4)
+
+[sub_resource type="StyleBoxFlat" id="SBResult"]
+content_margin_left = 38.0
+content_margin_top = 30.0
+content_margin_right = 38.0
+content_margin_bottom = 30.0
+bg_color = Color(0.055, 0.098, 0.07, 0.97)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.561, 0.8, 0.42, 0.65)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 24
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="SBRules"]
+content_margin_left = 26.0
+content_margin_top = 11.0
+content_margin_right = 26.0
+content_margin_bottom = 13.0
+bg_color = Color(0.075, 0.055, 0.086, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.85, 0.42, 0.6, 0.4)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 12
+shadow_offset = Vector2(0, 4)
+
+[node name="HoleHUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_hud")
+
+[node name="ScorePanel" type="PanelContainer" parent="."]
+layout_mode = 1
+offset_left = 20.0
+offset_top = 16.0
+offset_right = 20.0
+offset_bottom = 16.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBPanel")
+
+[node name="Column" type="VBoxContainer" parent="ScorePanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 1
+
+[node name="HoleLabel" type="Label" parent="ScorePanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(228, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.55)
+theme_override_font_sizes/font_size = 13
+theme_override_fonts/font = ExtResource("6_semi")
+text = "HOLE 1"
+
+[node name="DistanceRow" type="HBoxContainer" parent="ScorePanel/Column"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="DistanceLabel" type="Label" parent="ScorePanel/Column/DistanceRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 1)
+theme_override_font_sizes/font_size = 40
+theme_override_fonts/font = ExtResource("7_light")
+text = "0"
+vertical_alignment = 2
+
+[node name="DistanceCaption" type="Label" parent="ScorePanel/Column/DistanceRow"]
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.45)
+theme_override_font_sizes/font_size = 13
+theme_override_fonts/font = ExtResource("6_semi")
+text = "YARDS TO PIN"
+vertical_alignment = 2
+
+[node name="Divider" type="ColorRect" parent="ScorePanel/Column"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0.09)
+
+[node name="ScoreRow" type="HBoxContainer" parent="ScorePanel/Column"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="ParLabel" type="Label" parent="ScorePanel/Column/ScoreRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.561, 0.8, 0.42, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("6_semi")
+text = "PAR 4"
+
+[node name="ScoreSep" type="Label" parent="ScorePanel/Column/ScoreRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.2)
+theme_override_font_sizes/font_size = 15
+text = "|"
+
+[node name="StrokesLabel" type="Label" parent="ScorePanel/Column/ScoreRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.941, 0.784, 0.376, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("6_semi")
+text = "STROKES 0"
+
+[node name="LiePanel" type="PanelContainer" parent="."]
+layout_mode = 1
+offset_left = 20.0
+offset_top = 136.0
+offset_right = 20.0
+offset_bottom = 136.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBPanel")
+
+[node name="Column" type="VBoxContainer" parent="LiePanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+
+[node name="LieLabel" type="Label" parent="LiePanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(228, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("6_semi")
+text = "LIE  FAIRWAY"
+
+[node name="LieSummary" type="Label" parent="LiePanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(228, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.55)
+theme_override_font_sizes/font_size = 13
+text = "A clean lie."
+autowrap_mode = 2
+
+[node name="SlopeRow" type="HBoxContainer" parent="LiePanel/Column"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 7
+
+[node name="SlopeArrow" type="Control" parent="LiePanel/Column/SlopeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("4_wind")
+
+[node name="SlopeLabel" type="Label" parent="LiePanel/Column/SlopeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_colors/font_color = Color(0.561, 0.8, 0.42, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_fonts/font = ExtResource("6_semi")
+text = "Dead flat."
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="WindRow" type="HBoxContainer" parent="LiePanel/Column"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 7
+
+[node name="WindArrow" type="Control" parent="LiePanel/Column/WindRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("4_wind")
+
+[node name="WindLabel" type="Label" parent="LiePanel/Column/WindRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_colors/font_color = Color(0.435, 0.69, 0.859, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_fonts/font = ExtResource("6_semi")
+text = "Calm"
+vertical_alignment = 1
+
+[node name="HelpLabel" type="Label" parent="."]
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -320.0
+offset_top = 20.0
+offset_right = -22.0
+offset_bottom = 20.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.34)
+theme_override_constants/line_spacing = 3
+theme_override_font_sizes/font_size = 12
+text = "1-5 or click  ·  choose a shot
+hold LMB  ·  release to set power
+click again  ·  time it at the left edge
+wheel  ·  look up the hole    drag MMB  ·  pan
+left / right  ·  fine aim    RMB  ·  put the card back"
+horizontal_alignment = 2
+
+[node name="BagPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = -20.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBPanel")
+
+[node name="Column" type="VBoxContainer" parent="BagPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="FocusLabel" type="Label" parent="BagPanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.941, 0.784, 0.376, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("5_bold")
+text = "FOCUS  3 / 3"
+
+[node name="PileRow" type="HBoxContainer" parent="BagPanel/Column"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="DrawLabel" type="Label" parent="BagPanel/Column/PileRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.561, 0.8, 0.42, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_fonts/font = ExtResource("6_semi")
+text = "BAG  14"
+
+[node name="DiscardLabel" type="Label" parent="BagPanel/Column/PileRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.4)
+theme_override_font_sizes/font_size = 13
+theme_override_fonts/font = ExtResource("6_semi")
+text = "PLAYED  0"
+
+[node name="RelicRow" type="HBoxContainer" parent="BagPanel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="RulesPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 20.0
+offset_right = 300.0
+offset_bottom = 20.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBRules")
+
+[node name="Column" type="VBoxContainer" parent="RulesPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+
+[node name="RulesTitle" type="Label" parent="RulesPanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(548, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.42, 0.6, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("5_bold")
+text = "LOCAL RULES"
+horizontal_alignment = 1
+
+[node name="RulesBody" type="Label" parent="RulesPanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(548, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.66)
+theme_override_font_sizes/font_size = 13
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="PowerPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -230.0
+offset_top = -258.0
+offset_right = 230.0
+offset_bottom = -258.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBPanel")
+
+[node name="Column" type="VBoxContainer" parent="PowerPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="PowerTitle" type="Label" parent="PowerPanel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.45)
+theme_override_font_sizes/font_size = 12
+theme_override_fonts/font = ExtResource("6_semi")
+text = "SWING POWER"
+horizontal_alignment = 1
+
+[node name="PowerMeter" type="Control" parent="PowerPanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 20)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_meter")
+
+[node name="ApexLabel" type="Label" parent="PowerPanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 17)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.5)
+theme_override_font_sizes/font_size = 13
+theme_override_fonts/font = ExtResource("6_semi")
+text = ""
+horizontal_alignment = 1
+
+[node name="ShapeRow" type="HBoxContainer" parent="PowerPanel/Column"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="ShapeCaption" type="Label" parent="PowerPanel/Column/ShapeRow"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.45)
+theme_override_font_sizes/font_size = 12
+theme_override_fonts/font = ExtResource("6_semi")
+text = "SHAPE"
+vertical_alignment = 1
+
+[node name="DrawButton" type="Button" parent="PowerPanel/Column/ShapeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(74, 26)
+layout_mode = 2
+toggle_mode = true
+theme_override_font_sizes/font_size = 12
+text = "Draw"
+
+[node name="StraightButton" type="Button" parent="PowerPanel/Column/ShapeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(74, 26)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+theme_override_font_sizes/font_size = 12
+text = "Straight"
+
+[node name="FadeButton" type="Button" parent="PowerPanel/Column/ShapeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(74, 26)
+layout_mode = 2
+toggle_mode = true
+theme_override_font_sizes/font_size = 12
+text = "Fade"
+
+[node name="PrepLabel" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -318.0
+offset_right = 400.0
+offset_bottom = -292.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.435, 0.69, 0.859, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.75)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("6_semi")
+text = ""
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -440.0
+offset_top = 116.0
+offset_right = 440.0
+offset_bottom = 148.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.949, 0.788, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.7)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 19
+theme_override_fonts/font = ExtResource("6_semi")
+text = ""
+horizontal_alignment = 1
+
+[node name="HandView" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -236.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+script = ExtResource("3_hand")
+
+[node name="ResultPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 100
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -124.0
+offset_right = 240.0
+offset_bottom = 124.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("SBResult")
+
+[node name="Column" type="VBoxContainer" parent="ResultPanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="ResultTitle" type="Label" parent="ResultPanel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.941, 0.784, 0.376, 1)
+theme_override_font_sizes/font_size = 44
+theme_override_fonts/font = ExtResource("5_bold")
+text = "PAR"
+horizontal_alignment = 1
+
+[node name="ResultDetail" type="Label" parent="ResultPanel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.66)
+theme_override_font_sizes/font_size = 15
+text = "Holed out in 4.  Par 4."
+horizontal_alignment = 1
+
+[node name="RestartButton" type="Button" parent="ResultPanel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Play Again  (R)"

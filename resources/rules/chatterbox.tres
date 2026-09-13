@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://scripts/rules/effects/distraction_rule.gd" id="2_rule"]
+
+[sub_resource type="Resource" id="Rule_chatter"]
+script = ExtResource("2_rule")
+summary = "Someone keeps putting you off mid-swing."
+chance = 0.4
+dispersion_multiplier = 1.8
+
+[resource]
+script = ExtResource("1_set")
+id = &"chatterbox"
+display_name = "The Members' Guest"
+description = "He has been told. He does not care."
+colour = Color(0.94, 0.62, 0.4, 1)
+min_difficulty = 3
+weight = 12.0
+rules = Array[CourseRule]([SubResource("Rule_chatter")])
+force_par = 0
+force_length_yards = 0.0
+extra_greenside_hazards = 0
+fairway_scale = 1.0

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ClubSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/club_spec.gd" id="1_clubspec"]
+
+[resource]
+script = ExtResource("1_clubspec")
+id = &"driron"
+display_name = "Driron"
+family = 4
+short_label = "DI"
+sort_order = 0
+description = "A driver's length off an iron's face. Should not work."
+carry_yards_max = 236.0
+roll_ratio = 0.13
+distance_variance = 0.020
+dispersion_deg = 3.6
+arc_factor = 0.62
+is_ground_shot = false

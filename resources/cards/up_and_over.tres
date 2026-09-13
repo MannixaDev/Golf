@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_up_and_over"]
+script = ExtResource("2_effect")
+summary = "Climbs steeply. Shorter, and lands soft."
+arc_multiplier = 1.9
+distance_multiplier = 0.78
+roll_multiplier = 0.3
+
+[sub_resource type="Resource" id="Upgrade_up_and_over"]
+script = ExtResource("2_effect")
+summary = "Climbs steeply and keeps its distance."
+arc_multiplier = 1.9
+distance_multiplier = 0.9
+roll_multiplier = 0.3
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"up_and_over"
+display_name = "Up And Over"
+description = "Only one way out of here."
+type = 1
+rarity = 1
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Effect_up_and_over")])
+upgraded = false
+upgraded_name = "Over The Top"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_up_and_over")])
+upgrade_cost_delta = 0
+upgrade_note = "Climbs steeply and keeps its distance."

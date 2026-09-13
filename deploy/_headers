@@ -1,0 +1,7 @@
+# Netlify / Cloudflare Pages.
+# Put this file, named "_headers", at the ROOT of what you publish.
+# Only needed if you exported with thread support ON.
+
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp

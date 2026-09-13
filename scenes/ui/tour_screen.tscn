@@ -1,0 +1,129 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/tour_screen.gd" id="1_tour"]
+[ext_resource type="Script" path="res://scripts/ui/turf_backdrop.gd" id="2_turf"]
+[ext_resource type="FontFile" path="res://resources/fonts/Lato-Bold.ttf" id="3_bold"]
+[ext_resource type="FontFile" path="res://resources/fonts/Lato-Light.ttf" id="4_light"]
+
+[sub_resource type="StyleBoxFlat" id="SBList"]
+content_margin_left = 22.0
+content_margin_top = 18.0
+content_margin_right = 22.0
+content_margin_bottom = 18.0
+bg_color = Color(0.055, 0.098, 0.07, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.561, 0.8, 0.42, 0.3)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 24
+shadow_offset = Vector2(0, 8)
+
+[node name="TourScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_tour")
+
+[node name="Background" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_turf")
+turf_mix = 0.2
+vignette_depth = 220.0
+
+[node name="Heading" type="Label" parent="."]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -420.0
+offset_top = 46.0
+offset_right = 420.0
+offset_bottom = 90.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 1)
+theme_override_font_sizes/font_size = 34
+theme_override_fonts/font = ExtResource("3_bold")
+text = "THE LADDER"
+horizontal_alignment = 1
+
+[node name="List" type="PanelContainer" parent="."]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -380.0
+offset_top = 112.0
+offset_right = 380.0
+offset_bottom = 112.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("SBList")
+
+[node name="TourRows" type="VBoxContainer" parent="List"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TourBlurb" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -420.0
+offset_top = 606.0
+offset_right = 420.0
+offset_bottom = 646.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.66)
+theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("4_light")
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 676.0
+offset_right = 300.0
+offset_bottom = 728.0
+grow_horizontal = 2
+alignment = 1
+theme_override_constants/separation = 14
+
+[node name="NineButton" type="Button" parent="Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "Play nine"
+
+[node name="EighteenButton" type="Button" parent="Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "Play eighteen"
+
+[node name="BackButton" type="Button" parent="Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "Back"

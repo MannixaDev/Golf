@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_wait"]
+script = ExtResource("2_outcome")
+label = "Wait politely"
+result_text = "You wait. And wait. Your rhythm goes somewhere else entirely."
+strokes_delta = 1
+
+[sub_resource type="Resource" id="Out_through"]
+script = ExtResource("2_outcome")
+label = "Ask to play through  ·  20"
+result_text = "They wave you on, unimpressed. You buy them a drink afterwards to smooth it over."
+winnings_delta = -20
+
+[sub_resource type="Resource" id="Out_hit"]
+script = ExtResource("2_outcome")
+label = "Hit into them"
+result_text = "Astonishingly, nobody is injured. Less astonishingly, it costs you."
+strokes_delta = -1
+winnings_delta = -30
+
+[resource]
+script = ExtResource("1_spec")
+id = &"slow_players"
+title = "Slow Players Ahead"
+body = "A fourball is taking practice swings on every shot. One of them has a laser rangefinder and is using it to measure a two foot putt."
+colour = Color(0.85, 0.78, 0.4, 1)
+weight = 12.0
+min_holes_played = 0
+outcomes = Array[EventOutcome]([SubResource("Out_wait"), SubResource("Out_through"), SubResource("Out_hit")])

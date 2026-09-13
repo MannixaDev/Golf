@@ -1,0 +1,21 @@
+# ONLY if you re-export with thread support ON.
+# Adds cross-origin isolation on top of everything in .htaccess.
+#
+# Be aware this also blocks third-party resources on the same page: Google
+# Fonts, analytics, embedded video and so on will stop loading. That is why the
+# threads-off build is the better default for a page on your own site.
+
+AddType application/wasm .wasm
+AddType application/octet-stream .pck
+
+<IfModule mod_headers.c>
+  Header set Cross-Origin-Opener-Policy "same-origin"
+  Header set Cross-Origin-Embedder-Policy "require-corp"
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE application/wasm
+  AddOutputFilterByType DEFLATE application/octet-stream
+  AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE text/html
+</IfModule>

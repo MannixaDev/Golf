@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/conditional_profile_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_caddie"]
+script = ExtResource("2_effect")
+summary = "From a bad lie, the stroke is much more accurate and shrugs off half the ground."
+condition = 2
+dispersion_multiplier = 0.6
+lie_resistance = 0.5
+
+[resource]
+script = ExtResource("1_relic")
+id = &"angry_caddie"
+display_name = "Angry Caddie"
+description = "He takes your bad lies more personally than you do."
+short_label = "CAD"
+colour = Color(0.94, 0.55, 0.38, 1)
+rarity = 1
+price = 80
+weight = 9.0
+effects = Array[RelicEffect]([SubResource("Effect_caddie")])

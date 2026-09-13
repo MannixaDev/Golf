@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="RivalSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/rival_spec.gd" id="1_rival"]
+
+[resource]
+script = ExtResource("1_rival")
+id = &"garlic"
+display_name = "Sergio Garlic"
+short_name = "GARLIC"
+flavour = "Brilliant. Furious. Both at once, mostly."
+colour = Color(0.878, 0.416, 0.329, 1)
+skill = -0.02
+steadiness = 0.85
+nerve = 0.16
+best_hole = -3
+worst_hole = 4

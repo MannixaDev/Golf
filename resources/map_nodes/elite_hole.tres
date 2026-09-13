@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MapNodeSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/map/map_node_spec.gd" id="1_spec"]
+
+[resource]
+script = ExtResource("1_spec")
+id = &"elite_hole"
+display_name = "Championship Hole"
+short_label = "ELITE"
+description = "A hole built to embarrass you. Serious trouble, serious reward."
+colour = Color(0.878, 0.376, 0.310, 1)
+shape = 1
+plays_hole = true
+difficulty = 3
+weight = 8.0
+min_layer = 3
+max_layer = -1
+max_per_run = 0
+avoid_repeat = true

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://scripts/rules/effects/shifting_wind_rule.gd" id="2_rule"]
+
+[sub_resource type="Resource" id="Rule_windmill"]
+script = ExtResource("2_rule")
+summary = "The wind swings hard between every stroke."
+max_turn_degrees = 170.0
+minimum_strength = 8.0
+maximum_strength = 14.0
+
+[resource]
+script = ExtResource("1_set")
+id = &"the_windmill"
+display_name = "The Windmill"
+description = "A hole that refuses to hold still long enough to be solved."
+colour = Color(0.45, 0.72, 0.87, 1)
+min_difficulty = 4
+weight = 12.0
+rules = Array[CourseRule]([SubResource("Rule_windmill")])
+force_par = 0
+force_length_yards = 0.0
+extra_greenside_hazards = 0
+fairway_scale = 1.0

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/conditional_profile_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_handicap"]
+script = ExtResource("2_effect")
+summary = "While you are over par, every stroke is longer and straighter."
+condition = 3
+distance_multiplier = 1.08
+dispersion_multiplier = 0.78
+
+[resource]
+script = ExtResource("1_relic")
+id = &"dodgy_handicap"
+display_name = "Dodgy Handicap"
+description = "Nobody has checked it in years."
+short_label = "HCP"
+colour = Color(0.72, 0.62, 0.89, 1)
+rarity = 1
+price = 75
+weight = 9.0
+effects = Array[RelicEffect]([SubResource("Effect_handicap")])

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="RivalSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/rival_spec.gd" id="1_rival"]
+
+[resource]
+script = ExtResource("1_rival")
+id = &"accounts"
+display_name = "Dave From Accounts"
+short_name = "DAVE"
+flavour = "Off eighteen. Says he is off twelve."
+colour = Color(0.902, 0.918, 0.871, 1)
+skill = 1.0
+steadiness = 1.0
+nerve = 0.0
+best_hole = -1
+worst_hole = 5

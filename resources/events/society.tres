@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_0"]
+script = ExtResource("2_outcome")
+label = "Join them for a few holes"
+result_text = "Good company, terrible influence. You hit driver on everything and enjoy it enormously."
+add_card_id = &"full_send"
+
+[sub_resource type="Resource" id="Out_1"]
+script = ExtResource("2_outcome")
+label = "Play on alone"
+result_text = "Quiet, focused, and nobody watching you over the ball."
+strokes_delta = -1
+
+[resource]
+script = ExtResource("1_spec")
+id = &"society"
+title = "A Society Day"
+body = "Thirty of them, all in the same polo shirt, all delighted to be out of the office, none of them entirely sober."
+colour = Color(0.64, 0.82, 0.5, 1)
+weight = 9.0
+min_holes_played = 1
+outcomes = Array[EventOutcome]([SubResource("Out_0"), SubResource("Out_1")])

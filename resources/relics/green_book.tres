@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/insight_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_book"]
+script = ExtResource("2_effect")
+summary = "Read the green before you are on it."
+reads_greens_early = true
+
+[resource]
+script = ExtResource("1_relic")
+id = &"green_book"
+display_name = "The Green Book"
+description = "Somebody walked every green with a spirit level. Not you."
+short_label = "BK"
+colour = Color(0.58, 0.82, 0.53, 1)
+rarity = 1
+price = 85
+weight = 8.0
+effects = Array[RelicEffect]([SubResource("Effect_book")])

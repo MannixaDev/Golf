@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_quiet_hands"]
+script = ExtResource("2_effect")
+summary = "Easier to time and much straighter. A little shorter."
+sweet_spot_multiplier = 1.35
+dispersion_multiplier = 0.62
+distance_multiplier = 0.92
+
+[sub_resource type="Resource" id="Upgrade_quiet_hands"]
+script = ExtResource("2_effect")
+summary = "Easier to time and much straighter, at no cost."
+sweet_spot_multiplier = 1.45
+dispersion_multiplier = 0.58
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"quiet_hands"
+display_name = "Quiet Hands"
+description = "Nothing hurried. Nothing forced."
+type = 1
+rarity = 2
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Effect_quiet_hands")])
+upgraded = false
+upgraded_name = "Buttery"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_quiet_hands")])
+upgrade_cost_delta = 0
+upgrade_note = "Easier to time and much straighter, at no cost."

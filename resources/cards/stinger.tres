@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="2_tweak"]
+
+[sub_resource type="Resource" id="Effect_stinger"]
+script = ExtResource("2_tweak")
+summary = "Flat and running. The wind barely touches it."
+arc_multiplier = 0.12
+dispersion_multiplier = 0.7
+distance_multiplier = 0.9
+roll_multiplier = 2.6
+
+[sub_resource type="Resource" id="Upgrade_stinger"]
+script = ExtResource("2_tweak")
+summary = "Keeps its full distance."
+distance_multiplier = 1.12
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"stinger"
+display_name = "Stinger"
+description = "Knee high and going nowhere near the weather."
+type = 1
+rarity = 2
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Effect_stinger")])
+upgraded = false
+upgraded_name = "Tour Stinger"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_stinger")])
+upgrade_cost_delta = 0
+upgrade_note = "Keeps its full distance."

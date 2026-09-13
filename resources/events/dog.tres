@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_0"]
+script = ExtResource("2_outcome")
+label = "Chase it"
+result_text = "Forty minutes across two fairways and a car park. You get the ball back. You are destroyed."
+winnings_delta = 25
+strokes_delta = 1
+
+[sub_resource type="Resource" id="Out_1"]
+script = ExtResource("2_outcome")
+label = "Let it have the ball"
+result_text = "The dog is delighted. Its owner apologises and presses something into your hand."
+grants_relic = true
+
+[sub_resource type="Resource" id="Out_2"]
+script = ExtResource("2_outcome")
+label = "Trade it a club for the ball"
+result_text = "An unusual negotiation, concluded entirely on the dog's terms."
+winnings_delta = 45
+removes_random_card = true
+
+[resource]
+script = ExtResource("1_spec")
+id = &"dog"
+title = "A Dog Has Your Ball"
+body = "A big friendly thing, absolutely certain this is a game the two of you are playing together."
+colour = Color(0.82, 0.66, 0.44, 1)
+weight = 11.0
+min_holes_played = 1
+outcomes = Array[EventOutcome]([SubResource("Out_0"), SubResource("Out_1"), SubResource("Out_2")])

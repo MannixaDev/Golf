@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TourSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/tour_spec.gd" id="1_tour"]
+
+[resource]
+script = ExtResource("1_tour")
+id = &"challenge"
+display_name = "Challenge Tour"
+blurb = "A better field and a longer drive home. They can all play a bit."
+rung = 1
+colour = Color(0.44, 0.69, 0.86, 1)
+field_skill_delta = -0.13
+cut_share = 0.38
+difficulty_delta = 0
+winnings_multiplier = 1.15

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_hand_in"]
+script = ExtResource("2_outcome")
+label = "Hand it in at the clubhouse"
+result_text = "The member is grateful. Word gets round. Somebody leaves you something."
+grants_relic = true
+
+[sub_resource type="Resource" id="Out_keep"]
+script = ExtResource("2_outcome")
+label = "Keep the cash"
+result_text = "You feel terrible about it for almost nine holes."
+winnings_delta = 70
+
+[resource]
+script = ExtResource("1_spec")
+id = &"lost_wallet"
+title = "A Wallet in the Rough"
+body = "Somebody has lost a wallet in the deep stuff by the sixth. There is a membership card in it, and rather a lot of cash."
+colour = Color(0.85, 0.78, 0.4, 1)
+weight = 10.0
+min_holes_played = 0
+outcomes = Array[EventOutcome]([SubResource("Out_hand_in"), SubResource("Out_keep")])

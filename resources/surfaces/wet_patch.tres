@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SurfaceType" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/surface_type.gd" id="1_surface"]
+
+[resource]
+script = ExtResource("1_surface")
+id = &"wet_patch"
+display_name = "Wet Patch"
+summary = "Casual water. It comes out heavy."
+colour = Color(0.208, 0.388, 0.310, 1)
+outline_colour = Color(0.243, 0.494, 0.588, 1)
+style = 2
+distance_multiplier = 0.75
+dispersion_multiplier = 1.15
+arc_multiplier = 1.0
+roll_multiplier = 0.35
+blocks_ground_shots = false
+roll_friction = 2.6
+catches_ball = false
+penalty_strokes = 0

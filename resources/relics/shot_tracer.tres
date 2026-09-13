@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/insight_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_tracer"]
+script = ExtResource("2_effect")
+summary = "Worked shots show you their bend."
+reveals_shot_shape = true
+
+[resource]
+script = ExtResource("1_relic")
+id = &"shot_tracer"
+display_name = "Shot Tracer"
+description = "The telly has had this for years. About time you did."
+short_label = "TRC"
+colour = Color(0.94, 0.55, 0.42, 1)
+rarity = 1
+price = 80
+weight = 8.0
+effects = Array[RelicEffect]([SubResource("Effect_tracer")])

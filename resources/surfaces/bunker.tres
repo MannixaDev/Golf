@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SurfaceType" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/surface_type.gd" id="1_surface"]
+
+[resource]
+script = ExtResource("1_surface")
+id = &"bunker"
+display_name = "Bunker"
+summary = "Sand. No putting out of here."
+colour = Color(0.902, 0.824, 0.651, 1)
+outline_colour = Color(0.788, 0.690, 0.518, 1)
+style = 1
+distance_multiplier = 0.6
+dispersion_multiplier = 1.5
+arc_multiplier = 1.25
+roll_multiplier = 0.3
+blocks_ground_shots = true
+roll_friction = 5.0
+catches_ball = false
+penalty_strokes = 0

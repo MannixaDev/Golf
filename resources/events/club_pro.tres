@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_lesson"]
+script = ExtResource("2_outcome")
+label = "Take the lesson"
+result_text = "Half an hour on the range and one club is genuinely better."
+requires_winnings = 25
+upgrades_random_card = true
+winnings_delta = -25
+
+[sub_resource type="Resource" id="Out_bin"]
+script = ExtResource("2_outcome")
+label = "Ask him what to leave at home"
+result_text = "He looks through your bag and quietly removes one of them."
+removes_random_card = true
+
+[sub_resource type="Resource" id="Out_decline"]
+script = ExtResource("2_outcome")
+label = "Decline politely"
+result_text = "You have been playing since you were nine. You know what you are doing."
+
+[resource]
+script = ExtResource("1_spec")
+id = &"club_pro"
+title = "The Club Professional"
+body = "He watched your last tee shot. He has opinions, and a free half hour, and he is being very diplomatic about it."
+colour = Color(0.45, 0.72, 0.87, 1)
+weight = 11.0
+min_holes_played = 1
+outcomes = Array[EventOutcome]([SubResource("Out_lesson"), SubResource("Out_bin"), SubResource("Out_decline")])

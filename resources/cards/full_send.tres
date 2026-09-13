@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="2_tweak"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_upgrade"]
+
+[sub_resource type="Resource" id="Effect_full_send"]
+script = ExtResource("2_tweak")
+summary = "Much further, and much less predictable."
+distance_multiplier = 1.3
+dispersion_multiplier = 1.9
+roll_multiplier = 1.15
+arc_multiplier = 1.0
+curve_deg = 0.0
+grants_ball_protection = false
+
+[sub_resource type="Resource" id="Upgrade_full_send"]
+script = ExtResource("3_upgrade")
+summary = "Longer, and it costs one less focus."
+distance_multiplier = 1.08
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"full_send"
+display_name = "Full Send"
+description = "Accuracy is a problem for future you."
+type = 1
+rarity = 2
+cost = 2
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Effect_full_send")])
+upgraded = false
+upgraded_name = "Absolute Send"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_full_send")])
+upgrade_cost_delta = -1
+upgrade_note = "Longer, and it costs one less focus."

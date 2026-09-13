@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Resource" path="res://resources/clubs/chipper.tres" id="2_club"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_upgrade"]
+
+[sub_resource type="Resource" id="Upgrade_chipper"]
+script = ExtResource("3_upgrade")
+summary = "Runs further and holds its line."
+distance_multiplier = 1.18
+dispersion_multiplier = 0.6
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"chipper"
+display_name = "Chipper"
+description = "Cheating, technically legal."
+type = 0
+rarity = 1
+cost = 1
+club = ExtResource("2_club")
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+upgraded = false
+upgraded_name = "Old Faithful"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_chipper")])
+upgrade_cost_delta = 0
+upgrade_note = "Runs further and holds its line."

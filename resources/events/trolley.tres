@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_0"]
+script = ExtResource("2_outcome")
+label = "Salvage what floats"
+result_text = "Most of it. Most."
+winnings_delta = 30
+removes_random_card = true
+
+[sub_resource type="Resource" id="Out_1"]
+script = ExtResource("2_outcome")
+label = "Wade in after the lot"
+result_text = "You get everything back, and are one shot worse off for the rest of the round."
+strokes_delta = 1
+
+[resource]
+script = ExtResource("1_spec")
+id = &"trolley"
+title = "Your Trolley Is In The Pond"
+body = "You set the brake. You are almost certain you set the brake. It is, regardless, now twenty feet out and settling."
+colour = Color(0.35, 0.6, 0.72, 1)
+weight = 9.0
+min_holes_played = 2
+outcomes = Array[EventOutcome]([SubResource("Out_0"), SubResource("Out_1")])

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/conditional_profile_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_glove"]
+script = ExtResource("2_effect")
+summary = "Every third stroke of a hole is far more accurate."
+condition = 1
+every = 3
+dispersion_multiplier = 0.45
+
+[resource]
+script = ExtResource("1_relic")
+id = &"lucky_glove"
+display_name = "Lucky Glove"
+description = "Worn through at the thumb, and you will not replace it."
+short_label = "GLV"
+colour = Color(0.87, 0.78, 0.55, 1)
+rarity = 0
+price = 55
+weight = 12.0
+effects = Array[RelicEffect]([SubResource("Effect_glove")])

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MapNodeSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/map/map_node_spec.gd" id="1_spec"]
+
+[resource]
+script = ExtResource("1_spec")
+id = &"halfway_house"
+display_name = "Halfway House"
+short_label = "REST"
+description = "Bacon roll, strong tea, and a look at your bag."
+colour = Color(0.616, 0.804, 0.729, 1)
+shape = 4
+plays_hole = false
+difficulty = 1
+weight = 9.0
+min_layer = 2
+max_layer = -1
+max_per_run = 0
+avoid_repeat = true

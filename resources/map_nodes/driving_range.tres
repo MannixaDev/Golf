@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MapNodeSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/map/map_node_spec.gd" id="1_spec"]
+
+[resource]
+script = ExtResource("1_spec")
+id = &"driving_range"
+display_name = "Driving Range"
+short_label = "RANGE"
+description = "Grooving one shot until it is genuinely better. Upgrade a card."
+colour = Color(0.545, 0.788, 0.647, 1)
+shape = 2
+plays_hole = false
+difficulty = 1
+weight = 10.0
+min_layer = 1
+max_layer = -1
+max_per_run = 0
+avoid_repeat = true

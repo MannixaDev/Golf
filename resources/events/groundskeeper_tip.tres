@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_listen"]
+script = ExtResource("2_outcome")
+label = "Listen to him"
+result_text = "Twenty minutes of local knowledge, and something useful in your bag."
+add_card_id = &"caddie_read"
+
+[sub_resource type="Resource" id="Out_tip"]
+script = ExtResource("2_outcome")
+label = "Tip him generously"
+result_text = "He tells you where they hide the good equipment."
+grants_relic = true
+requires_winnings = 35
+winnings_delta = -35
+
+[sub_resource type="Resource" id="Out_nod"]
+script = ExtResource("2_outcome")
+label = "Nod and walk on"
+result_text = "He watches you play the next shot. He was right."
+strokes_delta = 1
+winnings_delta = 25
+
+[resource]
+script = ExtResource("1_spec")
+id = &"groundskeeper_tip"
+title = "The Groundskeeper"
+body = "He is leaning on a rake and he knows this course better than anyone alive. He also knows exactly where you have been hitting it."
+colour = Color(0.55, 0.8, 0.5, 1)
+weight = 10.0
+min_holes_played = 1
+outcomes = Array[EventOutcome]([SubResource("Out_listen"), SubResource("Out_tip"), SubResource("Out_nod")])

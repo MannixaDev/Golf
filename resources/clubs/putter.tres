@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ClubSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/golf/club_spec.gd" id="1_clubspec"]
+
+[resource]
+script = ExtResource("1_clubspec")
+id = &"putter"
+display_name = "Putter"
+family = 3
+short_label = "PT"
+sort_order = 4
+description = "Rolls along the deck. Almost no error."
+carry_yards_max = 28.0
+roll_ratio = 0.00
+distance_variance = 0.020
+dispersion_deg = 1.2
+arc_factor = 0.00
+is_ground_shot = true

@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/bag_synergy_effect.gd" id="2_synergy"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_tweak"]
+
+[sub_resource type="Resource" id="Effect_big_hitter"]
+script = ExtResource("2_synergy")
+summary = "Longer and running for every wood past the second."
+counts = 3
+pivot = 2
+max_steps = 3
+distance_per_step = 0.09
+roll_per_step = 0.18
+dispersion_per_step = 0.04
+
+[sub_resource type="Resource" id="Upgrade_big_hitter"]
+script = ExtResource("3_tweak")
+summary = "Without the extra spray."
+dispersion_multiplier = 0.8
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"big_hitter"
+display_name = "Big Hitter"
+description = "Length is a strategy. Not a good one, but a strategy."
+type = 1
+rarity = 1
+cost = 1
+effects = Array[CardEffect]([SubResource("Effect_big_hitter")])
+upgraded = false
+upgraded_name = "Big Hitter+"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_big_hitter")])
+upgrade_cost_delta = 0
+upgrade_note = "Without the extra spray."

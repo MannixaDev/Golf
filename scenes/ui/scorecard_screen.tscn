@@ -1,0 +1,148 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/scorecard_screen.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/ui/turf_backdrop.gd" id="2_turf"]
+[ext_resource type="Script" path="res://scripts/ui/scorecard_view.gd" id="3_view"]
+[ext_resource type="FontFile" path="res://resources/fonts/Lato-Bold.ttf" id="4_bold"]
+[ext_resource type="FontFile" path="res://resources/fonts/Lato-Light.ttf" id="5_light"]
+
+[sub_resource type="StyleBoxFlat" id="SBCard"]
+content_margin_left = 26.0
+content_margin_top = 24.0
+content_margin_right = 26.0
+content_margin_bottom = 24.0
+bg_color = Color(0.055, 0.098, 0.07, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.561, 0.8, 0.42, 0.32)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 26
+shadow_offset = Vector2(0, 10)
+
+[node name="ScorecardScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_card")
+
+[node name="Background" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_turf")
+turf_mix = 0.2
+vignette_depth = 220.0
+
+[node name="CardTitle" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -500.0
+offset_top = 70.0
+offset_right = 500.0
+offset_bottom = 114.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 1)
+theme_override_font_sizes/font_size = 34
+theme_override_fonts/font = ExtResource("4_bold")
+text = "ROUND COMPLETE"
+horizontal_alignment = 1
+
+[node name="CardSubtitle" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -500.0
+offset_top = 118.0
+offset_right = 500.0
+offset_bottom = 146.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.66)
+theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("5_light")
+text = ""
+horizontal_alignment = 1
+
+[node name="CardPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -700.0
+offset_top = 196.0
+offset_right = 700.0
+offset_bottom = 366.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBCard")
+
+[node name="Card" type="Control" parent="CardPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_view")
+
+[node name="CardFootnote" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -500.0
+offset_top = 404.0
+offset_right = 500.0
+offset_bottom = 432.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.949, 0.961, 0.925, 0.6)
+theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("5_light")
+text = ""
+horizontal_alignment = 1
+
+[node name="CardUnlock" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -500.0
+offset_top = 452.0
+offset_right = 500.0
+offset_bottom = 500.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.941, 0.784, 0.376, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("4_bold")
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="CardButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -160.0
+offset_top = 546.0
+offset_right = 160.0
+offset_bottom = 598.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 17
+text = "Back to the clubhouse"

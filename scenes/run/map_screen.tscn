@@ -1,0 +1,203 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/map_screen.gd" id="1_mapscreen"]
+[ext_resource type="Script" path="res://scripts/map/map_view.gd" id="2_mapview"]
+[ext_resource type="Script" path="res://scripts/ui/turf_backdrop.gd" id="99_turf"]
+
+[sub_resource type="StyleBoxFlat" id="SBPanel"]
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+bg_color = Color(0.043, 0.078, 0.058, 0.86)
+border_width_left = 2
+border_color = Color(0.53, 0.78, 0.45, 0.55)
+corner_radius_top_left = 4
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="SBInfo"]
+content_margin_left = 20.0
+content_margin_top = 16.0
+content_margin_right = 20.0
+content_margin_bottom = 16.0
+bg_color = Color(0.055, 0.098, 0.07, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 0.6, 0.36, 0.45)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="MapScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mapscreen")
+
+[node name="Background" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("99_turf")
+
+[node name="MapView" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_mapview")
+
+[node name="TopBar" type="PanelContainer" parent="."]
+layout_mode = 1
+offset_left = 20.0
+offset_top = 16.0
+offset_right = 20.0
+offset_bottom = 16.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBPanel")
+
+[node name="Row" type="HBoxContainer" parent="TopBar"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 20
+
+[node name="CourseLabel" type="Label" parent="TopBar/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.98, 0.88, 1)
+theme_override_font_sizes/font_size = 21
+text = "THE FRONT NINE"
+
+[node name="Sep1" type="Label" parent="TopBar/Row"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.25)
+theme_override_font_sizes/font_size = 21
+text = "/"
+
+[node name="ScoreLabel" type="Label" parent="TopBar/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.48, 1)
+theme_override_font_sizes/font_size = 21
+text = "CARD  LEVEL"
+
+[node name="Sep2" type="Label" parent="TopBar/Row"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.25)
+theme_override_font_sizes/font_size = 21
+text = "/"
+
+[node name="CutLabel" type="Label" parent="TopBar/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.76, 0.89, 0.68, 1)
+theme_override_font_sizes/font_size = 21
+text = "CUT AT  +8"
+
+[node name="Sep3" type="Label" parent="TopBar/Row"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.25)
+theme_override_font_sizes/font_size = 21
+text = "/"
+
+[node name="DeckLabel" type="Label" parent="TopBar/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.76, 0.89, 0.68, 1)
+theme_override_font_sizes/font_size = 21
+text = "BAG  18 CARDS"
+
+[node name="PursePanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -320.0
+offset_top = 16.0
+offset_right = -20.0
+offset_bottom = 16.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBPanel")
+
+[node name="Column" type="VBoxContainer" parent="PursePanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="PurseLabel" type="Label" parent="PursePanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.48, 1)
+theme_override_font_sizes/font_size = 21
+text = "WINNINGS  40"
+horizontal_alignment = 2
+
+[node name="RelicRow" type="HBoxContainer" parent="PursePanel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 10
+
+[node name="InfoPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -370.0
+offset_top = -28.0
+offset_right = 370.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBInfo")
+
+[node name="Column" type="VBoxContainer" parent="InfoPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="InfoTitle" type="Label" parent="InfoPanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(700, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.98, 0.88, 1)
+theme_override_font_sizes/font_size = 22
+text = "CHOOSE YOUR ROUTE"
+horizontal_alignment = 1
+
+[node name="InfoBody" type="Label" parent="InfoPanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(700, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.66)
+theme_override_font_sizes/font_size = 15
+text = "Pick any stop the highlighted lines lead to."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="InfoDetail" type="Label" parent="InfoPanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(700, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.5, 0.75)
+theme_override_font_sizes/font_size = 14
+text = ""
+horizontal_alignment = 1

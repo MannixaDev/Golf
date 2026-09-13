@@ -1,0 +1,149 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/shop_screen.gd" id="1_shop"]
+[ext_resource type="Script" path="res://scripts/ui/turf_backdrop.gd" id="99_turf"]
+
+[sub_resource type="StyleBoxFlat" id="SBBtn"]
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+bg_color = Color(0.18, 0.28, 0.2, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.75, 0.5, 0.45)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="ShopScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_shop")
+
+[node name="Background" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("99_turf")
+
+[node name="ShopTitle" type="Label" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+offset_top = 36.0
+offset_bottom = 78.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.45, 0.72, 0.87, 1)
+theme_override_font_sizes/font_size = 32
+text = "PRO SHOP"
+horizontal_alignment = 1
+
+[node name="PurseLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_right = 1.0
+offset_top = 82.0
+offset_bottom = 110.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.48, 1)
+theme_override_font_sizes/font_size = 20
+text = "WINNINGS  40"
+horizontal_alignment = 1
+
+[node name="ShopCardField" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 60.0
+offset_top = 140.0
+offset_right = -60.0
+offset_bottom = 328.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="PriceRow" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 60.0
+offset_top = 336.0
+offset_right = -60.0
+offset_bottom = 368.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="EquipmentTitle" type="Label" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 60.0
+offset_top = 396.0
+offset_right = -60.0
+offset_bottom = 424.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.85, 0.78, 0.55, 1)
+theme_override_font_sizes/font_size = 18
+text = "EQUIPMENT"
+horizontal_alignment = 1
+
+[node name="RelicList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -190.0
+offset_top = 432.0
+offset_right = 190.0
+offset_bottom = 600.0
+grow_horizontal = 2
+theme_override_constants/separation = 8
+
+[node name="RemovalButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 626.0
+offset_right = 200.0
+offset_bottom = 676.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.85, 0.8, 0.95, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("SBBtn")
+theme_override_styles/hover = SubResource("SBBtn")
+theme_override_styles/pressed = SubResource("SBBtn")
+theme_override_styles/focus = SubResource("SBBtn")
+theme_override_styles/disabled = SubResource("SBBtn")
+text = "Leave a club at home"
+
+[node name="LeaveButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -130.0
+offset_top = 700.0
+offset_right = 130.0
+offset_bottom = 750.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("SBBtn")
+theme_override_styles/hover = SubResource("SBBtn")
+theme_override_styles/pressed = SubResource("SBBtn")
+theme_override_styles/focus = SubResource("SBBtn")
+text = "Back to the route"

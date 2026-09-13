@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_0"]
+script = ExtResource("2_outcome")
+label = "Listen to the whole story"
+result_text = "Twenty minutes on a shot he hit in 1974. Buried in it, genuinely useful advice."
+upgrades_random_card = true
+
+[sub_resource type="Resource" id="Out_1"]
+script = ExtResource("2_outcome")
+label = "Buy the old club off him  ·  55"
+result_text = "Persimmon, older than you, and it goes a surprisingly long way."
+winnings_delta = -55
+requires_winnings = 55
+add_card_id = &"wood_3"
+
+[resource]
+script = ExtResource("1_spec")
+id = &"old_boy"
+title = "The Oldest Member"
+body = "He has played here since before the trees. He would like to tell you about the green committee, at length, starting now."
+colour = Color(0.72, 0.68, 0.55, 1)
+weight = 9.0
+min_holes_played = 1
+outcomes = Array[EventOutcome]([SubResource("Out_0"), SubResource("Out_1")])

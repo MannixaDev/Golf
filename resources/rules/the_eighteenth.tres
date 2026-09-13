@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://scripts/rules/effects/shifting_wind_rule.gd" id="2_rule"]
+[ext_resource type="Script" path="res://scripts/rules/effects/roving_hazards_rule.gd" id="3_rule"]
+[ext_resource type="Script" path="res://scripts/rules/effects/distraction_rule.gd" id="4_rule"]
+
+[sub_resource type="Resource" id="Rule_18_wind"]
+script = ExtResource("2_rule")
+summary = "The wind turns between strokes."
+max_turn_degrees = 140.0
+minimum_strength = 7.0
+maximum_strength = 12.0
+
+[sub_resource type="Resource" id="Rule_18_rove"]
+script = ExtResource("3_rule")
+summary = "The hazards move between strokes."
+drift = 38.0
+
+[sub_resource type="Resource" id="Rule_18_noise"]
+script = ExtResource("4_rule")
+summary = "And the gallery is not helping."
+chance = 0.3
+dispersion_multiplier = 1.6
+
+[resource]
+script = ExtResource("1_set")
+id = &"the_eighteenth"
+display_name = "The Eighteenth"
+description = "Everything the course has already tried, at once."
+colour = Color(0.79, 0.29, 0.45, 1)
+min_difficulty = 4
+weight = 9.0
+rules = Array[CourseRule]([SubResource("Rule_18_wind"), SubResource("Rule_18_rove"), SubResource("Rule_18_noise")])
+force_par = 0
+force_length_yards = 0.0
+extra_greenside_hazards = 2
+fairway_scale = 0.78

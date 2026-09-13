@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="2_tweak"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_upgrade"]
+
+[sub_resource type="Resource" id="Effect_punch"]
+script = ExtResource("2_tweak")
+summary = "Flies low and straight. Shorter carry, much more run."
+distance_multiplier = 0.85
+dispersion_multiplier = 0.55
+roll_multiplier = 2.0
+arc_multiplier = 0.3
+curve_deg = 0.0
+grants_ball_protection = false
+
+[sub_resource type="Resource" id="Upgrade_punch"]
+script = ExtResource("3_upgrade")
+summary = "Keeps far more of its distance."
+distance_multiplier = 1.15
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"punch"
+display_name = "Punch"
+description = "Keep it under the wind, and under control."
+type = 1
+rarity = 1
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Effect_punch")])
+upgraded = false
+upgraded_name = "Knock-Down"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_punch")])
+upgrade_cost_delta = 0
+upgrade_note = "Keeps far more of its distance."

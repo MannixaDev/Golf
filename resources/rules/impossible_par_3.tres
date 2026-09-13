@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://scripts/rules/effects/distraction_rule.gd" id="2_rule"]
+
+[sub_resource type="Resource" id="Rule_short_chatter"]
+script = ExtResource("2_rule")
+summary = "The gallery is close enough to hear you think."
+chance = 0.35
+dispersion_multiplier = 1.7
+
+[resource]
+script = ExtResource("1_set")
+id = &"impossible_par_3"
+display_name = "The Impossible Par 3"
+description = "A hundred and forty yards. That is the good news."
+colour = Color(0.88, 0.38, 0.31, 1)
+min_difficulty = 4
+weight = 11.0
+rules = Array[CourseRule]([SubResource("Rule_short_chatter")])
+force_par = 3
+force_length_yards = 145.0
+extra_greenside_hazards = 3
+fairway_scale = 0.7

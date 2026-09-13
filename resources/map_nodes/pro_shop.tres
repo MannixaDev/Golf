@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MapNodeSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/map/map_node_spec.gd" id="1_spec"]
+
+[resource]
+script = ExtResource("1_spec")
+id = &"pro_shop"
+display_name = "Pro Shop"
+short_label = "SHOP"
+description = "Spend your winnings on new cards and equipment."
+colour = Color(0.427, 0.686, 0.878, 1)
+shape = 2
+plays_hole = false
+difficulty = 1
+weight = 9.0
+min_layer = 1
+max_layer = -1
+max_per_run = 0
+avoid_repeat = true

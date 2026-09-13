@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EventSpec" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_spec.gd" id="1_spec"]
+[ext_resource type="Script" path="res://scripts/events/event_outcome.gd" id="2_outcome"]
+
+[sub_resource type="Resource" id="Out_0"]
+script = ExtResource("2_outcome")
+label = "Book it properly  ·  40"
+result_text = "He finds you a slot, a trolley, and a long opinion about the sixth."
+winnings_delta = -40
+requires_winnings = 40
+upgrades_random_card = true
+
+[sub_resource type="Resource" id="Out_1"]
+script = ExtResource("2_outcome")
+label = "Squeeze onto the tee"
+result_text = "You go off cold. It shows."
+strokes_delta = 1
+
+[sub_resource type="Resource" id="Out_2"]
+script = ExtResource("2_outcome")
+label = "Explain who you are"
+result_text = "He has never heard of you. He does find you a spare club somebody left behind."
+add_card_id = &"hybrid"
+
+[resource]
+script = ExtResource("1_spec")
+id = &"starter"
+title = "The Starter's Hut"
+body = "A man with a clipboard and total authority over the first tee. He is not impressed by your bag, your trousers, or your booking."
+colour = Color(0.62, 0.75, 0.88, 1)
+weight = 11.0
+min_holes_played = 0
+outcomes = Array[EventOutcome]([SubResource("Out_0"), SubResource("Out_1"), SubResource("Out_2")])

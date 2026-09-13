@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/nudge_ball_effect.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_foot_wedge"]
+script = ExtResource("2_effect")
+summary = "Nudge the ball 10 yards nearer. No stroke."
+yards = 10.0
+min_remaining_yards = 4.0
+success_message = "Foot wedge. Purely accidental."
+refusal_message = "Far too close to get away with that."
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"foot_wedge"
+display_name = "Foot Wedge"
+description = "The most reliable club in the bag."
+type = 2
+rarity = 1
+cost = 2
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Effect_foot_wedge")])
+upgraded = false
+upgraded_name = "Ryder Cup Rules"
+upgrade_effects = Array[CardEffect]([])
+upgrade_cost_delta = -1
+upgrade_note = "Costs one less focus."

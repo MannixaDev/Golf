@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="RivalSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/rival_spec.gd" id="1_rival"]
+
+[resource]
+script = ExtResource("1_rival")
+id = &"poulterer"
+display_name = "Ian Poulterer"
+short_name = "POULTERER"
+flavour = "Trousers visible from orbit."
+colour = Color(0.878, 0.416, 0.329, 1)
+skill = 0.38
+steadiness = 0.8
+nerve = -0.25
+best_hole = -2
+worst_hole = 4

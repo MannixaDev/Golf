@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="2_tweak"]
+
+[sub_resource type="Resource" id="Effect_ball_retriever"]
+script = ExtResource("2_tweak")
+summary = "Cannot lose the ball to water or out of bounds."
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+arc_multiplier = 1.0
+curve_deg = 0.0
+grants_ball_protection = true
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"ball_retriever"
+display_name = "Bawl Grabbur"
+description = "Bright yellow, telescopic, deeply embarrassing."
+type = 2
+rarity = 2
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Effect_ball_retriever")])
+upgraded = false
+upgraded_name = "Bawl Grabbur+"
+upgrade_effects = Array[CardEffect]([])
+upgrade_cost_delta = -1
+upgrade_note = "Costs no focus at all."

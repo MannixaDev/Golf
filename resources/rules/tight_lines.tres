@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+
+[resource]
+script = ExtResource("1_set")
+id = &"tight_lines"
+display_name = "The Narrows"
+description = "Half the fairway, twice the trouble."
+colour = Color(0.72, 0.62, 0.89, 1)
+min_difficulty = 3
+weight = 10.0
+rules = Array[CourseRule]([])
+force_par = 0
+force_length_yards = 0.0
+extra_greenside_hazards = 1
+fairway_scale = 0.62

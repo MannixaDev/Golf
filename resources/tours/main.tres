@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TourSpec" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/tour_spec.gd" id="1_tour"]
+
+[resource]
+script = ExtResource("1_tour")
+id = &"main"
+display_name = "The Main Tour"
+blurb = "Proper courses, proper players, and a cut that takes nearly half."
+rung = 2
+colour = Color(0.94, 0.78, 0.38, 1)
+field_skill_delta = -0.26
+cut_share = 0.42
+difficulty_delta = 1
+winnings_multiplier = 1.30
