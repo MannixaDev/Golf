@@ -19,6 +19,19 @@ signal closed()
 func _ready() -> void:
 	Settings.ensure_loaded()
 
+	# The browser owns its own window, and itch launches the build fullscreen
+	# from its own button, so the row is left out rather than shown broken.
+	#
+	# The card keeps its four-row height and is left an empty band shorter of
+	# content. Fixing that properly means the panel sizing itself to its rows
+	# rather than sitting on fixed offsets, which is a scene change; measuring
+	# it at runtime does not work, because nothing has a size yet during _ready
+	# and a deferred pass did not move it either. Not worth a restructure for a
+	# few pixels of air on one screen of one platform.
+	var fullscreen_row: Node = _fullscreen.get_parent()
+	if not Settings.owns_the_window() and fullscreen_row is Control:
+		fullscreen_row.hide()
+
 	_volume.value = Settings.volume * 100.0
 	_sound.button_pressed = Settings.sound_enabled
 	_fullscreen.button_pressed = Settings.fullscreen

@@ -92,10 +92,21 @@ static func set_fullscreen(value: bool) -> void:
 	save()
 
 
+## True where the game does not own its own window.
+##
+## In a browser the page owns it, and itch owns the page: a build embedded there
+## is launched fullscreen by itch's own button. Offering our own toggle as well
+## is at best a duplicate and at worst a lie, because the browser refuses a
+## fullscreen request that did not come from a click -- so a saved preference
+## applied on boot silently fails and the switch then disagrees with the screen.
+static func owns_the_window() -> bool:
+	return not OS.has_feature("web")
+
+
 ## Pushed to the window on boot and whenever the option changes.
 static func apply_window() -> void:
 	ensure_loaded()
-	if DisplayServer.get_name() == "headless":
+	if DisplayServer.get_name() == "headless" or not owns_the_window():
 		return
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN
 		if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
