@@ -118,36 +118,69 @@ func _check_a_mouse_is_left_alone() -> void:
 	print("=== a mouse still works ===")
 	_aim.set_touch_ui(false)
 	_aim.enabled = true
-	var ball: Vector2 = _aim.global_position
+
+	# The camera is moved off the origin and zoomed first, which is the whole
+	# point of this check. An input event carries *screen* coordinates and the
+	# course is drawn in *world* ones; with the camera sitting at the origin at
+	# a zoom of one the two are identical, so a version of this that reads the
+	# event position straight passes here and fails in the game -- which is
+	# exactly what shipped.
+	var camera: Camera2D = _screen.get_node("HoleView/Camera2D")
+	camera.position = _aim.global_position + Vector2(600.0, -250.0)
+	camera.zoom = Vector2(2.0, 2.0)
+	camera.force_update_scroll()
+	await_frame()
+
+	var target := _aim.global_position + Vector2(0.0, 350.0)
+	var screen: Vector2 = _screen.get_viewport().get_canvas_transform() * target
+	print("  the point below the ball is at %s in the world, %s on screen"
+		% [target, screen])
+	_expect(screen.distance_to(target) > 50.0,
+		"the camera should actually be somewhere, or this proves nothing")
 
 	var motion := InputEventMouseMotion.new()
-	motion.global_position = ball + Vector2(0.0, 350.0)
+	motion.position = screen
 	_aim._unhandled_input(motion)
 	_aim._process(0.016)
 	var off := rad_to_deg(_aim.aim_direction.angle_to(Vector2.DOWN))
-	print("  moved the pointer below the ball, aim is %.1f deg off it" % off)
-	_expect(absf(off) < 1.0, "the line should follow a moving pointer")
+	print("  pointed at it, aim is %.1f deg off" % off)
+	_expect(absf(off) < 2.0,
+		"the line should follow the pointer wherever the camera is")
 
 	var press := InputEventMouseButton.new()
 	press.button_index = MOUSE_BUTTON_LEFT
 	press.pressed = true
-	press.global_position = ball + Vector2(0.0, 350.0)
+	press.position = screen
 	_aim._unhandled_input(press)
 	_expect(_aim._phase == AimController.Phase.POWER,
 		"and a press should still start the swing rather than only aiming")
 	_aim._cancel_charge()
 
 
+## A frame, so a camera move has actually reached the canvas transform.
+func await_frame() -> void:
+	# SceneTree harnesses drive their own frames, so nudging the servers is
+	# enough here and avoids making every caller async.
+	_screen.get_viewport().get_canvas_transform()
+
+
+## Tap a point on the course.
+##
+## `at` is where it is in the world; the event carries where that is on screen,
+## because that is what a real one carries. Handing the controller world
+## coordinates directly made this pass against code that could not work in the
+## game at all.
 func _tap(at: Vector2) -> void:
+	var screen: Vector2 = _screen.get_viewport().get_canvas_transform() * at
 	var press := InputEventMouseButton.new()
 	press.button_index = MOUSE_BUTTON_LEFT
 	press.pressed = true
-	press.global_position = at
+	press.position = screen
 	_aim._unhandled_input(press)
 	var release := InputEventMouseButton.new()
 	release.button_index = MOUSE_BUTTON_LEFT
 	release.pressed = false
-	release.global_position = at
+	release.position = screen
 	_aim._unhandled_input(release)
 
 

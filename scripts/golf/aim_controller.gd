@@ -170,7 +170,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	if event is InputEventMouseMotion:
-		_pointer = (event as InputEventMouseMotion).global_position
+		_pointer = _world_at((event as InputEventMouseMotion).position)
 		_pointer_seen = true
 		return
 
@@ -180,7 +180,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			# swing is a button of its own: overloading the same tap would mean
 			# every aim adjustment also started a swing.
 			if event.pressed and _phase == Phase.IDLE:
-				aim_at((event as InputEventMouseButton).global_position)
+				aim_at(_world_at((event as InputEventMouseButton).position))
 			get_viewport().set_input_as_handled()
 			return
 		if event.pressed:
@@ -194,6 +194,20 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			_release()
 		get_viewport().set_input_as_handled()
+
+
+## Where an input event landed, in the world the hole is drawn in.
+##
+## An event carries screen coordinates. The course is drawn behind a camera that
+## scrolls down the hole and zooms, so the two are nowhere near each other: the
+## first version of this read the event position straight and the aim line stopped
+## following the mouse entirely. The old polling code never hit this because
+## get_global_mouse_position() does the conversion for you.
+func _world_at(screen_point: Vector2) -> Vector2:
+	var viewport := get_viewport()
+	if viewport == null:
+		return screen_point
+	return viewport.get_canvas_transform().affine_inverse() * screen_point
 
 
 ## Point the line at somewhere on the course. Public so a tap can drive it.
