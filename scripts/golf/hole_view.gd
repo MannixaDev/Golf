@@ -83,6 +83,10 @@ signal shape_changed(available: bool, shape: int, degrees: float)
 @onready var _camera: CourseCamera = $Camera2D
 @onready var _effects: ShotEffects = $ShotEffects
 
+## Set when the last putt fell in off the lip rather than being taken cleanly, so
+## the result can say which it was.
+var _toppled_in: bool = false
+
 var deck: Deck = null
 var strokes: int = 0
 var focus: int = 0
@@ -152,6 +156,8 @@ func _ready() -> void:
 	_ball.caught_by_hazard.connect(_on_ball_caught)
 	_ball.landed.connect(_on_ball_landed)
 	_ball.struck_canopy.connect(_on_ball_struck_canopy)
+	_ball.lipped_out.connect(_on_ball_lipped_out)
+	_ball.hung_on_the_lip.connect(_on_ball_hung_on_the_lip)
 
 	# Deliberately NOT starting here: children are ready before their parent, so
 	# anything emitted now would fire before Main has connected the HUD. Main
@@ -778,6 +784,26 @@ func _on_ball_struck_canopy(pos: Vector2) -> void:
 	status_message.emit("Into the trees. It drops straight down.")
 
 
+## Too much pace, and the hole says so. Worth announcing because it is the one
+## miss the player can actually learn from: the line was good and the speed was
+## not, which is information a ball trickling to a stop four feet away never
+## gives you.
+func _on_ball_lipped_out(pos: Vector2) -> void:
+	Sfx.play(&"putt", -3.0, 0.5)
+	_effects.rim(pos, 1.0)
+	_camera.kick(1.4)
+	status_message.emit("Lipped out. Too much pace.")
+
+
+## Hung on the edge, and the green took it. The best moment in golf, so it gets
+## the same celebration as any other putt -- only the wording changes, and it is
+## remembered rather than said here, because the holed-out message lands a moment
+## later and would simply talk over it.
+func _on_ball_hung_on_the_lip(pos: Vector2) -> void:
+	_toppled_in = true
+	_effects.rim(pos, 0.6)
+
+
 func _on_ball_landed(pos: Vector2, impact: float) -> void:
 	var surface := hole.surface_at(pos)
 	Sfx.play_landing(surface)
@@ -799,7 +825,9 @@ func _on_ball_holed_out() -> void:
 	Sfx.play(&"holed")
 	_effects.celebrate(hole.pin_position)
 	_camera.kick(3.0)
-	status_message.emit("In the hole!")
+	status_message.emit("It hangs on the edge... and drops!" if _toppled_in
+		else "In the hole!")
+	_toppled_in = false
 	hole_completed.emit(strokes, hole.par, true)
 
 

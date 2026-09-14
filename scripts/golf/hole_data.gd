@@ -90,6 +90,26 @@ func is_in_bounds(point: Vector2) -> bool:
 const MIN_CUP_PIXELS := 1.4
 
 
+## A hole is 4.25 inches and a ball is 1.68, so a cup is a shade over two and a
+## half ball-widths across. That single ratio is the whole of how a golfer judges
+## whether a putt went in -- you do not measure the gap, you see how much of the
+## hole the ball is covering.
+##
+## The ball used to be drawn at a flat 1.5 pixels against a cup the generator
+## makes 1.43 pixels wide, so it was **wider than the entire hole** and eclipsed
+## the target it was aiming at. A putt resting three ball-widths out still
+## covered the cup completely, and 91 of 200 six footers finished looking holed
+## and were not. Nothing was wrong with what went in; everything was wrong with
+## what it looked like.
+## Read by Ball, which is the only thing that draws one. Left as a bare ratio
+## rather than a helper here so there is one definition of the ball's size and it
+## lives with the ball -- and note the cup itself must never grow a screen-space
+## floor to match: the course is drawn once when the hole is set and never again,
+## so a number that depended on the camera would freeze at the flyover's zoom and
+## paint that cup for the rest of the round. Tried, and it did.
+const BALL_TO_CUP := 1.0 / 2.53
+
+
 ## The one true cup size, in pixels. Both the renderer and the ball ask for this,
 ## so what you can see and what you can hole into are the same circle. They were
 ## once allowed to differ, and a 400 yard hole ended up drawing a cup three times
@@ -97,6 +117,7 @@ const MIN_CUP_PIXELS := 1.4
 ## visibly finish inside the hole and not drop.
 func cup_pixels() -> float:
 	return maxf(cup_radius, MIN_CUP_PIXELS)
+
 
 
 ## Is this point on the putting surface?

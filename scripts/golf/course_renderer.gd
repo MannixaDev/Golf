@@ -532,14 +532,16 @@ func _draw_tee_box() -> void:
 		draw_circle(at, 3.0, Color(0.94, 0.95, 0.90))
 
 
+## The hole, and the stick standing in it.
+##
+## Drawn stick first and cup second, which is the opposite of the obvious order
+## and the only one that works. The cup is a shade under three pixels across and
+## the flagstick is nearly two of them wide, so a stick painted on top covers
+## most of the hole and what is left reads as a smudge rather than as a target.
+## Painting the hole last puts the stick behind it, which is also where it
+## actually is.
 func _draw_pin() -> void:
 	var pin := hole.pin_position
-	# Exactly the circle the ball is tested against, never a flattering version
-	# of it: if it looks like it went in, it went in.
-	var visual_radius := hole.cup_pixels()
-	draw_circle(pin, visual_radius + 2.5, Color(Palette.SHADOW, 0.45))
-	draw_circle(pin, visual_radius, Palette.CUP)
-
 	# Flagstick, sized against the green it is standing on rather than in fixed
 	# pixels. At a flat 52 it was twenty yards of stick and a ten yard flag,
 	# which made every green look like a postage stamp with a marquee on it.
@@ -563,6 +565,18 @@ func _draw_pin() -> void:
 	draw_colored_polygon(flag, Palette.FLAG)
 	draw_polyline(PackedVector2Array([flag[0], flag[1], flag[2]]),
 		Palette.FLAG.darkened(0.3), 1.2, true)
+
+	# Exactly the circle the ball is tested against, never a flattering version
+	# of it: if it looks like it went in, it went in. The hole is small -- it is
+	# a real hole at the scale the rest of the course is drawn at -- so it earns
+	# its legibility from contrast rather than from size.
+	var visual_radius := hole.cup_pixels()
+	draw_circle(pin, visual_radius * 2.0, Color(Palette.SHADOW, 0.22))
+	# A pale collar just outside the lip. The hole is dark on dark grass at a
+	# distance, and this is what makes the far edge of it read when a ball is
+	# sitting on the near edge.
+	draw_circle(pin, visual_radius * 1.55, Color(Palette.BALL, 0.38))
+	draw_circle(pin, visual_radius, Palette.CUP)
 
 
 ## The flagstick as a share of the green's own radius, and the pixels it is

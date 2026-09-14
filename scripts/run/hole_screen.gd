@@ -62,6 +62,17 @@ func setup(hole: HoleData, deck: Deck) -> void:
 	# HoleView reads `hole` in its own _ready, which has not run yet when the
 	# run layer calls this, so assigning directly is safe and keeps the scene
 	# usable standalone with its default hole.
+	#
+	# Said out loud rather than left as a comment, because getting it wrong is
+	# silent: the ball plays the hole you passed in and the course renderer keeps
+	# drawing the scene's placeholder, so the flag, the cup and the green on
+	# screen all belong to a different golf hole than the one being played. A dev
+	# harness did exactly this and spent an afternoon looking like a rendering
+	# bug.
+	if $HoleView.is_node_ready():
+		push_error("HoleScreen.setup() called after the view was added to the "
+			+ "tree. Call setup() on the instance first, then add it, or the "
+			+ "course drawn will not be the course played.")
 	$HoleView.hole = hole
 	$HoleView.setup_deck(deck)
 

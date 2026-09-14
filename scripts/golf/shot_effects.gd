@@ -115,6 +115,18 @@ func celebrate(at: Vector2) -> void:
 	queue_redraw()
 
 
+## The ball catching the edge of the hole and being thrown off it.
+##
+## A single tight ring at the rim rather than the burst of a holed putt -- it has
+## to read instantly as *that touched the hole and stayed out*, which is a
+## different feeling from missing by a yard and must not be confused with going
+## in.
+func rim(at: Vector2, strength: float) -> void:
+	_rings.append(Ring.new(at, 0.45, 2.0, 34.0 * strength,
+		Color(Palette.BALL, 0.75)))
+	queue_redraw()
+
+
 func _process(delta: float) -> void:
 	if _specks.is_empty() and _rings.is_empty():
 		return

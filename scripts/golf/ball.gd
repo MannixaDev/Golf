@@ -27,6 +27,10 @@ signal caught_by_hazard(pos: Vector2)
 signal landed(pos: Vector2, speed_fraction: float)
 ## The ball flew into something growing and dropped out of the air.
 signal struck_canopy(pos: Vector2)
+## The ball crossed the hole too quickly and was thrown off line by the edge.
+signal lipped_out(pos: Vector2)
+## The ball stopped overhanging the lip and toppled in.
+signal hung_on_the_lip(pos: Vector2)
 
 enum State { IDLE, FLYING, ROLLING, HOLED }
 
@@ -74,18 +78,42 @@ const CAPTURE_MAX_RUN_PX := 16.0
 ## could pitch into the middle of the cup and watch it skip out, which is exactly
 ## the sort of thing that makes a player stop trusting the game.
 const AIR_CAPTURE_MAX_ROLL_PX := 60.0
-## Ball radius in world pixels. It was 5, which at the game's scale is nearly
-## two yards -- eighty times a real golf ball, and the other half of why a green
-## looked cramped. Small enough now to sit on a green properly; a screen-space
-## floor in _draw keeps it visible when the camera is a long way out.
-## A real ball is a twentieth of a yard and would be a sixth of a pixel, so this
-## is already a generous lie. Pulled in from 2.2 because it was being judged
-## against a green rather than against the hole: on a twenty yard green a ball
-## drawn at 2.2 is over a yard and a half across, which reads as a football.
-const RADIUS := 1.5
-## Never drawn smaller than this many pixels on screen, whatever the zoom. Low
-## enough to stay honest close up, high enough not to vanish on a wide view.
-const MIN_SCREEN_RADIUS := 3.0
+## How hard the edge of the hole throws a putt that was travelling too fast to
+## drop into it.
+##
+## A ball crossing the cup with pace catches the far wall and is spat out
+## sideways. It is the most expressive thing that happens in putting and the only
+## way the game can say *that was too hard* at the moment it is worth saying --
+## before this, a putt hit six yards past sailed over the hole in a dead straight
+## line as though the hole were painted on.
+##
+## It cannot make a putt easier: it only ever fires on a ball the capture test
+## has already turned down. What it does do is leave the miss somewhere awkward,
+## so hitting it too hard costs you the next putt as well.
+const LIP_THROW := 0.55
+## How much speed the lip takes out of a ball it throws.
+const LIP_DRAG := 0.16
+## The ball is not drawn at a size of its own any more.
+##
+## Every fixed number tried here was wrong, because the eye never judges a ball
+## against the screen -- it judges it against the hole. A flat 1.5 pixels was
+## *wider than the entire cup* the generator makes, so the ball blotted out the
+## target it was aiming at and a putt finishing three ball-widths away looked
+## dead in. It is now sized off `cup_radius`, at golf's own ratio, so a ball on
+## the lip looks like a ball on the lip on every hole at every zoom.
+##
+## Only the drawing changed. Nothing here has ever been tested against: what goes
+## in is decided by where the ball's centre is, exactly as before.
+## A fallback for before a cup has been configured.
+const NOMINAL_RADIUS := 1.5
+## Never drawn smaller than this on screen, whatever the camera is doing.
+##
+## Only about keeping sight of your ball from the tee, where it is a third of a
+## pixel across otherwise. It is small enough that the ball stays narrower than
+## the hole at any zoom close enough to judge a putt from -- below about 2.5x the
+## floor does win, but at that distance the cup is a three pixel dot and it is
+## the flag you are looking at anyway.
+const MIN_SCREEN_RADIUS := 2.4
 const MAX_APEX := 190.0
 const TRAIL_MAX := 48
 
@@ -111,6 +139,10 @@ var _pending_roll_px: float = 0.0
 var _curve_px: float = 0.0
 var _perpendicular: Vector2 = Vector2.ZERO
 var _protects_ball: bool = false
+## The ball is over the hole right now and has not been taken by it.
+var _crossing: bool = false
+## Viewport scale the ball was last painted at, so a zoom can ask for a redraw.
+var _drawn_at_scale: float = 0.0
 ## How much of the green's fall this stroke shrugs off, set at launch.
 var _slope_resistance: float = 0.0
 ## World-space wind offset applied across the carry, in pixels.
@@ -148,6 +180,7 @@ func reset_to(pos: Vector2) -> void:
 	_wind_px = Vector2.ZERO
 	_protects_ball = false
 	_slope_resistance = 0.0
+	_crossing = false
 	_trail.clear()
 	queue_redraw()
 
@@ -165,6 +198,7 @@ func height_yards() -> float:
 func launch(shot: ShotResult, pixels_per_yard: float) -> void:
 	_direction = shot.direction.normalized()
 	_pixels_per_yard = maxf(pixels_per_yard, 0.001)
+	_crossing = false
 	_trail.clear()
 	_trail.append(position)
 
@@ -205,7 +239,12 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(_delta: float) -> void:
-	if is_moving():
+	# Also when the camera zooms, because the ball has a screen-space floor on
+	# its size and a ball sitting still while the camera closes in would keep the
+	# width it was drawn at from forty yards away.
+	var on_screen := get_viewport_transform().get_scale().x
+	if is_moving() or not is_equal_approx(on_screen, _drawn_at_scale):
+		_drawn_at_scale = on_screen
 		queue_redraw()
 
 
@@ -295,6 +334,22 @@ func _process_roll(delta: float) -> void:
 		_hole_out()
 		return
 
+	# Crossing the hole. Every frame spent over it is another chance to be taken,
+	# and the edge only gets involved once the ball has made it the whole way
+	# across untaken -- which is the real shape of a lip-out: the ball runs over
+	# the hole, catches the far edge on its way out and is thrown sideways.
+	#
+	# Fired on the way in instead, it stole the chance to drop from the very
+	# putts that had earned it and *every* putt lipped out, dying ones included.
+	# A putt can also lip out, be gathered up by the slope and come back at the
+	# hole from the other side; that second pass is a real chance rather than a
+	# formality, which falls out of this for free.
+	if _is_over_cup():
+		_crossing = true
+	elif _crossing:
+		_crossing = false
+		_lip_out()
+
 	if _out_of_bounds_here():
 		_go_out_of_bounds()
 		return
@@ -326,6 +381,10 @@ func _process_roll(delta: float) -> void:
 # --- Outcomes -------------------------------------------------------------
 
 func _come_to_rest() -> void:
+	if _topples_in():
+		hung_on_the_lip.emit(position)
+		_hole_out()
+		return
 	state = State.IDLE
 	_velocity = Vector2.ZERO
 	queue_redraw()
@@ -430,6 +489,67 @@ func _drops_here() -> bool:
 	return position.distance_to(cup_position) <= cup_radius * willing
 
 
+## Thrown off line by the edge of the hole.
+##
+## The ball is deflected away from whichever side of the cup it crossed, hardest
+## when it caught the edge and barely at all through the middle -- a putt straight
+## over the heart of the hole rattles the back wall and carries on, which is
+## exactly how that miss looks.
+func _lip_out() -> void:
+	if _velocity.length_squared() < 1.0:
+		return
+	var heading := _velocity.normalized()
+	var across := position - cup_position
+	# The part of the miss that is sideways to the putt. Along-track offset is
+	# just how far through the hole it has got and says nothing about the lip.
+	var side := across - heading * across.dot(heading)
+	var speed := _velocity.length() * (1.0 - LIP_DRAG)
+	if side.length() > 0.001:
+		var grazed := clampf(side.length() / maxf(cup_radius, 0.001), 0.0, 1.0)
+		_velocity = (heading + side.normalized() * LIP_THROW * grazed).normalized() * speed
+	else:
+		_velocity = heading * speed
+	lipped_out.emit(position)
+
+
+## The ball has stopped hanging over the edge. Does it fall in?
+##
+## Its centre is outside the hole, so by the letter of the capture test the putt
+## is missed -- but a ball overhanging the lip is balanced on a slope, and which
+## way the green falls under it decides what happens next.
+##
+## Deliberately not a coin toss. Knowing which side of the hole to miss on is the
+## whole of green reading, and this is the game paying that out: hang it on the
+## high side, where the green falls away towards the cup, and it topples in;
+## leave it below the hole and the slope holds it out there and you have a
+## tap-in. That plays against pace, which wants you below the hole, so the two
+## halves of a green read now pull in different directions.
+##
+## It widens the target by exactly one ball's width, for a putt that was already
+## dead, on greens that actually tilt.
+func _topples_in() -> bool:
+	if state == State.HOLED or sampler == null:
+		return false
+	var to_cup := cup_position - position
+	var gap := to_cup.length()
+	if gap <= cup_radius or gap > cup_radius + world_radius():
+		return false
+	var fall := sampler.slope_at(position)
+	# A green that is all but flat has nothing to topple it with.
+	if fall.length() < 0.15:
+		return false
+	return fall.normalized().dot(to_cup / gap) > 0.35
+
+
+## The ball's own size in the world, in pixels.
+##
+## Golf's ratio against the cup, so this is right on any hole at any scale. Kept
+## apart from `drawn_radius`, which has a screen floor on it: what the ball does
+## must never depend on how far out the camera happens to be.
+func world_radius() -> float:
+	return maxf(cup_radius, 0.0) * HoleData.BALL_TO_CUP
+
+
 func _push_trail() -> void:
 	if _trail.size() >= TRAIL_MAX:
 		_trail.remove_at(0)
@@ -452,19 +572,31 @@ func _draw() -> void:
 	# reason a flat top-down shot reads as having height at all. It slides along
 	# the sun direction as the ball climbs, so the light agrees with everything
 	# else on the course.
+	# Sized against the cup it is being played to, through the same call the
+	# renderer paints the cup with, so the two can never drift apart. Climbing a
+	# little as it flies, because a ball in the air is nearer the eye.
+	var ball_r := drawn_radius()
 	var shadow_at := Palette.shadow_offset(lift * 0.35)
-	draw_circle(shadow_at, RADIUS * (1.0 + shadow_fade * 0.5),
+	draw_circle(shadow_at, ball_r * (1.0 + shadow_fade * 0.5),
 		Color(Palette.SHADOW, 0.40 - shadow_fade * 0.22))
 
 	var ball_pos := Vector2(0.0, -lift)
-	# Drawn no smaller than MIN_SCREEN_RADIUS however far out the camera is. The
-	# ball itself stays small in the world -- this only stops it vanishing when
-	# the whole hole is on screen.
-	var on_screen := get_viewport_transform().get_scale().x
-	var ball_r := maxf(RADIUS, MIN_SCREEN_RADIUS / maxf(on_screen, 0.05))
-	ball_r += shadow_fade * 2.0
+	ball_r *= 1.0 + shadow_fade * 0.7
 	# A dark rim, then the ball, then a highlight on the sun side: three circles
-	# is all it takes for a flat disc to read as a sphere.
-	draw_circle(ball_pos, ball_r + 1.2, Color(0.10, 0.13, 0.10, 0.9))
+	# is all it takes for a flat disc to read as a sphere. The rim is a fraction
+	# of the ball rather than a fixed 1.2, which on a small ball was most of its
+	# width again and put the drawn edge well outside the hole.
+	draw_circle(ball_pos, ball_r * 1.42, Color(0.10, 0.13, 0.10, 0.9))
 	draw_circle(ball_pos, ball_r, Palette.BALL_SHADE)
 	draw_circle(ball_pos - Palette.SUN * ball_r * 0.30, ball_r * 0.78, Palette.BALL)
+
+
+## How big the ball is painted right now, in world pixels.
+##
+## Two and a half of these across is the hole, which is the only proportion a
+## golfer reads.
+func drawn_radius() -> float:
+	if cup_radius <= 0.0:
+		return NOMINAL_RADIUS
+	var on_screen := get_viewport_transform().get_scale().x
+	return maxf(world_radius(), MIN_SCREEN_RADIUS / maxf(on_screen, 0.05))

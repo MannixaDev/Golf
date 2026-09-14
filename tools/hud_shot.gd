@@ -20,8 +20,11 @@ var _was_unlocked := 0
 
 
 func _initialize() -> void:
+	# Deliberately not added here. HoleView wires the renderer to its hole in
+	# _ready, so a screen that joins the tree before setup() draws the scene's
+	# placeholder hole for ever after -- which is how these photographs came to
+	# show a flag and cup belonging to a completely different golf hole.
 	_screen = HOLE_SCREEN.instantiate()
-	root.add_child(_screen)
 
 
 func _process(_delta: float) -> bool:
@@ -48,6 +51,7 @@ func _process(_delta: float) -> bool:
 		print("woodland: %s" % hole.woodland)
 		_screen.setup(hole,
 			Deck.new(load("res://resources/decks/starting_deck.tres").build()))
+		root.add_child(_screen)
 		_screen.setup_run(carried, 0)
 		_screen.begin()
 	elif frames == 6:
@@ -64,6 +68,28 @@ func _process(_delta: float) -> bool:
 		print("hand %d, focus %d, equipment %d"
 			% [view.deck.hand.size(), view.focus, view.relics.size()])
 		_grab(OUT)
+		# Then right down on the hole, at the zoom the camera actually reaches
+		# when you are putting, with the ball where a missed short one finishes.
+		#
+		# This picture is the one that would have caught the ball being drawn
+		# wider than the entire cup: no assertion was ever going to notice that
+		# a miss looked holed, and nothing here had ever been photographed from
+		# closer than the whole green.
+		var camera: Camera2D = view.get_node("Camera2D")
+		camera.position = view.hole.pin_position
+		camera.zoom = Vector2(5.2, 5.2)
+		# Just outside the hole: the exact rest the bug report was about.
+		view._ball.reset_to(view.hole.pin_position
+			+ Vector2(2.2, 1.2).normalized() * view.hole.cup_pixels() * 1.9)
+	elif frames == FRAMES + 40:
+		var view: HoleView = _screen.get_node("HoleView")
+		var camera: Camera2D = view.get_node("Camera2D")
+		print("cup %s r %.2f, ball %s r %.2f, camera %s zoom %.2f" % [
+			view.hole.pin_position, view.hole.cup_pixels(),
+			view._ball.position, view._ball.drawn_radius(),
+			camera.position, camera.zoom.x])
+		_grab("user://cup.png")
+	elif frames == FRAMES + 46:
 		# And the ladder, with every rung unlocked so the longest version of the
 		# list is the one that gets looked at.
 		_screen.queue_free()
@@ -72,22 +98,22 @@ func _process(_delta: float) -> bool:
 		TourLibrary.unlocked_rung = TourLibrary.all().size() - 1
 		_screen = TOUR_SCREEN.instantiate()
 		root.add_child(_screen)
-	elif frames == FRAMES + 40:
+	elif frames == FRAMES + 86:
 		_grab("user://ladder.png")
 		# Put the career back: photographing the game must not promote you.
 		TourLibrary.unlocked_rung = _was_unlocked
 		_screen.queue_free()
 		_screen = SCORECARD_SCREEN.instantiate()
 		root.add_child(_screen)
-	elif frames == FRAMES + 42:
+	elif frames == FRAMES + 88:
 		_screen.show_card(_finished_round(), TourLibrary.by_rung(2), true,
 			TourLibrary.by_rung(3))
-	elif frames == FRAMES + 90:
+	elif frames == FRAMES + 136:
 		_grab("user://scorecard.png")
 		_screen.queue_free()
 		_screen = SPLASH_SCREEN.instantiate()
 		root.add_child(_screen)
-	elif frames >= FRAMES + 140:
+	elif frames >= FRAMES + 186:
 		_grab("user://splash.png")
 		return true
 	return false
