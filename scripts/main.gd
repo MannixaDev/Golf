@@ -27,6 +27,9 @@ const CARD_PRICE := {
 	CardData.Rarity.RARE: 92,
 }
 const REMOVAL_PRICE := 45
+## What the pro asks for a putter when you have none. Deliberately cheap: this
+## is a way out of an unrecoverable bag, not a purchase to agonise over.
+const PUTTER_RESCUE_PRICE := 25
 ## What the halfway house takes off your card -- but only while you are over par.
 ##
 ## It used to heal unconditionally, which quietly made resting the best way to
@@ -377,11 +380,18 @@ func _open_removal(node: MapNode) -> void:
 		return
 
 	var cards := deck.cards
+	# Your last putter is greyed out rather than merely discouraged. Choosing to
+	# go without one is not a strategy the game supports, because it cannot sell
+	# you a replacement.
+	var locked: Array = []
+	for card in cards:
+		locked.append(deck.is_last_putter(card))
+
 	var screen: CardPickerScreen = PICKER_SCREEN.instantiate()
 	_swap_screen(screen)
 	screen.show_cards(node.display_name(),
 		"Leave one club at home. You will not miss it.",
-		cards, "Keep the lot")
+		cards, "Keep the lot", locked)
 	screen.card_chosen.connect(func(index: int) -> void:
 		deck.remove_card(cards[index])
 		_after_stop())
@@ -583,9 +593,17 @@ func _resolve_outcome(event: EventSpec, outcome: EventOutcome) -> void:
 			notes.append("%s goes in the bag." % card.title())
 
 	if outcome.removes_random_card and deck.total_cards() > 1:
-		var dropped: CardData = deck.cards[rng.randi_range(0, deck.cards.size() - 1)]
-		deck.remove_card(dropped)
-		notes.append("%s leaves the bag." % dropped.title())
+		# Anything but the last putter. Nothing in the game can sell you another
+		# -- it is a starter card and the pools only hold commons and uncommons
+		# -- so a random draw taking it ends the run four holes before it stops.
+		var takeable: Array[CardData] = []
+		for card in deck.cards:
+			if not deck.is_last_putter(card):
+				takeable.append(card)
+		if not takeable.is_empty():
+			var dropped: CardData = takeable[rng.randi_range(0, takeable.size() - 1)]
+			deck.remove_card(dropped)
+			notes.append("%s leaves the bag." % dropped.title())
 
 	if outcome.upgrades_random_card:
 		var upgradeable: Array[CardData] = []
@@ -618,9 +636,18 @@ func _resolve_outcome(event: EventSpec, outcome: EventOutcome) -> void:
 
 func _open_shop() -> void:
 	_shop_cards = RewardTable.card_offer(rng, 2, SHOP_CARDS)
+	# A bag with nothing to putt with cannot be rescued by the ordinary stock:
+	# the putter is a starter card and the pools hold none. So the pro keeps one
+	# under the counter, cheap, for exactly this. It is the only way back.
+	if deck.putters() == 0:
+		var spare := CardLibrary.copy(&"putter")
+		if spare != null:
+			_shop_cards.insert(0, spare)
 	_shop_prices = []
 	for card in _shop_cards:
 		_shop_prices.append(int(CARD_PRICE.get(card.rarity, 45)))
+	if deck.putters() == 0 and not _shop_cards.is_empty():
+		_shop_prices[0] = PUTTER_RESCUE_PRICE
 
 	# Built as a typed array on purpose: concatenating a typed and an untyped
 	# array yields an untyped one, which the library then refuses.

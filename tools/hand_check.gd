@@ -17,6 +17,7 @@ func _initialize() -> void:
 	_trace_piles()
 	_check_duplicate_cap()
 	_check_club_cap()
+	_check_you_cannot_lose_the_short_game()
 
 	# The tee-shot rule lives in HoleView, so the check drives the real scene
 	# rather than re-implementing the logic and proving nothing. Nodes added
@@ -77,6 +78,76 @@ func _check_club_cap() -> void:
 	print("  most putters held %d, most Draws held %d" % [worst_club, best_technique])
 	_expect(worst_club <= 1, "never more than one of a club in hand")
 	_expect(best_technique >= 2, "but techniques still come in pairs")
+
+
+## You must never end up unable to putt.
+##
+## Found by a player, mid-round, stood on a green twenty yards from the flag
+## holding a wedge and a 9 iron. The putter is a starter card, so shops and
+## prizes -- which draw only from the common and uncommon pools -- can never
+## sell you another. Losing the last one was not a setback, it was a run that
+## was already over and had not finished yet.
+func _check_you_cannot_lose_the_short_game() -> void:
+	print("")
+	print("=== the bag always keeps something to putt with ===")
+
+	var list: DeckList = load("res://resources/decks/starting_deck.tres")
+	var deck := Deck.new(list.build())
+	print("  the starting bag holds %d putters" % deck.putters())
+	_expect(deck.putters() > 0, "you start with something to putt with")
+
+	# Strip it down to one and check the guard recognises the last one.
+	while deck.putters() > 1:
+		for card in deck.cards:
+			if card.club != null and card.club.is_ground_shot:
+				deck.remove_card(card)
+				break
+	_expect(deck.putters() == 1, "stripped down to a single putter")
+
+	var guarded := 0
+	var unguarded := 0
+	for card in deck.cards:
+		if deck.is_last_putter(card):
+			guarded += 1
+		else:
+			unguarded += 1
+	print("  with one left: %d card protected, %d still removable" % [
+		guarded, unguarded])
+	_expect(guarded == 1, "the last putter is protected")
+	_expect(unguarded == deck.total_cards() - 1,
+		"and nothing else is")
+
+	# With two, neither is precious.
+	deck.add_card(CardLibrary.copy(&"putter"))
+	var protected := 0
+	for card in deck.cards:
+		if deck.is_last_putter(card):
+			protected += 1
+	_expect(protected == 0, "with a spare, neither putter is protected")
+
+	# It has to be about the club, not the card's name.
+	var wedge := CardLibrary.copy(&"wedge")
+	_expect(not deck.is_last_putter(wedge),
+		"a wedge is never a putter however short you swing it")
+
+	# And the shop is the way back for a bag that already has none.
+	var stranded := Deck.new([CardLibrary.copy(&"driver"),
+		CardLibrary.copy(&"iron_5")])
+	_expect(stranded.putters() == 0, "a bag can still be built without one")
+	var putter := CardLibrary.template(&"putter")
+	_expect(putter != null and putter.rarity == CardData.Rarity.STARTER,
+		"the putter is a starter card, which is why no pool can offer it")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	var offered := 0
+	for roll in 500:
+		for card in RewardTable.card_offer(rng, 2, 3):
+			if card.club != null and card.club.is_ground_shot:
+				offered += 1
+	print("  putters in 500 prize offers: %d (so the shop has to stock one)"
+		% offered)
+	_expect(offered == 0,
+		"if prizes did offer one, the shop rescue would be unnecessary")
 
 
 func _check_duplicate_cap() -> void:

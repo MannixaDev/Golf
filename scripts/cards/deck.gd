@@ -54,6 +54,31 @@ func total_cards() -> int:
 	return cards.size()
 
 
+## Anything in the bag that can actually be putted with.
+##
+## A putt is a stroke played along the ground, so this asks the club rather than
+## matching on a name: a future putter under any other id still counts, and a
+## wedge never does however short you try to swing it.
+func putters() -> int:
+	var found := 0
+	for card in cards:
+		if card != null and card.club != null and card.club.is_ground_shot:
+			found += 1
+	return found
+
+
+## True if losing this card would leave you with no way to putt at all.
+##
+## Worth guarding because the putter is a starter card: shops and prizes both
+## draw from the common and uncommon pools, so nothing in the game can ever give
+## you another one. Losing the last was not bad luck, it was unrecoverable, and
+## a run could be effectively over four holes before it ended.
+func is_last_putter(card: CardData) -> bool:
+	if card == null or card.club == null or not card.club.is_ground_shot:
+		return false
+	return putters() <= 1
+
+
 # --- Per-hole state -------------------------------------------------------
 
 ## Gather everything back up and shuffle. Call at the start of a hole.
