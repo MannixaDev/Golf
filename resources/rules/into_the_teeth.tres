@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://scripts/rules/effects/ground_rule.gd" id="id_0"]
+
+[sub_resource type="Resource" id="Rule_0"]
+script = ExtResource("id_0")
+summary = ""The wind takes the distance out of everything.""
+announcement = ""Dead into it. Take at least one more club.""
+distance_multiplier = 0.82
+roll_multiplier = 1.5
+
+[resource]
+script = ExtResource("1_set")
+id = &"into_the_teeth"
+display_name = "Into The Teeth"
+description = "Straight off the sea, straight into your face, all the way to the green."
+colour = Color(0.55, 0.72, 0.78, 1)
+min_difficulty = 3
+weight = 8.0
+rules = Array[CourseRule]([SubResource("Rule_0")])
+force_length_yards = 0.0

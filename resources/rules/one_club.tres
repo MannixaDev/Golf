@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://scripts/rules/effects/bag_restriction_rule.gd" id="id_0"]
+
+[sub_resource type="Resource" id="Rule_0"]
+script = ExtResource("id_0")
+summary = ""Three clubs in the bag, and no focus to spare.""
+hand_size_delta = -2
+focus_delta = -2
+
+[resource]
+script = ExtResource("1_set")
+id = &"one_club"
+display_name = "The One Club Challenge"
+description = "Members only play it with a single stick. You will see why."
+colour = Color(0.85, 0.62, 0.35, 1)
+min_difficulty = 4
+weight = 7.0
+rules = Array[CourseRule]([SubResource("Rule_0")])

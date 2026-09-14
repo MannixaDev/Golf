@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://scripts/rules/effects/bag_restriction_rule.gd" id="id_0"]
+
+[sub_resource type="Resource" id="Rule_0"]
+script = ExtResource("id_0")
+summary = ""No focus for technique. Clubs only.""
+focus_delta = -2
+
+[resource]
+script = ExtResource("1_set")
+id = &"the_long_walk"
+display_name = "The Long Walk"
+description = "The card says par five. The walk says otherwise."
+colour = Color(0.78, 0.68, 0.48, 1)
+min_difficulty = 4
+weight = 8.0
+rules = Array[CourseRule]([SubResource("Rule_0")])
+force_par = 5
+force_length_yards = 620.0

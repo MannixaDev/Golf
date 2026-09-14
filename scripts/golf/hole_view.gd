@@ -642,6 +642,13 @@ func _settle_bag() -> void:
 		for effect in relic.effects:
 			if effect != null:
 				effect.modify_bag(_bag, ctx)
+	# The course speaks after the equipment, and through the same object, so a
+	# relic that hands you a card and a hole that takes one away cancel out
+	# rather than one of them quietly winning.
+	if rule_set != null:
+		for rule in rule_set.rules:
+			if rule is BagRestrictionRule:
+				(rule as BagRestrictionRule).modify_bag(_bag)
 	_bag.clamped()
 	_free_techniques = _bag.free_techniques
 

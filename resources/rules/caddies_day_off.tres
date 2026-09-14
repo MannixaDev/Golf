@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://scripts/rules/effects/bag_restriction_rule.gd" id="id_0"]
+
+[sub_resource type="Resource" id="Rule_0"]
+script = ExtResource("id_0")
+summary = ""One fewer club in hand.""
+hand_size_delta = -1
+
+[resource]
+script = ExtResource("1_set")
+id = &"caddies_day_off"
+display_name = "The Caddie's Day Off"
+description = "Nobody to hand you anything. You carry what you can hold."
+colour = Color(0.64, 0.72, 0.85, 1)
+min_difficulty = 3
+weight = 9.0
+rules = Array[CourseRule]([SubResource("Rule_0")])

@@ -12,6 +12,10 @@ extends SceneTree
 
 const FONT_DIR := "res://resources/fonts"
 const LICENCE := "res://resources/fonts/OFL.txt"
+const GAME_LICENCE := "res://LICENSE"
+const README := "res://README.md"
+## The GPL-3.0 is a little over 35KB. Anything much shorter is a summary of it.
+const GPL_MIN_LENGTH := 30000
 ## Sections the real OFL 1.1 contains. Checked because the obvious way to get
 ## this wrong is to paste in a summary of the licence rather than the licence --
 ## which is exactly what a web fetch of it returns.
@@ -78,7 +82,38 @@ func _initialize() -> void:
 			"the notice in OFL.txt matches the one inside %s" % font)
 
 	_check_the_build_carries_it()
+	_check_the_game_has_a_licence()
 	_finish()
+
+
+## The game's own licence, as distinct from the font's.
+##
+## A public repository with no licence grants nobody anything, which is rarely
+## what the author meant. Checked the same way as the font's: by length and by
+## structure, because the way this goes wrong is a summary pasted in place of
+## the document.
+func _check_the_game_has_a_licence() -> void:
+	print("")
+	print("=== the game's own licence ===")
+	if not FileAccess.file_exists(GAME_LICENCE):
+		_expect(false, "no LICENSE in the project root")
+		return
+	var text := FileAccess.get_file_as_string(GAME_LICENCE)
+	print("  LICENSE present, %d characters" % text.length())
+	_expect(text.length() >= GPL_MIN_LENGTH,
+		"LICENSE is only %d characters -- the GPL is about 35,000"
+			% text.length())
+	for section in ["GNU GENERAL PUBLIC LICENSE", "Version 3",
+			"TERMS AND CONDITIONS", "END OF TERMS AND CONDITIONS",
+			"How to Apply These Terms"]:
+		_expect(text.contains(section), "LICENSE is missing its '%s'" % section)
+	# The README has to carry the notice too, or nothing tells a reader which
+	# licence the thing they are looking at is under.
+	var readme := FileAccess.get_file_as_string(README)
+	_expect(readme.contains("GNU General Public License"),
+		"the README does not say what licence the game is under")
+	_expect(readme.contains("Open Font License"),
+		"and does not say the fonts are excluded from it")
 
 
 ## The licence sitting in the repository protects nobody: what has to carry it

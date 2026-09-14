@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CourseRuleSet" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/rules/course_rule_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://scripts/rules/effects/ground_rule.gd" id="id_0"]
+
+[sub_resource type="Resource" id="Rule_0"]
+script = ExtResource("id_0")
+summary = ""A bad lie is mostly forgiven.""
+announcement = ""Preferred lies today. Roll it out of anything ugly.""
+lie_resistance = 0.65
+
+[resource]
+script = ExtResource("1_set")
+id = &"winter_rules"
+display_name = "Winter Rules"
+description = "Preferred lies, and everybody quietly improving them a little more than that."
+colour = Color(0.72, 0.78, 0.68, 1)
+min_difficulty = 3
+weight = 9.0
+rules = Array[CourseRule]([SubResource("Rule_0")])
+extra_greenside_hazards = 1
+fairway_scale = 0.78

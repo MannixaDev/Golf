@@ -17,6 +17,8 @@ func _initialize() -> void:
 	_check_generation_overrides()
 	_check_assignment()
 	_check_events()
+	_check_the_ground_plays_differently()
+	_check_every_rule_class_is_used()
 
 	print("")
 	if failures == 0:
@@ -316,6 +318,79 @@ func _check_nothing_is_dominated(event: EventSpec) -> void:
 
 func _same_shape(a: EventOutcome, b: EventOutcome) -> bool:
 	return a.add_card_id == b.add_card_id 		and a.removes_random_card == b.removes_random_card 		and a.upgrades_random_card == b.upgrades_random_card 		and a.grants_relic == b.grants_relic
+
+
+## The ground rules re-price every club in the bag, which is a different kind of
+## difficulty from a hazard and the reason they exist.
+func _check_the_ground_plays_differently() -> void:
+	print("")
+	print("=== the ground itself ===")
+	var base := ShotProfile.from_card(CardLibrary.template(&"iron_5"))
+	var plain := base.max_reach_yards()
+
+	var baked := _ground_profile(&"baked_out")
+	var soaked := _ground_profile(&"casual_water")
+	print("  a 5 iron runs out to %.0f yd normally, %.0f baked, %.0f soaked"
+		% [plain, baked.max_reach_yards(), soaked.max_reach_yards()])
+	_expect(baked.max_reach_yards() > plain * 1.08,
+		"baked ground should send the ball meaningfully further")
+	_expect(soaked.max_reach_yards() < plain * 0.96,
+		"and sodden ground should stop it")
+
+	var winter := _ground_profile(&"winter_rules")
+	_expect(winter.lie_resistance > 0.0,
+		"winter rules should forgive a bad lie")
+
+
+## The check that would have caught seven rule sets sharing three classes, which
+## is what made the pool thin in the first place.
+func _check_every_rule_class_is_used() -> void:
+	print("")
+	print("=== rule classes in play ===")
+	var seen: Dictionary = {}
+	for rule_set in CourseRuleLibrary.all():
+		for rule in rule_set.rules:
+			if rule == null:
+				continue
+			var kind: String = rule.get_script().resource_path.get_file()
+			seen[kind] = int(seen.get(kind, 0)) + 1
+	for kind in seen:
+		print("  %-28s %d" % [kind, seen[kind]])
+	_expect(seen.size() >= 5,
+		"the course should do more than a few kinds of thing to you")
+
+	# A hole that takes a club off you has to actually take it, and must not be
+	# able to leave you with nothing to play.
+	print("")
+	print("=== a hole that thins your bag ===")
+	for id in [&"one_club", &"caddies_day_off", &"the_long_walk"]:
+		var rule_set := CourseRuleLibrary.by_id(id)
+		if rule_set == null:
+			_expect(false, "'%s' is gone" % id)
+			continue
+		var bag := BagRules.new(5, 3)
+		for rule in rule_set.rules:
+			if rule is BagRestrictionRule:
+				(rule as BagRestrictionRule).modify_bag(bag)
+		bag.clamped()
+		print("  %-20s hand %d, focus %d" % [rule_set.display_name,
+			bag.hand_size, bag.focus])
+		_expect(bag.hand_size >= 1 and bag.focus >= 1,
+			"%s leaves you a hole you cannot play" % rule_set.display_name)
+		_expect(bag.hand_size < 5 or bag.focus < 3,
+			"%s claims to restrict the bag and does not" % rule_set.display_name)
+
+
+func _ground_profile(rule_id: StringName) -> ShotProfile:
+	var profile := ShotProfile.from_card(CardLibrary.template(&"iron_5"))
+	var rule_set := CourseRuleLibrary.by_id(rule_id)
+	var ctx := CourseRuleContext.new()
+	ctx.rng = _rng(1)
+	if rule_set != null:
+		for rule in rule_set.rules:
+			if rule != null:
+				rule.modify_profile(profile, ctx)
+	return profile
 
 
 func _expect(condition: bool, what: String) -> void:

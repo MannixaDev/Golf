@@ -528,3 +528,29 @@ Both of these came out of a playtest rather than a spec, and both are asserted i
   rebinding belongs in the polish milestone.
 - The cup is far larger than a real one would be at this scale, because a
   realistic cup would be sub-pixel and unputtable.
+
+## Licence
+
+Fairway Fiends is free software under the **GNU General Public License v3.0**.
+The full text is in [LICENSE](LICENSE), downloaded verbatim from the FSF rather
+than reproduced from memory.
+
+    Copyright (C) 2026 MannixaDev
+
+    This program is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the Free
+    Software Foundation, either version 3 of the License, or (at your option)
+    any later version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program. If not, see <https://www.gnu.org/licenses/>.
+
+The four Lato font weights in `resources/fonts/` are **not** covered by the GPL.
+They remain under the SIL Open Font License 1.1, which travels with them in
+`resources/fonts/OFL.txt` and is carried into every build. See
+[resources/fonts/NOTICE.md](resources/fonts/NOTICE.md).
