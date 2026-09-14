@@ -11,8 +11,10 @@ ponds ripple, the ball throws up turf and sand and water where it lands, the
 camera takes a knock off the tee, the route draws itself in, and the whole thing
 now makes a noise.
 
-Still no binary assets: every shape is drawn and every sound is synthesised at
-startup, so the repository remains text only.
+Almost no binary assets: every shape in the game is drawn and every sound is
+synthesised at startup. The exceptions are four font weights and the logo on the
+splash screen -- everything else you see is polygons and noise generated at run
+time, which is why the repository is a few megabytes of text.
 
 ## Play it
 
@@ -549,6 +551,10 @@ than reproduced from memory.
 
     You should have received a copy of the GNU General Public License along
     with this program. If not, see <https://www.gnu.org/licenses/>.
+
+`resources/art/logo.png` was generated with an image model from a prompt written
+for this project, then keyed, cropped and resized for the splash screen. It is
+the only picture in the game that was not drawn by the code.
 
 The four Lato font weights in `resources/fonts/` are **not** covered by the GPL.
 They remain under the SIL Open Font License 1.1, which travels with them in

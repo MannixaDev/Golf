@@ -8,6 +8,7 @@ extends SceneTree
 
 const HOLE_SCREEN := preload("res://scenes/run/hole_screen.tscn")
 const TOUR_SCREEN := preload("res://scenes/ui/tour_screen.tscn")
+const SPLASH_SCREEN := preload("res://scenes/ui/splash_screen.tscn")
 const SCORECARD_SCREEN := preload("res://scenes/ui/scorecard_screen.tscn")
 const OUT := "user://hud.png"
 ## Long enough for the flyover to finish and the deal to settle.
@@ -72,8 +73,13 @@ func _process(_delta: float) -> bool:
 	elif frames == FRAMES + 42:
 		_screen.show_card(_finished_round(), TourLibrary.by_rung(2), true,
 			TourLibrary.by_rung(3))
-	elif frames >= FRAMES + 90:
+	elif frames == FRAMES + 90:
 		_grab("user://scorecard.png")
+		_screen.queue_free()
+		_screen = SPLASH_SCREEN.instantiate()
+		root.add_child(_screen)
+	elif frames >= FRAMES + 140:
+		_grab("user://splash.png")
 		return true
 	return false
 
