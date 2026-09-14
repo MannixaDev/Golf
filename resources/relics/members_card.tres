@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/shop_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_members_card"]
+script = ExtResource("2_effect")
+summary = "A quarter off everything on the shelf."
+card_slots_delta = 0
+relic_slots_delta = 0
+guaranteed_uncommons = 0
+price_scale = 0.75
+free_removals = 0
+
+[resource]
+script = ExtResource("1_relic")
+id = &"members_card"
+display_name = "The Members' Card"
+description = "Laminated in 1994. Nobody has ever asked to see it twice."
+short_label = "MC"
+colour = Color(0.85, 0.72, 0.42, 1)
+rarity = 1
+price = 90
+weight = 8.0
+effects = Array[RelicEffect]([SubResource("Effect_members_card")])

@@ -34,11 +34,15 @@ func _ready() -> void:
 	_removal_button.pressed.connect(func() -> void: removal_bought.emit())
 
 
+## `relic_prices` is passed in rather than read off each spec, because the asking
+## price is not a property of the equipment any more -- a bag carrying the
+## members' card pays less for it. Displaying `relic.price` while charging
+## something else is the kind of disagreement a shop should never have.
 func show_stock(cards: Array, card_prices: Array, relics: Array,
-		removal_price: int, winnings: int) -> void:
+		relic_prices: Array, removal_price: int, winnings: int) -> void:
 	_card_prices = card_prices
 	_build_cards(cards)
-	_build_relics(relics)
+	_build_relics(relics, relic_prices)
 	_removal_button.text = "Leave a club at home  ·  %d" % removal_price
 	_removal_button.set_meta("price", removal_price)
 	set_winnings(winnings)
@@ -118,20 +122,21 @@ func _can_afford_card(index: int) -> bool:
 	return _winnings >= int(_card_prices[index])
 
 
-func _build_relics(relics: Array) -> void:
+func _build_relics(relics: Array, prices: Array) -> void:
 	for child in _relic_list.get_children():
 		child.queue_free()
 	_relic_buttons.clear()
 
 	for i in relics.size():
 		var relic: RelicSpec = relics[i]
+		var price: int = int(prices[i]) if i < prices.size() else relic.price
 		var button := Button.new()
-		button.text = "%s  ·  %d\n%s" % [relic.display_name, relic.price, relic.effect_text()]
+		button.text = "%s  ·  %d\n%s" % [relic.display_name, price, relic.effect_text()]
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size = Vector2(360.0, 62.0)
 		button.add_theme_font_size_override("font_size", 14)
 		button.add_theme_color_override("font_color", relic.colour)
-		button.set_meta("price", relic.price)
+		button.set_meta("price", price)
 		button.set_meta("sold", false)
 		var index := i
 		button.pressed.connect(func() -> void: relic_bought.emit(index))

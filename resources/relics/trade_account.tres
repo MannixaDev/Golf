@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="RelicSpec" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/run/relic_spec.gd" id="1_relic"]
+[ext_resource type="Script" path="res://scripts/run/relics/shop_relic.gd" id="2_effect"]
+
+[sub_resource type="Resource" id="Effect_trade_account"]
+script = ExtResource("2_effect")
+summary = "One more club and one more piece of kit on every shelf, at a markup."
+card_slots_delta = 1
+relic_slots_delta = 1
+guaranteed_uncommons = 0
+price_scale = 1.2
+free_removals = 0
+
+[resource]
+script = ExtResource("1_relic")
+id = &"trade_account"
+display_name = "Trade Account"
+description = "You are, on paper, a golf retailer. The paperwork is not your concern."
+short_label = "TA"
+colour = Color(0.85, 0.72, 0.42, 1)
+rarity = 1
+price = 80
+weight = 8.0
+effects = Array[RelicEffect]([SubResource("Effect_trade_account")])

@@ -25,8 +25,12 @@ static func winnings_for(strokes: int, par: int, difficulty: int) -> int:
 
 ## Distinct cards to choose between after a hole. Never offers the same card
 ## twice in one set, because picking between two identical cards is not a choice.
+## `least_uncommon` is a floor rather than a quota: that many of the offered
+## cards are drawn from the uncommon pool outright, and the rest roll as usual.
+## Equipment that promises a better shelf needs somewhere to say so, and biasing
+## the chance instead would have meant a relic that sometimes did nothing at all.
 static func card_offer(rng: RandomNumberGenerator, difficulty: int,
-		count: int = CARD_CHOICES) -> Array[CardData]:
+		count: int = CARD_CHOICES, least_uncommon: int = 0) -> Array[CardData]:
 	var common := _pool(CardData.Rarity.COMMON)
 	var uncommon := _pool(CardData.Rarity.UNCOMMON)
 	var chance := clampf(UNCOMMON_CHANCE + 0.08 * maxi(difficulty - 1, 0), 0.0, 0.8)
@@ -36,7 +40,8 @@ static func card_offer(rng: RandomNumberGenerator, difficulty: int,
 	var guard := 0
 	while offer.size() < count and guard < 200:
 		guard += 1
-		var pool := uncommon if (rng.randf() < chance and not uncommon.is_empty()) else common
+		var forced := offer.size() < least_uncommon and not uncommon.is_empty()
+		var pool := uncommon if (forced or (rng.randf() < chance and not uncommon.is_empty())) else common
 		if pool.is_empty():
 			pool = common if not common.is_empty() else uncommon
 		if pool.is_empty():

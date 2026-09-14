@@ -236,6 +236,27 @@ func _process(_delta: float) -> bool:
 			var relics: int = main.run.relics.size()
 			main._current_screen.relic_bought.emit(0)
 			_expect(main.run.relics.size() == relics + 1, "buying equipment carries it")
+
+			# Out to the removal picker and straight back. The shelf must be the
+			# same shelf: going for a removal and changing your mind used to call
+			# _open_shop again, which rolled new cards and new equipment for
+			# nothing -- an unlimited free reroll of the whole shop, every visit.
+			var shelf: Array = main._shop_cards.duplicate()
+			var kit: Array = main._shop_relics.duplicate()
+			main._current_screen.removal_bought.emit()
+			if _expect(main._current_screen is CardPickerScreen,
+					"the shop opens a removal picker"):
+				main._current_screen.skipped.emit()
+			_expect(main._current_screen is ShopScreen,
+				"changing your mind comes back to the shop")
+			_expect(main._shop_cards == shelf and main._shop_relics == kit,
+				"the shop restocked itself for free on the way back")
+			# And what was already bought is still gone.
+			var purse_now: int = main.run.winnings
+			main._current_screen.card_bought.emit(0)
+			_expect(main.run.winnings == purse_now,
+				"a card already bought was sold a second time")
+
 			main._current_screen.left.emit()
 			_visit(&"driving_range")
 			if _expect(main._current_screen is CardPickerScreen, "the range opens a picker"):

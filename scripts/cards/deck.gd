@@ -38,6 +38,21 @@ func _init(starting_cards: Array[CardData] = []) -> void:
 	cards = starting_cards.duplicate()
 
 
+## Deal from a known shuffle instead of a random one.
+##
+## For harnesses only. `run_sim` is the instrument the whole project's balance is
+## measured with, and it was not reproducible: the deck randomized itself on
+## construction, so two runs of identical code came back -7.5 and -7.1 with
+## fifteen balls out of bounds and then six. Every before-and-after comparison
+## made with it was really two samples from the same distribution, and small
+## differences read as changes that had not happened.
+##
+## The game itself must keep randomizing -- a real run that dealt the same hands
+## every time would be no run at all -- so this is opt-in rather than the default.
+func shuffle_from(seed_value: int) -> void:
+	_rng.seed = seed_value
+
+
 # --- Collection (persists across holes) -----------------------------------
 
 func add_card(card: CardData) -> void:

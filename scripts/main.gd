@@ -68,6 +68,15 @@ var _nine_index: int = 0
 var _shop_cards: Array = []
 var _shop_prices: Array = []
 var _shop_relics: Array[RelicSpec] = []
+## What the equipment made of this shop, rolled once when the player arrives.
+var _stock: ShopStock = ShopStock.new()
+## Free removals taken on this visit, so a relic that grants them cannot be
+## milked by walking in and out of the picker.
+var _removals_used: int = 0
+## Sold state, kept out here because the removal picker tears the shop screen
+## down and builds a new one on the way back.
+var _shop_card_sold: Array[bool] = []
+var _shop_relic_sold: Array[bool] = []
 ## Events already seen this run, so one run does not tell the same joke twice.
 var _events_seen: Array = []
 ## The rung being played. Every round has one; it defaults to the gentle one.
@@ -634,8 +643,30 @@ func _resolve_outcome(event: EventSpec, outcome: EventOutcome) -> void:
 
 # --- Shop -----------------------------------------------------------------
 
+## What the equipment has to say about the shelf, before anything is stocked.
+##
+## Mirrors _apply_scoring_relics: build a context, hand one mutable object round
+## the bag, play by what comes back. A relic that widens the shelf and one that
+## discounts it both apply.
+func _shop_stock() -> ShopStock:
+	var stock := ShopStock.new(SHOP_CARDS, SHOP_RELICS)
+	if run.relics.is_empty():
+		return stock.clamped()
+	var ctx := RelicContext.new()
+	ctx.run_score_to_par = run.score_to_par()
+	for relic in run.relics:
+		for effect in relic.effects:
+			if effect != null:
+				effect.modify_shop(stock, ctx)
+	return stock.clamped()
+
+
+## Arriving at the shop. Rolls the shelf once, for this visit.
 func _open_shop() -> void:
-	_shop_cards = RewardTable.card_offer(rng, 2, SHOP_CARDS)
+	_stock = _shop_stock()
+	_removals_used = 0
+	_shop_cards = RewardTable.card_offer(rng, 2, _stock.card_slots,
+		_stock.guaranteed_uncommons)
 	# A bag with nothing to putt with cannot be rescued by the ordinary stock:
 	# the putter is a starter card and the pools hold none. So the pro keeps one
 	# under the counter, cheap, for exactly this. It is the only way back.
@@ -645,57 +676,98 @@ func _open_shop() -> void:
 			_shop_cards.insert(0, spare)
 	_shop_prices = []
 	for card in _shop_cards:
-		_shop_prices.append(int(CARD_PRICE.get(card.rarity, 45)))
+		_shop_prices.append(_stock.price_of(int(CARD_PRICE.get(card.rarity, 45))))
+	# Set after the discount and never through it: the putter under the counter
+	# is a rescue rather than a purchase, and taking a quarter off a mercy is not
+	# a thing anybody needs.
 	if deck.putters() == 0 and not _shop_cards.is_empty():
 		_shop_prices[0] = PUTTER_RESCUE_PRICE
 
 	# Built as a typed array on purpose: concatenating a typed and an untyped
 	# array yields an untyped one, which the library then refuses.
 	_shop_relics.clear()
-	for i in SHOP_RELICS:
+	for i in _stock.relic_slots:
 		var already: Array[RelicSpec] = run.relics.duplicate()
 		already.append_array(_shop_relics)
 		var relic := RelicLibrary.offer(rng, already)
 		if relic != null:
 			_shop_relics.append(relic)
 
+	_shop_card_sold.clear()
+	_shop_card_sold.resize(_shop_cards.size())
+	_shop_relic_sold.clear()
+	_shop_relic_sold.resize(_shop_relics.size())
+	_show_shop()
+
+
+## Putting the rolled shelf on screen. Separate from rolling it because the
+## removal picker leaves the shop and comes back, and coming back used to call
+## _open_shop -- which restocked.
+##
+## That was a free reroll of the entire shelf, available as often as you liked:
+## open the removal picker, change your mind, and every card and both pieces of
+## equipment were different, with nothing spent. What is on the shelf is supposed
+## to be the decision the shop poses, and it was not a decision at all.
+func _show_shop() -> void:
 	var screen: ShopScreen = SHOP_SCREEN.instantiate()
 	_swap_screen(screen)
-	screen.show_stock(_shop_cards, _shop_prices, _shop_relics, REMOVAL_PRICE, run.winnings)
+	var removal := _stock.removal_price(REMOVAL_PRICE, _removals_used)
+	var relic_prices: Array = []
+	for relic in _shop_relics:
+		relic_prices.append(_stock.price_of(relic.price))
+	screen.show_stock(_shop_cards, _shop_prices, _shop_relics, relic_prices,
+		removal, run.winnings)
+	# What was already bought stays bought across the trip to the picker.
+	for i in _shop_card_sold.size():
+		if _shop_card_sold[i]:
+			screen.mark_card_sold(i)
+	for i in _shop_relic_sold.size():
+		if _shop_relic_sold[i]:
+			screen.mark_relic_sold(i)
 
 	screen.card_bought.connect(func(index: int) -> void:
+		if _shop_card_sold[index]:
+			return
 		if run.spend(int(_shop_prices[index])):
 			deck.add_card(_shop_cards[index])
+			_shop_card_sold[index] = true
 			screen.mark_card_sold(index)
 			screen.set_winnings(run.winnings))
 
 	screen.relic_bought.connect(func(index: int) -> void:
+		if _shop_relic_sold[index]:
+			return
 		var relic: RelicSpec = _shop_relics[index]
-		if run.spend(relic.price):
+		if run.spend(_stock.price_of(relic.price)):
 			run.add_relic(relic)
+			_shop_relic_sold[index] = true
 			screen.mark_relic_sold(index)
 			screen.set_winnings(run.winnings))
 
 	screen.removal_bought.connect(func() -> void:
-		if run.can_afford(REMOVAL_PRICE):
-			_open_paid_removal())
+		if removal <= 0 or run.can_afford(removal):
+			_open_paid_removal(removal))
 
 	screen.left.connect(_after_stop)
 
 
-## Removal bought in the shop returns to the shop afterwards, so one visit can
-## still be spent on something else.
-func _open_paid_removal() -> void:
+func _open_paid_removal(price: int) -> void:
 	var cards := deck.cards
 	var screen: CardPickerScreen = PICKER_SCREEN.instantiate()
 	_swap_screen(screen)
 	screen.show_cards("Leave a club at home",
-		"Costs %d. Choose carefully." % REMOVAL_PRICE, cards, "Changed my mind")
+		"Free. Choose carefully." if price <= 0
+			else "Costs %d. Choose carefully." % price,
+		cards, "Changed my mind")
 	screen.card_chosen.connect(func(index: int) -> void:
-		if run.spend(REMOVAL_PRICE):
+		if price <= 0 or run.spend(price):
 			deck.remove_card(cards[index])
-		_open_shop())
-	screen.skipped.connect(_open_shop)
+			if price <= 0:
+				_removals_used += 1
+		_show_shop())
+	screen.skipped.connect(_show_shop)
+
+
 
 
 # --- Plumbing -------------------------------------------------------------

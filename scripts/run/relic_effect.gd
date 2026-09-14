@@ -34,6 +34,13 @@ func on_hole_scored(_reward: HoleReward, _ctx: RelicContext) -> void:
 	pass
 
 
+## Change what the pro shop has on the shelf and what it is asking for it.
+## Called once as the shop opens, through ShopStock, so two relics that both
+## touch the price compose instead of one of them silently winning.
+func modify_shop(_stock: ShopStock, _ctx: RelicContext) -> void:
+	pass
+
+
 ## Whether this grants a particular piece of information the player would not
 ## otherwise have. Asked by name so adding a new one is a constant and a branch
 ## at the place that shows it, rather than a new hook here.

@@ -50,6 +50,7 @@ func _initialize() -> void:
 func _process(_delta: float) -> bool:
 	_check_the_bag()
 	_check_insight()
+	_check_the_shop()
 
 	print("")
 	if failures == 0:
@@ -58,6 +59,101 @@ func _process(_delta: float) -> bool:
 		print("%d CHECK(S) FAILED" % failures)
 	quit(1 if failures > 0 else 0)
 	return true
+
+
+# --- The shop -------------------------------------------------------------
+
+## Equipment that acts on the run rather than on a stroke.
+##
+## None of this is visible to any other check: the shop is assembled in main.gd
+## from a ShopStock, and a relic that quietly stopped changing it would look
+## exactly like a relic that was working.
+func _check_the_shop() -> void:
+	print("")
+	print("=== equipment that changes the shop ===")
+
+	var base := _stock_with([])
+	print("  with nothing: %d cards, %d kit, prices x%.2f, %d free removals"
+		% [base.card_slots, base.relic_slots, base.price_scale, base.free_removals])
+	_expect(base.price_of(100) == 100, "an empty bag should not move a price")
+	_expect(base.removal_price(45, 0) == 45, "nor make a removal free")
+
+	var cheap := _stock_with([&"members_card"])
+	print("  members card: prices x%.2f, a 100 club costs %d"
+		% [cheap.price_scale, cheap.price_of(100)])
+	_expect(cheap.price_of(100) == 75, "the members card takes a quarter off")
+
+	var key := _stock_with([&"locker_key"])
+	print("  locker key: removals cost %d, %d, then %d"
+		% [key.removal_price(45, 0), key.removal_price(45, 1),
+			key.removal_price(45, 2)])
+	_expect(key.removal_price(45, 0) == 0 and key.removal_price(45, 1) == 0,
+		"the first two removals are free")
+	_expect(key.removal_price(45, 2) == 45,
+		"and the third is not -- a free removal every visit is not two of them")
+
+	var trade := _stock_with([&"trade_account"])
+	print("  trade account: %d cards, %d kit, a 100 club costs %d"
+		% [trade.card_slots, trade.relic_slots, trade.price_of(100)])
+	_expect(trade.card_slots == base.card_slots + 1
+		and trade.relic_slots == base.relic_slots + 1,
+		"the trade account widens the shelf")
+	_expect(trade.price_of(100) > 100,
+		"and charges for it, or it is simply better than carrying nothing")
+
+	# The point of putting this in a ShopStock rather than in main.gd: two
+	# relics that both touch the price have to compose, not fight.
+	var both := _stock_with([&"members_card", &"trade_account"])
+	print("  both together: %d cards, a 100 club costs %d (0.75 x 1.2)"
+		% [both.card_slots, both.price_of(100)])
+	_expect(both.card_slots == base.card_slots + 1,
+		"the wider shelf survives the second relic")
+	_expect(both.price_of(100) == 90,
+		"the two price effects should multiply, and gave %d" % both.price_of(100))
+
+	# A promised uncommon has to actually arrive, which is the one part of this
+	# that goes through the card pools rather than through arithmetic.
+	var nod := _stock_with([&"pros_nod"])
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var promised := 0
+	var plain := 0
+	for i in 60:
+		promised += _uncommons(RewardTable.card_offer(rng, 2, nod.card_slots,
+			nod.guaranteed_uncommons))
+		plain += _uncommons(RewardTable.card_offer(rng, 2, base.card_slots, 0))
+	print("  pro's nod: %.2f uncommons a shelf, against %.2f with nothing"
+		% [promised / 60.0, plain / 60.0])
+	_expect(promised >= 60 * nod.guaranteed_uncommons,
+		"the shelf did not always hold what it promised")
+	_expect(promised > plain, "and it should beat an ordinary shelf")
+
+	# Nothing may make the shop free or empty, however much is stacked up.
+	var piled := _stock_with([&"members_card", &"members_card", &"members_card",
+		&"members_card", &"members_card"])
+	print("  five members cards: prices x%.2f, a 100 club still costs %d"
+		% [piled.price_scale, piled.price_of(100)])
+	_expect(piled.price_of(100) >= 50,
+		"stacked discounts got through the clamp: %d" % piled.price_of(100))
+
+
+## The stock a bag of equipment would produce, built the same way main.gd does.
+func _stock_with(ids: Array) -> ShopStock:
+	var stock := ShopStock.new(3, 2)
+	var ctx := RelicContext.new()
+	for relic in _carrying(ids):
+		for effect in relic.effects:
+			if effect != null:
+				effect.modify_shop(stock, ctx)
+	return stock.clamped()
+
+
+func _uncommons(cards: Array[CardData]) -> int:
+	var count := 0
+	for card in cards:
+		if card.rarity == CardData.Rarity.UNCOMMON:
+			count += 1
+	return count
 
 
 func _carrying(ids: Array) -> Array[RelicSpec]:

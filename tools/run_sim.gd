@@ -57,6 +57,18 @@ func _initialize() -> void:
 	quit()
 
 
+## A deck that shuffles from this run's seed rather than from the clock.
+##
+## Without this the whole harness was unreproducible: Deck randomizes itself on
+## construction, so running the same code twice gave -7.5 and -7.1, and fifteen
+## balls out of bounds and then six. Every before-and-after this tool has ever
+## been used for was two draws from the same distribution.
+func _deck() -> Deck:
+	var built := Deck.new(deck_list.build())
+	built.shuffle_from(rng.randi())
+	return built
+
+
 # --- Reports --------------------------------------------------------------
 
 func _report_tiers() -> void:
@@ -67,7 +79,7 @@ func _report_tiers() -> void:
 		var pars: Dictionary = {}
 		for i in TIER_SAMPLES:
 			var generated := HoleGenerator.generate(rng.randi(), tier, i + 1)
-			var score := _play_hole(generated, Deck.new(deck_list.build())) - generated.par
+			var score := _play_hole(generated, _deck()) - generated.par
 			total += score
 			worst = maxi(worst, score)
 			pars[generated.par] = int(pars.get(generated.par, 0)) + 1
@@ -95,7 +107,7 @@ func _report_runs() -> void:
 
 	for attempt in RUNS:
 		var run := RunState.new()
-		var run_deck := Deck.new(deck_list.build())
+		var run_deck := _deck()
 		var map := MapGenerator.generate(rng.randi())
 
 		# Walk a route the way a player would, playing every hole it passes.
