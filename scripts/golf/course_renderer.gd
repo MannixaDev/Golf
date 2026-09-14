@@ -540,21 +540,37 @@ func _draw_pin() -> void:
 	draw_circle(pin, visual_radius + 2.5, Color(Palette.SHADOW, 0.45))
 	draw_circle(pin, visual_radius, Palette.CUP)
 
-	# Flagstick, with its shadow laid along the sun direction across the green.
-	var height := 52.0
+	# Flagstick, sized against the green it is standing on rather than in fixed
+	# pixels. At a flat 52 it was twenty yards of stick and a ten yard flag,
+	# which made every green look like a postage stamp with a marquee on it.
+	#
+	# Still not true scale -- a real pin is about two yards and would be four
+	# pixels -- but proportional, which is what the eye is actually judging.
+	var green := hole.green_extent()
+	var height := clampf(green * PIN_HEIGHT_OF_GREEN, PIN_MIN_HEIGHT, PIN_MAX_HEIGHT)
 	var top := pin + Vector2(0.0, -height)
 	draw_line(pin, pin + Palette.shadow_offset(height * 0.62),
-		Color(Palette.SHADOW, 0.30), 3.0, true)
-	draw_line(pin, top, Color(0.94, 0.95, 0.90), 2.5, true)
+		Color(Palette.SHADOW, 0.30), 2.0, true)
+	draw_line(pin, top, Color(0.94, 0.95, 0.90), 1.8, true)
 
+	var wide := height * 0.42
+	var deep := height * 0.28
 	var flag := PackedVector2Array([
 		top,
-		top + Vector2(26.0, 8.0),
-		top + Vector2(0.0, 17.0),
+		top + Vector2(wide, deep * 0.45),
+		top + Vector2(0.0, deep),
 	])
 	draw_colored_polygon(flag, Palette.FLAG)
 	draw_polyline(PackedVector2Array([flag[0], flag[1], flag[2]]),
-		Palette.FLAG.darkened(0.3), 1.5, true)
+		Palette.FLAG.darkened(0.3), 1.2, true)
+
+
+## The flagstick as a share of the green's own radius, and the pixels it is
+## never allowed to fall outside -- small enough to vanish on a wide view, or
+## big enough to swamp a small green, are both worse than slightly wrong.
+const PIN_HEIGHT_OF_GREEN := 0.42
+const PIN_MIN_HEIGHT := 16.0
+const PIN_MAX_HEIGHT := 34.0
 
 
 ## Ambient darkening around the edge of the play area, so the hole feels lit in

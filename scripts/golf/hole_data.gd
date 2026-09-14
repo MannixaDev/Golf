@@ -111,6 +111,25 @@ func on_green(point: Vector2) -> bool:
 ## Cast as a ray against the green's own edge rather than assumed, because the
 ## whole point of an irregular green is that "how big is it" has a different
 ## answer depending on which way you ask.
+## How big this green actually is, averaged round the compass, in pixels.
+##
+## Distinct from `green_radius`, which is the circle the shape was grown from:
+## once greens became polygons that number stopped describing them. Anything
+## drawn on a green should measure it with this.
+##
+## Greens are polygons of different shapes and sizes now, so anything drawn on
+## one should be measured against it rather than set in fixed pixels. The
+## flagstick was 52 pixels regardless -- twenty yards of it, standing on a green
+## a dozen yards wide.
+func green_extent() -> float:
+	var total := 0.0
+	var samples := 8
+	for i in samples:
+		var angle := TAU * float(i) / float(samples)
+		total += green_reach(Vector2(cos(angle), sin(angle)))
+	return total / float(samples)
+
+
 func green_reach(direction: Vector2) -> float:
 	if green_polygon.size() < 3 or direction.length() < 0.0001:
 		return green_radius

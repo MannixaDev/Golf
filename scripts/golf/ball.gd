@@ -78,9 +78,14 @@ const AIR_CAPTURE_MAX_ROLL_PX := 60.0
 ## two yards -- eighty times a real golf ball, and the other half of why a green
 ## looked cramped. Small enough now to sit on a green properly; a screen-space
 ## floor in _draw keeps it visible when the camera is a long way out.
-const RADIUS := 2.2
-## Never drawn smaller than this many pixels on screen, whatever the zoom.
-const MIN_SCREEN_RADIUS := 4.0
+## A real ball is a twentieth of a yard and would be a sixth of a pixel, so this
+## is already a generous lie. Pulled in from 2.2 because it was being judged
+## against a green rather than against the hole: on a twenty yard green a ball
+## drawn at 2.2 is over a yard and a half across, which reads as a football.
+const RADIUS := 1.5
+## Never drawn smaller than this many pixels on screen, whatever the zoom. Low
+## enough to stay honest close up, high enough not to vanish on a wide view.
+const MIN_SCREEN_RADIUS := 3.0
 const MAX_APEX := 190.0
 const TRAIL_MAX := 48
 

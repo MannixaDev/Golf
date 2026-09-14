@@ -50,6 +50,15 @@ func _process(_delta: float) -> bool:
 			Deck.new(load("res://resources/decks/starting_deck.tres").build()))
 		_screen.setup_run(carried, 0)
 		_screen.begin()
+	elif frames == 6:
+		# Stood on the green, because the flag and the ball are sized against it
+		# and neither can be judged from the tee.
+		var view: HoleView = _screen.get_node("HoleView")
+		view._ball.reset_to(view.hole.pin_position
+			+ Vector2(-view.hole.green_extent() * 0.7, 0.0))
+		var camera: Camera2D = view.get_node("Camera2D")
+		camera.position = view.hole.pin_position
+		camera.zoom = Vector2(2.2, 2.2)
 	elif frames == FRAMES:
 		var view: HoleView = _screen.get_node("HoleView")
 		print("hand %d, focus %d, equipment %d"
