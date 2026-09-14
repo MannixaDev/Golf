@@ -63,6 +63,19 @@ var pixels_per_yard: float = 3.0
 var wind: Vector2 = Vector2.ZERO
 
 var aim_direction: Vector2 = Vector2.RIGHT
+## Where the pointer was last seen *on the course*. Motion over a card or a
+## panel is swallowed by that Control and never reaches _unhandled_input, which
+## is exactly the filter this wants: the aim line stops following the cursor the
+## moment it leaves the course.
+var _pointer: Vector2 = Vector2.ZERO
+var _pointer_seen: bool = false
+## Driven by the on-screen swing control rather than by a raw press, where a
+## finger is the only pointer.
+var _touch_ui: bool = false
+## Whether the on-screen swing control is being held. The desktop path watches
+## the real button state as a safety net against a swallowed release; touch has
+## no such state to poll, so it is tracked.
+var _touch_swing_held: bool = false
 
 var _phase: int = Phase.IDLE
 var _power: float = 0.0
@@ -84,9 +97,16 @@ func _process(delta: float) -> void:
 		Phase.TIMING:
 			_process_timing(delta)
 		_:
-			var to_mouse := get_global_mouse_position() - global_position
-			if to_mouse.length() > 8.0:
-				aim_direction = to_mouse.normalized()
+			# Aim follows the pointer only where it has actually been seen moving
+			# over the course. Polling get_global_mouse_position() every frame
+			# instead meant the line chased the cursor wherever it was, including
+			# while it sat on a card at the bottom of the screen -- which on a
+			# touchscreen is every single tap, so every shot aimed at the club
+			# you had just chosen.
+			if _pointer_seen:
+				var to_pointer := _pointer - global_position
+				if to_pointer.length() > 8.0:
+					aim_direction = to_pointer.normalized()
 
 	# Fine aim adjustment works during the swing too, which is forgiving without
 	# removing the commitment of locking your line.
@@ -142,7 +162,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not enabled:
 		return
 
+	if event is InputEventMouseMotion:
+		_pointer = (event as InputEventMouseMotion).global_position
+		_pointer_seen = true
+		return
+
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if _touch_ui:
+			# A finger cannot hover, so a tap on the course is how you aim. The
+			# swing is a button of its own: overloading the same tap would mean
+			# every aim adjustment also started a swing.
+			if event.pressed and _phase == Phase.IDLE:
+				aim_at((event as InputEventMouseButton).global_position)
+			get_viewport().set_input_as_handled()
+			return
 		if event.pressed:
 			_press()
 		else:
@@ -156,11 +189,43 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+## Point the line at somewhere on the course. Public so a tap can drive it.
+func aim_at(global_point: Vector2) -> void:
+	var to_point := global_point - global_position
+	if to_point.length() > 8.0:
+		aim_direction = to_point.normalized()
+		queue_redraw()
+
+
+## The swing control, for a device with no mouse button to hold.
+func swing_pressed() -> void:
+	if enabled:
+		_press()
+
+
+func swing_released() -> void:
+	if enabled:
+		_release()
+
+
+## Told by the hole rather than worked out here, so a harness can drive either
+## mode without a touchscreen to hand.
+func set_touch_ui(on: bool) -> void:
+	_touch_ui = on
+	if on:
+		# Nothing has hovered and nothing will.
+		_pointer_seen = false
+
+
 func _swing_input_held() -> bool:
+	if _touch_ui:
+		return _touch_swing_held
 	return Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or Input.is_key_pressed(KEY_SPACE)
 
 
 func _press() -> void:
+	if _touch_ui:
+		_touch_swing_held = true
 	match _phase:
 		Phase.IDLE:
 			_start_charge()
@@ -169,6 +234,7 @@ func _press() -> void:
 
 
 func _release() -> void:
+	_touch_swing_held = false
 	if _phase == Phase.POWER:
 		_lock_power()
 

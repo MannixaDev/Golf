@@ -92,6 +92,40 @@ static func set_fullscreen(value: bool) -> void:
 	save()
 
 
+## True where the only pointer is a finger.
+##
+## A mouse hovers and a finger does not, and the whole aiming model rested on
+## hovering: the line followed the cursor every frame. On a touchscreen Godot
+## turns a tap into a click at that point, so tapping a card moved the pointer to
+## the bottom of the screen and the shot aimed at the card you had just played.
+##
+## Checked rather than assumed from the platform: a Windows laptop with a touch
+## screen and a trackpad is both, and a phone is neither desktop nor "web" in any
+## useful sense.
+## Evidence first, inference second. A real screen touch is proof; asking the
+## platform whether it thinks it has a touchscreen is a guess, and it guessed
+## wrong on the very first device this was tried on.
+static var _touch_seen: bool = false
+
+
+## Called the moment an actual finger lands, from whatever is watching input.
+static func note_touch() -> void:
+	_touch_seen = true
+
+
+static func touch_only() -> bool:
+	if DisplayServer.get_name() == "headless":
+		return false
+	if _touch_seen:
+		return true
+	return DisplayServer.is_touchscreen_available() and not has_mouse()
+
+
+## Whether a real pointing device is present.
+static func has_mouse() -> bool:
+	return Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED 		and not OS.has_feature("mobile") 		and DisplayServer.has_feature(DisplayServer.FEATURE_MOUSE)
+
+
 ## True where the game does not own its own window.
 ##
 ## In a browser the page owns it, and itch owns the page: a build embedded there

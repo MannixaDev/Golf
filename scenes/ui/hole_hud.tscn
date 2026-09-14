@@ -231,6 +231,7 @@ text = "Calm"
 vertical_alignment = 1
 
 [node name="HelpLabel" type="Label" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -529,3 +530,20 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Play Again  (R)"
+
+[node name="SwingButton" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -270.0
+offset_top = -190.0
+offset_right = -30.0
+offset_bottom = -40.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 30
+text = "SWING"

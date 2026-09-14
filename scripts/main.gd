@@ -75,6 +75,14 @@ var _tour: TourSpec = TourLibrary.opening()
 var _workshop_misses: int = 0
 
 
+## Watched at the very top of the tree, so a finger anywhere -- a menu, a card,
+## the course -- is enough to know what kind of device this is. _input rather
+## than _unhandled_input: a tap consumed by a button still tells us the truth.
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch or event is InputEventScreenDrag:
+		Settings.note_touch()
+
+
 func _ready() -> void:
 	Settings.ensure_loaded()
 	Settings.apply_window()

@@ -10,6 +10,9 @@ signal restart_pressed()
 signal card_clicked(slot: int)
 ## The player asked for a draw, a straight one, or a fade. -1, 0, 1.
 signal shape_chosen(shape: int)
+## The on-screen swing control, for devices with no button to hold.
+signal swing_pressed()
+signal swing_released()
 
 @onready var _hole_label: Label = %HoleLabel
 @onready var _par_label: Label = %ParLabel
@@ -24,6 +27,8 @@ signal shape_chosen(shape: int)
 @onready var _rules_body: Label = %RulesBody
 @onready var _power_meter: PowerMeter = %PowerMeter
 @onready var _apex_label: Label = %ApexLabel
+@onready var _swing_button: Button = %SwingButton
+@onready var _help_label: Label = %HelpLabel
 @onready var _shape_row: HBoxContainer = %ShapeRow
 @onready var _shape_buttons: Array[Button] = [%DrawButton, %StraightButton,
 	%FadeButton]
@@ -44,6 +49,8 @@ signal shape_chosen(shape: int)
 @onready var _restart_button: Button = %RestartButton
 
 var _status_tween: Tween
+## Whether a finger is the only pointer, so the prompts say the right thing.
+var _touch_ui: bool = false
 
 
 func _ready() -> void:
@@ -55,6 +62,12 @@ func _ready() -> void:
 	for i in _shape_buttons.size():
 		var shape := i - 1
 		_shape_buttons[i].pressed.connect(func() -> void: shape_chosen.emit(shape))
+
+	# Held and released rather than clicked: the power meter charges for as long
+	# as you hold, which is the same gesture with a thumb as with a mouse.
+	_swing_button.button_down.connect(func() -> void: swing_pressed.emit())
+	_swing_button.button_up.connect(func() -> void: swing_released.emit())
+
 
 
 func set_hole(hole: HoleData) -> void:
@@ -113,7 +126,10 @@ func set_swing(phase: int, power: float, marker: float, band: float) -> void:
 			_power_title.add_theme_color_override("font_color",
 				Color(0.949, 0.961, 0.925, 0.55))
 		AimController.Phase.TIMING:
-			_power_title.text = "TIMING  ·  CLICK AT THE LEFT EDGE"
+			# "Click" is wrong on a phone, and the prompt is the only instruction
+			# a player gets at the one moment the shot can still be ruined.
+			_power_title.text = "TIMING  ·  %s AT THE LEFT EDGE" % (
+				"TAP SWING" if _touch_ui else "CLICK")
 			_power_title.add_theme_color_override("font_color", Palette.GOOD)
 		_:
 			_power_title.text = "SWING POWER"
@@ -137,6 +153,14 @@ func set_apex(yards: float, blocked: bool) -> void:
 ## Only shown when the staged club can actually work the ball, which is one
 ## club in the game. Everything else leaves the row out entirely rather than
 ## greying three buttons out at you every single stroke.
+## The on-screen swing control appears only where there is no button to hold.
+func set_touch_ui(on: bool) -> void:
+	_touch_ui = on
+	_swing_button.visible = on
+	# The keyboard-and-mouse crib sheet is wrong on a phone and just clutter.
+	_help_label.visible = not on
+
+
 func set_shape(available: bool, shape: int, degrees: float) -> void:
 	_shape_row.visible = available
 	if not available:

@@ -36,6 +36,25 @@ func _ready() -> void:
 	_hud.restart_pressed.connect(_on_continue)
 	_hud.card_clicked.connect(_hole_view.activate_card)
 	_hud.shape_chosen.connect(_hole_view.set_shot_shape)
+	# Where a finger is the only pointer, the course is for aiming and the swing
+	# gets a control of its own.
+	var aim: AimController = _hole_view.get_node("AimController")
+	_hud.swing_pressed.connect(aim.swing_pressed)
+	_hud.swing_released.connect(aim.swing_released)
+	_apply_input_mode()
+
+
+## Checked every frame rather than settled once, because the first finger may
+## not land until the player is already stood on a tee -- and a control that
+## only appears on the next hole is a hole they could not play.
+func _process(_delta: float) -> void:
+	_apply_input_mode()
+
+
+func _apply_input_mode() -> void:
+	var touch := Settings.touch_only()
+	_hud.set_touch_ui(touch)
+	(_hole_view.get_node("AimController") as AimController).set_touch_ui(touch)
 
 
 ## Called by the run layer before this screen enters the tree.

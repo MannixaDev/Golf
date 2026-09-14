@@ -38,7 +38,7 @@ esac
 SUITES=(palette_check texture_check audio_check card_check card_fit_check
         relic_check rules_check effects_test hand_check map_check route_check
         short_game_check tree_check swing_check green_check leaderboard_check
-        fusion_check synergy_check tour_check scorecard_check)
+        fusion_check synergy_check tour_check scorecard_check touch_check)
 
 echo "=== checks ==="
 failed=0
