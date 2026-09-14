@@ -48,6 +48,10 @@ const TIMING_TIME := 0.95
 const BASE_TOLERANCE := 0.060
 ## Degrees per second when nudging aim with the arrow keys.
 const NUDGE_SPEED := 22.0
+## Points along the carry tested against the canopy. Enough that a single tree
+## cannot sit between two samples: at 40 a full driver is checked every six
+## yards or so, and a canopy is far wider than that.
+const CANOPY_SAMPLES := 40
 
 var enabled: bool = false:
 	set(value):
@@ -58,6 +62,9 @@ var enabled: bool = false:
 		queue_redraw()
 
 var shot_profile: ShotProfile = null
+## The same sampler the ball flies against, so the warning and the outcome
+## cannot disagree. Injected by the hole; null in a harness that does not care.
+var sampler: SurfaceSampler = null
 var pixels_per_yard: float = 3.0
 ## Wind in yards of drift per 100 yards of carry, world space.
 var wind: Vector2 = Vector2.ZERO
@@ -368,12 +375,56 @@ func _draw() -> void:
 		var shot_px := max_px * _power
 		var path := _path_points(angle, shot_px, curve_px * _power, wind_px * _power)
 		var target: Vector2 = path[path.size() - 1]
-		draw_polyline(path, Color(Palette.GOLD, 0.9), 2.5, true)
-		draw_arc(target, 11.0, 0.0, TAU, 24, Color(Palette.GOLD, 0.85), 2.0, true)
-		draw_arc(target, 4.0, 0.0, TAU, 12, Color(Palette.GOLD, 0.6), 2.0, true)
-		_draw_distance_label(target, shot_px)
+		# Red when this shot flies into a canopy rather than under or over it.
+		# Trees are the only thing on the course that stops a ball in mid-air,
+		# and from directly overhead there is no way to judge whether you are
+		# going to clear one.
+		var blocked := blocked_by_canopy(_power)
+		var line := Palette.DANGER if blocked else Palette.GOLD
+		draw_polyline(path, Color(line, 0.9), 2.5, true)
+		draw_arc(target, 11.0, 0.0, TAU, 24, Color(line, 0.85), 2.0, true)
+		draw_arc(target, 4.0, 0.0, TAU, 12, Color(line, 0.6), 2.0, true)
+		if blocked:
+			_draw_canopy_warning(target)
+		_draw_distance_label(target, shot_px, line)
 	else:
 		draw_line(Vector2.ZERO, aim_direction * 46.0, Color(Palette.INK, 0.55), 2.0, true)
+
+
+## Will this shot be stopped by something growing in the way?
+##
+## Asked of the same sampler the ball uses, walking the same arc: height is the
+## apex times sin(pi * t) across the carry, exactly as Ball computes it. Working
+## it out any other way here would give a warning that is right most of the time,
+## and a warning you cannot trust is worse than none -- you would start playing
+## around trees that were not there.
+##
+## Only the carry is walked. A ball that has landed is rolling, and a tree does
+## not stop a ball on the ground.
+func blocked_by_canopy(power: float) -> bool:
+	if sampler == null or shot_profile == null or shot_profile.is_ground_shot:
+		return false
+
+	var carry_px := shot_profile.carry_yards_max * power * pixels_per_yard
+	if carry_px <= 1.0:
+		return false
+	var apex := shot_profile.apex_yards(power)
+	if apex <= 0.0:
+		return false
+
+	var angle := aim_direction.angle()
+	var curve_px := tan(deg_to_rad(shot_profile.curve_deg)) * carry_px
+	var wind_px := ShotResolver.wind_drift(
+		wind, shot_profile.carry_yards_max * power,
+		shot_profile.arc_factor) * pixels_per_yard
+	var path := _path_points(angle, carry_px, curve_px, wind_px, CANOPY_SAMPLES)
+
+	for i in path.size():
+		var t := float(i) / float(path.size() - 1)
+		var height := apex * sin(PI * t)
+		if sampler.blocks_flight_at(global_position + path[i], height):
+			return true
+	return false
 
 
 ## The flight path in local space, matching how Ball actually flies it: straight
@@ -390,10 +441,21 @@ func _path_points(angle: float, distance_px: float, curve_px: float,
 	return points
 
 
-func _draw_distance_label(at: Vector2, distance_px: float) -> void:
+func _draw_distance_label(at: Vector2, distance_px: float,
+		colour: Color = Palette.GOLD) -> void:
 	var font := Typo.SEMIBOLD
 	if font == null:
 		return
 	var text := "%d yd" % roundi(distance_px / pixels_per_yard)
 	draw_string(font, at + Vector2(16.0, -14.0), text,
-		HORIZONTAL_ALIGNMENT_LEFT, -1, Typo.BODY, Palette.GOLD)
+		HORIZONTAL_ALIGNMENT_LEFT, -1, Typo.BODY, colour)
+
+
+## A ring around the target and a word, because a red line alone reads as "this
+## shot is risky" rather than "this shot does not get there".
+func _draw_canopy_warning(at: Vector2) -> void:
+	draw_arc(at, 17.0, 0.0, TAU, 28, Color(Palette.DANGER, 0.5), 1.5, true)
+	var font := Typo.SEMIBOLD
+	if font != null:
+		draw_string(font, at + Vector2(16.0, 6.0), "INTO THE TREES",
+			HORIZONTAL_ALIGNMENT_LEFT, -1, Typo.SMALL, Palette.DANGER)

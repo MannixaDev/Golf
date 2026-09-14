@@ -217,6 +217,8 @@ func start_hole() -> void:
 	_recoveries_used = 0
 	_clear_modifiers()
 	_settle_bag()
+	# The overlay flies the same arc against the same ground the ball will.
+	_aim.sampler = _ball.sampler
 	_ball.reset_to(hole.tee_position)
 	_effects.clear()
 	deck.reset_for_hole()

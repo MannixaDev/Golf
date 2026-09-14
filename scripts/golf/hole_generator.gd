@@ -50,6 +50,18 @@ const OB_HALF_WIDTHS := 3.1
 const OB_RUN_OFF_YARDS := 45.0
 ## And it opens out around the putting surface, to hold the greenside trouble.
 const OB_GREEN_REACH := 2.8
+## How often a hole is cut through woodland rather than laid out in the open.
+## Parkland is what most courses in Britain actually are, and an avenue of trees
+## asks a different question from a bunker: you play along it, or you thread it.
+const WOODLAND_CHANCE := 0.38
+## Trees tried on a woodland hole. Most attempts are refused -- for crowding
+## something, or for there being no room between the fairway and the fence --
+## so this is several times the number that actually go in.
+const WOODLAND_TREE_TRIES := 22
+## How far off the fairway a tree must stand, as a multiple of the fairway half
+## width. Tighter in the woods, which is the whole point of them.
+const WOODLAND_CLEARANCE := 1.16
+const OPEN_CLEARANCE := 1.4
 
 ## Fairway half width by tier, away from the landing zone. Deliberately generous.
 ##
@@ -101,6 +113,9 @@ static func generate(hole_seed: int, difficulty: int, hole_number: int = 1,
 	if rules != null and rules.force_par > 0:
 		par = rules.force_par
 	hole.par = par
+	# Decided before anything is laid out, because it changes where the trees go
+	# and how tight the corridor between them is.
+	hole.woodland = rng.randf() < WOODLAND_CHANCE
 
 	var length: float = _pick_length(par, rng) + LENGTH_BONUS_BY_TIER[tier]
 	if rules != null and rules.force_length_yards > 0.0:
@@ -485,15 +500,26 @@ static func _build_hazards(hole: HoleData, spine: PackedVector2Array, par: int,
 	# stakes: being stopped by a tree and then told you are out of bounds is two
 	# punishments for one mistake.
 	var edge := ob_half if ob_half > 0.0 else half_width * OB_HALF_WIDTHS
-	for i in 2 + tier / 2:
+	# A woodland hole is lined the whole way down, the way a parkland course in
+	# this country is. An open hole gets the handful it always did.
+	var clearance := WOODLAND_CLEARANCE if hole.woodland else OPEN_CLEARANCE
+	var attempts := WOODLAND_TREE_TRIES if hole.woodland else 2 + tier / 2
+	for i in attempts:
+		# Walked down the hole rather than scattered, so the woods read as an
+		# avenue you play along instead of a field with trees in it.
 		var along := rng.randf_range(0.15, 0.9)
-		var side := 1.0 if rng.randf() < 0.5 else -1.0
+		if hole.woodland:
+			along = clampf(lerpf(0.08, 0.94,
+				float(i) / float(maxi(attempts - 1, 1)))
+				+ rng.randf_range(-0.03, 0.03), 0.05, 0.95)
+		# Alternating down the avenue, so neither side is ever bare for long.
+		var side := (1.0 if i % 2 == 0 else -1.0) if hole.woodland 			else (1.0 if rng.randf() < 0.5 else -1.0)
 		var radius := rng.randf_range(0.8, 1.4) * half_width
-		var offset := minf(edge * rng.randf_range(0.60, 0.86), edge - radius - 4.0)
-		if offset <= half_width * 1.4:
+		var reach := rng.randf_range(0.42, 0.80) if hole.woodland 			else rng.randf_range(0.60, 0.86)
+		var offset := minf(edge * reach, edge - radius - 4.0)
+		if offset <= half_width * clearance:
 			continue  # no room between the fairway and the fence on this hole
-		var centre := _point_on(spine, along) \
-			+ _normal_on(spine, along) * offset * side
+		var centre := _point_on(spine, along) 			+ _normal_on(spine, along) * offset * side
 		if _crowds_anything(hazards, centre, radius):
 			continue
 		hazards.append(_circle(&"deep_rough", centre, radius))

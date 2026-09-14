@@ -38,7 +38,14 @@ func _process(_delta: float) -> bool:
 			var relic := RelicLibrary.by_id(id)
 			if relic != null:
 				carried.append(relic)
-		_screen.setup(HoleGenerator.generate(31337, 2, 1),
+		# A woodland hole specifically, since that is the thing being looked at.
+		var hole := HoleGenerator.generate(31337, 2, 1)
+		for attempt in 200:
+			if hole.woodland:
+				break
+			hole = HoleGenerator.generate(31337 + attempt, 2, 1)
+		print("woodland: %s" % hole.woodland)
+		_screen.setup(hole,
 			Deck.new(load("res://resources/decks/starting_deck.tres").build()))
 		_screen.setup_run(carried, 0)
 		_screen.begin()

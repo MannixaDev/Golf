@@ -139,6 +139,10 @@ func green_reach(direction: Vector2) -> float:
 ## a green gets. Deliberately one dominant fall rather than a heightfield --
 ## a green you can read at a glance is a decision, and one you cannot is noise.
 @export var green_slope: Vector2 = Vector2.ZERO
+## True where this hole is cut through trees rather than laid out in the open.
+## Read by the generator when it plants them, and by anything that wants to say
+## so -- it changes how a hole is played, so it should not be a surprise.
+@export var woodland: bool = false
 
 
 ## Downhill direction and steepness at a point, zero anywhere but the green.

@@ -354,7 +354,9 @@ func _draw_hazards(canopy: bool) -> void:
 ## circle, with a shadow on the ground beneath it and light on the crowns: the
 ## only thing on the hole that is meant to read as being *above* the ground.
 func _draw_foliage(region: HazardRegion, surface: SurfaceType) -> void:
-	var blobs := _clump(region)
+	# The region's own clump, not one rolled here. Two copies of this drifted
+	# apart and the tree you could see stopped matching the one that caught you.
+	var blobs := region.blobs()
 
 	# One shadow for the whole clump, offset along the sun, so it reads as a
 	# single object rather than as three bushes each with their own shadow.
@@ -607,22 +609,6 @@ func _ragged_circle(centre: Vector2, radius: float) -> PackedVector2Array:
 ## Blobs making up one clump of scrub. Derived from the region's own position, so
 ## a given bush looks the same every time the hole is drawn rather than crawling
 ## around between redraws.
-func _clump(region: HazardRegion) -> Array[Rect2]:
-	var blobs: Array[Rect2] = []
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(Vector2i(roundi(region.centre.x), roundi(region.centre.y)))
-
-	blobs.append(Rect2(region.centre, Vector2(region.radius * 0.80, 0.0)))
-	var count := 3 if region.radius > 26.0 else 2
-	for i in count:
-		var angle := rng.randf_range(0.0, TAU)
-		var reach := region.radius * rng.randf_range(0.26, 0.42)
-		blobs.append(Rect2(
-			region.centre + Vector2(cos(angle), sin(angle) * 0.78) * reach,
-			Vector2(region.radius * rng.randf_range(0.50, 0.70), 0.0)))
-	return blobs
-
-
 func _soft_shadow(centre: Vector2, radius: float, strength: float) -> void:
 	_stamp(TextureBank.soft_shadow(), centre, radius, strength)
 
