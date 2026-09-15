@@ -9,8 +9,54 @@
 ## hundred holes take seconds instead of minutes.
 extends SceneTree
 
-const HUMAN_POWER_ERROR := 0.06
-const HUMAN_AIM_ERROR_DEG := 1.5
+## How good the golfer at the controls is.
+##
+## The robot used to be one player: 1.5 degrees of aim, six per cent on the
+## power, and the shortest club in hand that still reaches, chosen correctly
+## every single time. That is a tour professional with a caddie, and it shot -7.0
+## and never missed a cut in forty attempts -- which said nothing whatever about
+## whether the game can be lost, because it only ever measured the ceiling.
+##
+## A cut nobody can miss is not a cut, and "is this too easy" is the one question
+## the project has been arguing about rather than measuring. So skill is a
+## parameter now and the run report is a table across it.
+class Golfer:
+	var label: String
+	var aim_error_deg: float
+	var power_error: float
+	## Milliseconds of scatter on the timing press.
+	var timing_sigma: float
+	## Chance of playing the wrong club -- one too much or one too little. The
+	## other three are execution; this is judgement, and it is the mistake that
+	## actually costs an amateur their card.
+	var wrong_club: float
+
+	func _init(name: String, aim: float, power: float, timing: float,
+			club: float) -> void:
+		label = name
+		aim_error_deg = aim
+		power_error = power
+		timing_sigma = timing
+		wrong_club = club
+
+
+## The band the tier report is measured at, so those numbers stay comparable with
+## every reading taken before skill was a parameter.
+static func tour() -> Golfer:
+	return Golfer.new("tour pro", 1.5, 0.06, 45.0, 0.0)
+
+
+## Four golfers, from the one the sim has always been to somebody who plays a few
+## times a year. Deliberately spread wide: the interesting question is not where
+## the average lands but whether anybody at all is under pressure.
+static func field() -> Array:
+	return [
+		tour(),
+		Golfer.new("scratch", 2.6, 0.09, 65.0, 0.05),
+		Golfer.new("club player", 4.2, 0.13, 95.0, 0.16),
+		Golfer.new("weekend golfer", 6.8, 0.20, 140.0, 0.30),
+	]
+
 const HAND_SIZE := 5
 const FOCUS_MAX := 3
 ## A hole this long has gone wrong; stop rather than loop forever.
@@ -18,8 +64,6 @@ const MAX_STROKES := 20
 ## Mirrors HoleView.max_over_par. Kept as its own constant because this file
 ## never builds a HoleView to ask.
 const PICK_UP_OVER_PAR := 5
-## Milliseconds of scatter on the robot's timing press. See _timing_error.
-const TIMING_SIGMA := 45.0
 const STEP := 1.0 / 60.0
 
 const TIER_SAMPLES := 70
@@ -28,6 +72,8 @@ const RUNS := 40
 var rng := RandomNumberGenerator.new()
 var deck_list: DeckList
 var ball: Ball
+## Who is playing. Set before any stroke is struck.
+var golfer: Golfer = tour()
 
 # State for the hole being played.
 var hole: HoleData
@@ -99,14 +145,52 @@ func _report_tiers() -> void:
 
 func _report_runs() -> void:
 	print("")
-	print("=== whole runs, cut at +%d, %d attempts ===" % [RunState.DEFAULT_CUT, RUNS])
+	# The cut is positional -- the bottom share of the field goes home after
+	# halfway -- not the old fixed +8. DEFAULT_CUT survives only so saves and
+	# readouts have a number.
+	print("=== whole runs, bottom %.0f%% cut after halfway, %d attempts each ==="
+		% [RunState.CUT_SHARE * 100.0, RUNS])
+	print("  %-16s %8s %8s %8s %8s" % [
+		"golfer", "average", "best", "worst", "cut"])
+	var missed := 0
+	for who in field():
+		missed += _runs_for(who)
+	print("")
+	if missed == 0:
+		print("  Nobody missed a cut. Either the field is too weak or the cut")
+		print("  share is too small -- and check the run has a leaderboard at")
+		print("  all, because without one the cut is never evaluated.")
+	else:
+		print("  A cut the best player never misses and the worst usually does")
+		print("  is the shape to want. Read down the column, not across.")
+
+
+## One golfer's forty runs.
+##
+## The seed is reset first, so every band plays the same forty routes, the same
+## holes and the same shuffles. Without that the bands differ by luck as much as
+## by skill and the table cannot be read down its columns.
+func _runs_for(who: Golfer) -> int:
+	golfer = who
+	rng.seed = 20240107
 	var cut := 0
 	var total_score := 0
 	var total_holes := 0
 	var best := 99
+	var worst := -99
 
 	for attempt in RUNS:
 		var run := RunState.new()
+		# The tournament, exactly as main.gd sets one up. Without a leaderboard
+		# RunState._missed_the_cut returns false on the first line and the cut is
+		# never evaluated at all -- so this report said "0% missed the cut" for a
+		# golfer averaging +11.6 against a cut at +8, and had been saying it
+		# about every build ever measured. It was not reporting that the game is
+		# easy. It was reporting that nothing was being checked.
+		run.round_holes = MapGenerator.HOLES_PER_NINE
+		run.tour = TourLibrary.by_rung(0)
+		run.leaderboard = Leaderboard.new(rng.randi(),
+			run.tour.field_skill_delta if run.tour != null else 0.0)
 		var run_deck := _deck()
 		var map := MapGenerator.generate(rng.randi())
 
@@ -131,11 +215,12 @@ func _report_runs() -> void:
 		total_score += run.score_to_par()
 		total_holes += run.holes_played
 		best = mini(best, run.score_to_par())
+		worst = maxi(worst, run.score_to_par())
 
-	print("  runs completed: %d of %d" % [RUNS - cut, RUNS])
-	print("  missed the cut: %d (%.0f%%)" % [cut, 100.0 * cut / RUNS])
-	print("  average card: %+.1f over %.1f holes, best %+d" % [
-		float(total_score) / RUNS, float(total_holes) / RUNS, best])
+	print("  %-16s %+8.1f %+8d %+8d %7.0f%%" % [
+		who.label, float(total_score) / RUNS, best, worst,
+		100.0 * cut / RUNS])
+	return cut
 
 
 # --- Playing one hole -----------------------------------------------------
@@ -250,7 +335,7 @@ func _target_for(reach_px: float) -> Vector2:
 func _timing_error(profile: ShotProfile, power: float) -> float:
 	var span := maxf(power, 0.08)
 	var band := AimController.BASE_TOLERANCE * profile.sweet_spot_scale() * span
-	var late := absf(rng.randfn(0.0, TIMING_SIGMA / 1000.0))
+	var late := absf(rng.randfn(0.0, golfer.timing_sigma / 1000.0))
 	var marker := late * span / AimController.TIMING_TIME
 	if marker <= band:
 		return 0.0
@@ -278,11 +363,11 @@ func _play_stroke() -> bool:
 	var card: CardData = deck.hand[slot]
 	var profile := _profile_for(card)
 	var power := clampf(remaining / profile.max_reach_yards(), 0.02, 1.0)
-	power = clampf(power + rng.randf_range(-HUMAN_POWER_ERROR, HUMAN_POWER_ERROR), 0.02, 1.0)
+	power = clampf(power + rng.randf_range(-golfer.power_error, golfer.power_error), 0.02, 1.0)
 
 	var target := _target_for(profile.max_reach_yards() * hole.pixels_per_yard)
 	var aim := (_read_the_break(target) - shot_origin).normalized()
-	aim = aim.rotated(deg_to_rad(rng.randf_range(-HUMAN_AIM_ERROR_DEG, HUMAN_AIM_ERROR_DEG)))
+	aim = aim.rotated(deg_to_rad(rng.randf_range(-golfer.aim_error_deg, golfer.aim_error_deg)))
 
 	deck.play_from_hand(slot)
 	strokes += 1
@@ -351,7 +436,54 @@ func _pick_card(remaining: float) -> int:
 		if reach >= remaining and reach < best_reach:
 			best_reach = reach
 			best = i
-	return best if best >= 0 else longest
+	if best < 0:
+		return longest
+	# Judgement, as opposed to execution. Taking one club too many or too few is
+	# the amateur's real mistake, and it is a different shape of error from a
+	# wobbly swing: the strike is clean and the ball is simply in the wrong place,
+	# which is how greens get missed long and bunkers get found short.
+	if golfer.wrong_club > 0.0 and rng.randf() < golfer.wrong_club:
+		var wrong := _neighbouring_club(best, remaining)
+		if wrong >= 0:
+			return wrong
+	return best
+
+
+## The club either side of the right one, by reach. Returns -1 when the hand
+## holds nothing else worth calling a mistake.
+func _neighbouring_club(correct: int, remaining: float) -> int:
+	var lie := hole.surface_at(ball.position)
+	var reaches: Array = []
+	for i in deck.hand.size():
+		var card: CardData = deck.hand[i]
+		if not card.is_shot():
+			continue
+		if lie.blocks_ground_shots and card.club != null and card.club.is_ground_shot:
+			continue
+		reaches.append({"slot": i, "reach": _profile_for(card).max_reach_yards()})
+	if reaches.size() < 2:
+		return -1
+	reaches.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return float(a["reach"]) < float(b["reach"]))
+	var at := -1
+	for i in reaches.size():
+		if int(reaches[i]["slot"]) == correct:
+			at = i
+			break
+	if at < 0:
+		return -1
+	# One either way, and never off the end of what is actually in hand.
+	var step := 1 if rng.randf() < 0.5 else -1
+	var landed := at + step
+	if landed < 0 or landed >= reaches.size():
+		landed = at - step
+	if landed < 0 or landed >= reaches.size() or landed == at:
+		return -1
+	# A club so wrong it could not reach half way is not a misjudgement, it is a
+	# different shot entirely, and the robot would never pull it.
+	if float(reaches[landed]["reach"]) < remaining * 0.45:
+		return -1
+	return int(reaches[landed]["slot"])
 
 
 func _on_ob(_pos: Vector2) -> void:
