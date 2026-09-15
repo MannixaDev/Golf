@@ -49,6 +49,23 @@ func is_shot_modifier() -> bool:
 	return true
 
 
+## Read off the numbers, never authored. Draw and Fade both come out as shape
+## because both bend the ball, which is the thing a combo actually cares about.
+func stroke_tags() -> Array[StringName]:
+	var tags: Array[StringName] = []
+	if not is_zero_approx(curve_deg) or shape_choice_deg > 0.0:
+		tags.append(&"shape")
+	if distance_multiplier > 1.001:
+		tags.append(&"power")
+	if dispersion_multiplier < 0.999:
+		tags.append(&"control")
+	if roll_multiplier < 0.999 or arc_multiplier > 1.001:
+		tags.append(&"soft")
+	if lie_resistance > 0.0 or grants_ball_protection:
+		tags.append(&"safety")
+	return tags
+
+
 func modify_profile(profile: ShotProfile) -> void:
 	profile.carry_yards_max *= distance_multiplier
 	profile.dispersion_deg *= dispersion_multiplier

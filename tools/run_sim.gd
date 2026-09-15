@@ -67,6 +67,11 @@ const MAX_STROKES := 20
 const PICK_UP_OVER_PAR := 5
 const STEP := 1.0 / 60.0
 
+## What a bag looks like once it has picked up the combination cards. Named
+## rather than pulled from the pool so the comparison is the same bag every time.
+const COMBO_CARDS: Array[StringName] = [&"follow_through", &"double_cross",
+	&"clean_contact", &"wind_it_up", &"soft_hands"]
+
 const TIER_SAMPLES := 70
 const RUNS := 40
 
@@ -78,6 +83,12 @@ var golfer: Golfer = tour()
 ## Deal one hand of five, kind-agnostic, the way the game did before clubs and
 ## techniques were split. Only ever true inside the comparison report.
 var legacy_hand: bool = false
+## Put the combo cards in the bag. The robot only ever plays the starting deck --
+## it never shops and never takes a prize -- so anything added to the pools is
+## invisible to every number this tool prints. The first run after the combo
+## cards shipped came back byte-identical to the run before them, which is the
+## sim saying "I cannot see that" in the only way it can.
+var carry_combos: bool = false
 ## Techniques actually played, and strokes struck, so "the robot refuses
 ## everything" is visible rather than inferred.
 var techniques_played: int = 0
@@ -118,7 +129,13 @@ func _initialize() -> void:
 ## balls out of bounds and then six. Every before-and-after this tool has ever
 ## been used for was two draws from the same distribution.
 func _deck() -> Deck:
-	var built := Deck.new(deck_list.build())
+	var cards: Array[CardData] = deck_list.build()
+	if carry_combos:
+		for id in COMBO_CARDS:
+			var card := CardLibrary.copy(id)
+			if card != null:
+				cards.append(card)
+	var built := Deck.new(cards)
 	built.shuffle_from(rng.randi())
 	return built
 
@@ -161,13 +178,19 @@ func _report_runs() -> void:
 	print("  %-16s %8s %8s %8s %8s" % [
 		"golfer", "average", "best", "worst", "cut"])
 	var missed := 0
-	for shape in [true, false]:
-		legacy_hand = shape
-		print("  %s" % ("one hand of five, kind-agnostic:"
-			if shape else "four clubs and two techniques:"))
+	var shapes := [
+		{"legacy": true, "combos": false, "label": "one hand of five, kind-agnostic:"},
+		{"legacy": false, "combos": false, "label": "four clubs and two techniques:"},
+		{"legacy": false, "combos": true, "label": "four and two, combination cards in the bag:"},
+	]
+	for shape in shapes:
+		legacy_hand = bool(shape["legacy"])
+		carry_combos = bool(shape["combos"])
+		print("  %s" % shape["label"])
 		for who in field():
 			missed += _runs_for(who)
 	legacy_hand = false
+	carry_combos = false
 	print("")
 	if missed == 0:
 		print("  Nobody missed a cut. Either the field is too weak or the cut")
@@ -176,6 +199,13 @@ func _report_runs() -> void:
 	else:
 		print("  A cut the best player never misses and the worst usually does")
 		print("  is the shape to want. Read down the column, not across.")
+	# Said out loud because the cut column invites exactly the wrong reading. It
+	# is a proportion out of RUNS, so its standard error is about eight points at
+	# forty runs: two rows differing by ten mean nothing at all. The averages are
+	# far steadier and are what any conclusion should rest on.
+	print("  Cut rates are +/- %.0f points at %d runs. Differences smaller than"
+		% [100.0 * sqrt(0.25 / float(RUNS)), RUNS])
+	print("  twice that are noise; trust the averages.")
 
 
 ## One golfer's forty runs.
@@ -427,16 +457,10 @@ func _play_stroke() -> bool:
 ## shot: a Draw is a good idea when you need to bend one round a corner and a
 ## poor one when you are already aimed at the flag.
 func _spend_support(focus: int, club: CardData, remaining: float) -> void:
-	var index := 0
-	while index < deck.hand.size() and focus > 1:
-		var card: CardData = deck.hand[index]
-		if card.is_shot() or card.cost > focus - 1:
-			index += 1
+	for card in _best_techniques(focus, club, remaining):
+		var index := deck.hand.find(card)
+		if index < 0:
 			continue
-		if not _technique_helps(card, club, remaining):
-			index += 1
-			continue
-
 		var ctx := EffectContext.new()
 		ctx.ball_position = ball.position
 		ctx.pin_position = hole.pin_position
@@ -449,10 +473,8 @@ func _spend_support(focus: int, club: CardData, remaining: float) -> void:
 			if ctx.is_rejected():
 				break
 		if ctx.is_rejected():
-			index += 1
 			continue
 
-		focus -= card.cost
 		techniques_played += 1
 		pending.append_array(card.shot_modifiers())
 		deck.play_from_hand(index)
@@ -460,6 +482,72 @@ func _spend_support(focus: int, club: CardData, remaining: float) -> void:
 			ball.reset_to(ctx.move_ball_to)
 		if ctx.stroke_delta != 0:
 			strokes = maxi(0, strokes + ctx.stroke_delta)
+
+
+## The techniques worth putting on this shot, chosen together rather than one
+## after another.
+##
+## Greedy, in hand order, was fine while every technique stood alone. It cannot
+## see a combination at all: a card whose payoff needs a partner looks weak on
+## its own, gets refused, and then sits in hand blocking a slot -- which is
+## exactly what happened when the combo cards went into the bag. Techniques
+## played per stroke *fell* from 1.04 to 0.5 the moment there were more
+## interesting cards to play.
+##
+## The hand holds two or three techniques, so every affordable pair can simply be
+## tried. The robot is meant to be a plausible golfer rather than an optimal one,
+## but it should at least notice two cards that are better together.
+func _best_techniques(focus: int, club: CardData, remaining: float) -> Array[CardData]:
+	var affordable: Array[CardData] = []
+	for card in deck.hand:
+		if not card.is_shot() and card.cost <= focus - 1:
+			affordable.append(card)
+
+	var best: Array[CardData] = []
+	var best_score := _score_of([], club, remaining)
+	for i in affordable.size():
+		var one: Array[CardData] = [affordable[i]]
+		if affordable[i].cost <= focus - 1:
+			var score := _score_of(one, club, remaining)
+			if score > best_score:
+				best_score = score
+				best = one
+		for j in range(i + 1, affordable.size()):
+			var pair: Array[CardData] = [affordable[i], affordable[j]]
+			if affordable[i].cost + affordable[j].cost > focus - 1:
+				continue
+			var paired := _score_of(pair, club, remaining)
+			if paired > best_score:
+				best_score = paired
+				best = pair
+	return best
+
+
+## How good the shot would be with these techniques on it, in yards of expected
+## miss. Higher is better; zero is a perfect shot that reaches.
+##
+## Deliberately crude. Reaching the target matters most, then how far off line
+## the shot is likely to finish -- dispersion and any deliberate bend both count,
+## because the robot cannot see a corner to bend around and so has no reason to
+## want one.
+func _score_of(cards: Array[CardData], club: CardData, remaining: float) -> float:
+	var profile := ShotProfile.from_card(club)
+	var effects: Array = pending.duplicate()
+	for card in cards:
+		effects.append_array(card.shot_modifiers())
+	profile.apply_effects(effects)
+	hole.surface_at(ball.position).apply_to(profile)
+
+	var reach := profile.max_reach_yards()
+	var score := 0.0
+	# Not being able to get there at all dominates everything else.
+	if reach < remaining:
+		score -= (remaining - reach) * 2.0
+	# Then the shot's likely miss, in yards at the distance actually being hit.
+	var flying := minf(remaining, reach)
+	score -= tan(deg_to_rad(profile.dispersion_deg)) * flying
+	score -= absf(tan(deg_to_rad(profile.offline_deg()))) * flying
+	return score
 
 
 ## Fill the hand, in whichever shape is being measured.
@@ -485,35 +573,6 @@ func _deal() -> void:
 			deck.draw_pile.push_front(card)
 			continue
 		deck.hand.append(card)
-
-
-## Would this technique make the shot better or worse?
-##
-## Deliberately a do-no-harm test rather than a clever one. The robot is meant to
-## be a plausible golfer, not an optimal one: it takes anything that tightens the
-## shot or lengthens it when length is short, and refuses anything that bends the
-## ball off line, because a shot shape is only worth having when there is
-## something to bend around and the robot cannot see corners.
-func _technique_helps(card: CardData, club: CardData, remaining: float) -> bool:
-	var before := _profile_for(club)
-	var after := ShotProfile.from_card(club)
-	var trial: Array = pending.duplicate()
-	trial.append_array(card.shot_modifiers())
-	after.apply_effects(trial)
-	hole.surface_at(ball.position).apply_to(after)
-
-	# Never take something that puts the target out of range.
-	if before.max_reach_yards() >= remaining and after.max_reach_yards() < remaining:
-		return false
-	# Never take something that bends a shot the robot has no reason to bend.
-	if absf(after.offline_deg()) > absf(before.offline_deg()) + 0.01:
-		return false
-	if after.dispersion_deg > before.dispersion_deg + 0.01:
-		return false
-	# Otherwise: worth it if it tightens the shot, or lengthens one that is short.
-	if after.dispersion_deg < before.dispersion_deg - 0.01:
-		return true
-	return after.max_reach_yards() > before.max_reach_yards() + 0.01 		and before.max_reach_yards() < remaining
 
 
 func _profile_for(card: CardData) -> ShotProfile:

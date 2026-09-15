@@ -28,6 +28,27 @@ func modify_profile(_profile: ShotProfile) -> void:
 	pass
 
 
+## True if this effect only fires when the rest of the stroke satisfies it.
+##
+## Combos are folded in after every ordinary technique, so what they see is the
+## whole stroke rather than however much of it happened to be played first. That
+## makes a pair of cards a combination rather than a sequence puzzle: play them
+## in either order and you get the same shot.
+func is_combo() -> bool:
+	return false
+
+
+## What this effect does to a stroke, in words a combo can ask about.
+##
+## Derived by subclasses from their own numbers rather than authored, so a card's
+## tags can never drift from what it actually does. Asking "is this stroke
+## already being bent" is a better combo condition than asking whether you played
+## the card named Draw -- it keeps working when a new shaping card is added, and
+## it is what the player can see on the ball.
+func stroke_tags() -> Array[StringName]:
+	return []
+
+
 ## Act on the situation immediately. Call ctx.reject() to refuse the play.
 func on_play(_ctx: EffectContext) -> void:
 	pass

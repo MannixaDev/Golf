@@ -89,11 +89,39 @@ static func from_card(card: CardData, bag: BagStats = null) -> ShotProfile:
 	return profile
 
 
-## Fold a list of CardEffects into this profile, in order.
+## What is already on this stroke, for combo cards to read. Filled in as the
+## ordinary techniques are folded in, so a combo sees the finished shot.
+var stroke_tags: Array[StringName] = []
+## Ordinary techniques on this stroke. Combos do not count themselves, so a
+## combo asking for "another technique" is asking about something other than it.
+var modifiers_on_stroke: int = 0
+
+
+## Fold a list of CardEffects into this profile.
+##
+## Two passes, and that is the whole trick: everything ordinary first, then the
+## combos, so a combo is answering a question about the complete stroke. Folded
+## in one pass they would only see the cards played before them, and a pair would
+## work in one order and not the other -- which is a sequencing puzzle rather
+## than a combination, and not what anybody means by playing two cards together.
 func apply_effects(effects: Array) -> void:
 	for effect in effects:
-		if effect is CardEffect:
+		if not (effect is CardEffect) or effect.is_combo():
+			continue
+		modifiers_on_stroke += 1
+		for tag in effect.stroke_tags():
+			if not stroke_tags.has(tag):
+				stroke_tags.append(tag)
+		effect.modify_profile(self)
+
+	for effect in effects:
+		if effect is CardEffect and effect.is_combo():
 			effect.modify_profile(self)
+
+
+## Is something already doing this to the stroke?
+func stroke_is(tag: StringName) -> bool:
+	return stroke_tags.has(tag)
 
 
 ## Furthest the shot can finish at full power, carry plus roll.

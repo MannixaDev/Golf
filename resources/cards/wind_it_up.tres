@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/combo_effect.gd" id="2_combo"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_upgrade"]
+
+[sub_resource type="Resource" id="Combo_wind_it_up"]
+script = ExtResource("2_combo")
+summary = "Runs a touch more. On a stroke already being hit hard: another twelve per cent, and it sprays."
+needs = 3
+base_roll_multiplier = 1.10
+distance_multiplier = 1.12
+dispersion_multiplier = 1.20
+
+[sub_resource type="Resource" id="Upgrade_wind_it_up"]
+script = ExtResource("3_upgrade")
+summary = "All of the distance, less of the spray."
+dispersion_multiplier = 0.88
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"wind_it_up"
+display_name = "Wind It Up"
+description = "You are already going after this one. Go after it properly."
+type = 1
+rarity = 2
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Combo_wind_it_up")])
+upgraded = false
+upgraded_name = "Full Commitment"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_wind_it_up")])
+upgrade_cost_delta = 0
+upgrade_note = "All of the distance, less of the spray."

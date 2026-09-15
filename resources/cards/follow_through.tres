@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/combo_effect.gd" id="2_combo"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_upgrade"]
+
+[sub_resource type="Resource" id="Combo_follow_through"]
+script = ExtResource("2_combo")
+summary = "A little further on its own. With anything else on the shot, ten per cent further again."
+needs = 0
+base_distance_multiplier = 1.04
+distance_multiplier = 1.10
+
+[sub_resource type="Resource" id="Upgrade_follow_through"]
+script = ExtResource("3_upgrade")
+summary = "Further again, whatever it is paired with."
+distance_multiplier = 1.06
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"follow_through"
+display_name = "Follow Through"
+description = "Finish the swing. Every coach you have ever had, in three words."
+type = 1
+rarity = 1
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Combo_follow_through")])
+upgraded = false
+upgraded_name = "Full Extension"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_follow_through")])
+upgrade_cost_delta = 0
+upgrade_note = "Further again, whatever it is paired with."

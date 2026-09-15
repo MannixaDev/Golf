@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/combo_effect.gd" id="2_combo"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_upgrade"]
+
+[sub_resource type="Resource" id="Combo_double_cross"]
+script = ExtResource("2_combo")
+summary = "Slightly tighter. If the ball is already being bent: take the bend back out, and gain fifteen yards for the trouble."
+needs = 1
+base_dispersion_multiplier = 0.92
+straightens = true
+distance_multiplier = 1.15
+
+[sub_resource type="Resource" id="Upgrade_double_cross"]
+script = ExtResource("3_upgrade")
+summary = "Straighter, and it keeps the yards."
+dispersion_multiplier = 0.85
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"double_cross"
+display_name = "Double Cross"
+description = "Aim it left, hold it off, watch it go dead straight."
+type = 1
+rarity = 2
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Combo_double_cross")])
+upgraded = false
+upgraded_name = "Perfect Double Cross"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_double_cross")])
+upgrade_cost_delta = 0
+upgrade_note = "Straighter, and it keeps the yards."
