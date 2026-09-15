@@ -7,6 +7,7 @@
 [sub_resource type="Resource" id="Combo_wind_it_up"]
 script = ExtResource("2_combo")
 summary = "Runs a touch more. On a stroke already being hit hard: another twelve per cent, and it sprays."
+fired_label = "Everything at it"
 needs = 3
 base_roll_multiplier = 1.10
 distance_multiplier = 1.12

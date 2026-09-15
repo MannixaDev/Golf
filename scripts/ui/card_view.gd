@@ -61,6 +61,10 @@ var card: CardData = null
 var slot: int = -1
 var selected: bool = false
 var playable: bool = true
+## Playing this card right now would set off a combination. Shown on the card so
+## the pair can be seen before the focus is spent -- a combination you can only
+## find by playing it is not a decision.
+var combining: bool = false
 
 var home_position: Vector2 = Vector2.ZERO
 ## Held back before this card starts moving, so a fresh hand deals in one card
@@ -96,9 +100,11 @@ func setup(new_card: CardData, new_slot: int) -> void:
 		_refresh()
 
 
-func set_state(is_selected: bool, is_playable: bool) -> void:
+func set_state(is_selected: bool, is_playable: bool,
+		would_combine: bool = false) -> void:
 	selected = is_selected
 	playable = is_playable
+	combining = would_combine
 	if is_node_ready():
 		_refresh()
 
@@ -165,9 +171,13 @@ func _refresh() -> void:
 	# The border carries the upgrade, the accent still carries the card type, so
 	# a hand reads as both "what kind of card" and "which of these are better".
 	var edge: Color = Palette.GOLD if card.upgraded else accent
+	# A card that would combine wears the gold and a fatter border, because that
+	# is the one thing about it worth noticing across a hand of six.
+	if combining:
+		edge = Palette.GOLD
 	_style.bg_color = TYPE_COLOURS.get(card.type, Color("#242424"))
-	_style.border_color = edge if selected else edge.darkened(0.35)
-	var border := 3 if (selected or card.upgraded) else 2
+	_style.border_color = edge if (selected or combining) else edge.darkened(0.35)
+	var border := 3 if (selected or card.upgraded or combining) else 2
 	_style.border_width_left = border
 	_style.border_width_top = border
 	_style.border_width_right = border

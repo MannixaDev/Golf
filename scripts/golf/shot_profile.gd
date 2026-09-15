@@ -117,6 +117,17 @@ func set_situation(stroke: int, par: int, in_trouble: bool,
 	last_club_id = previous_club
 
 
+## Combinations that actually fired on this stroke, in the words to show the
+## player.
+##
+## Recorded rather than recomputed, because the only reliable answer to "did that
+## combine" is the code that decided it. Shipped without this, the conditional
+## cards worked perfectly and the player had no way of knowing: the shot prep
+## line named the cards, some numbers moved a little, and nothing anywhere said a
+## combination had happened. A combo nobody can see is a statistic.
+var fired_combos: PackedStringArray = PackedStringArray()
+
+
 ## What is already on this stroke, for combo cards to read. Filled in as the
 ## ordinary techniques are folded in, so a combo sees the finished shot.
 var stroke_tags: Array[StringName] = []

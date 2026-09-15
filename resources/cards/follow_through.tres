@@ -7,6 +7,7 @@
 [sub_resource type="Resource" id="Combo_follow_through"]
 script = ExtResource("2_combo")
 summary = "A little further on its own. With anything else on the shot, ten per cent further again."
+fired_label = "Ten per cent further"
 needs = 0
 base_distance_multiplier = 1.04
 distance_multiplier = 1.10

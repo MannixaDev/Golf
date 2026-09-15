@@ -7,6 +7,7 @@
 [sub_resource type="Resource" id="Combo_double_cross"]
 script = ExtResource("2_combo")
 summary = "Slightly tighter. If the ball is already being bent: take the bend back out, and gain fifteen yards for the trouble."
+fired_label = "Bend taken out, +15 yd"
 needs = 1
 base_dispersion_multiplier = 0.92
 straightens = true

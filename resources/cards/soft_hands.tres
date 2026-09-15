@@ -7,6 +7,7 @@
 [sub_resource type="Resource" id="Combo_soft_hands"]
 script = ExtResource("2_combo")
 summary = "Lands a little softer. On a stroke already under control: it stops dead and holds its line on the green."
+fired_label = "Stops dead"
 needs = 4
 base_roll_multiplier = 0.88
 roll_multiplier = 0.45

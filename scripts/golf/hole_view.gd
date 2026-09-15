@@ -22,11 +22,12 @@ signal hole_completed(strokes: int, par: int, holed: bool)
 
 ## `playable` is one bool per card. HoleView owns that judgement so the hand can
 ## never show a card as available that activate_card would then refuse.
-signal hand_changed(hand: Array, selected: int, playable: Array)
+signal hand_changed(hand: Array, selected: int, playable: Array,
+		combining: Array)
 signal piles_changed(draw_count: int, discard_count: int)
 signal focus_changed(focus: int, focus_max: int)
 ## Names of the techniques currently attached to the next stroke.
-signal modifiers_changed(names: Array)
+signal modifiers_changed(names: Array, combinations: PackedStringArray)
 signal lie_changed(surface: SurfaceType)
 ## Which way the green falls under the ball, and the read in words. Zero length
 ## anywhere but the putting surface.
@@ -586,7 +587,7 @@ func set_shot_shape(shape: int) -> void:
 ## lie. Equipment comes before the lie on purpose: a sand wedge or an angry
 ## caddie works by resisting the ground, which only means anything if the ground
 ## has not been applied yet.
-func _build_profile(card: CardData) -> ShotProfile:
+func _build_profile(card: CardData, extra: Array = []) -> ShotProfile:
 	# The bag goes on before anything is folded in, so a technique held over from
 	# earlier this turn can still scale itself on what you are carrying.
 	var profile := ShotProfile.from_card(card, BagStats.of(deck.cards))
@@ -594,7 +595,11 @@ func _build_profile(card: CardData) -> ShotProfile:
 	# a card asking whether it is in trouble has to be able to hear yes.
 	profile.set_situation(strokes + 1, hole.par, current_lie().modifies_play(),
 		_last_club_id)
-	profile.apply_effects(pending_modifiers)
+	# `extra` is a card being considered rather than played, so the hand can be
+	# asked what would happen without anything being spent.
+	var folded: Array = pending_modifiers.duplicate()
+	folded.append_array(extra)
+	profile.apply_effects(folded)
 	_apply_relics(profile)
 	current_lie().apply_to(profile)
 	# The course speaks last: a distraction should be able to ruin a shot that
@@ -923,9 +928,51 @@ func _emit_distance() -> void:
 
 func _emit_hand() -> void:
 	var playable: Array = []
+	var combining: Array = []
 	for card in deck.hand:
 		playable.append(can_play(card))
-	hand_changed.emit(deck.hand, selected_index, playable)
+		combining.append(would_combine(card))
+	hand_changed.emit(deck.hand, selected_index, playable, combining)
+
+
+## The club the staged shot is being built on: whichever is selected, and failing
+## that the first one in hand, so a technique can be judged before a club has
+## been picked. Most conditions do not depend on the club at all.
+func _staging_club() -> CardData:
+	var chosen := selected_card()
+	if chosen != null and chosen.is_shot():
+		return chosen
+	for card in deck.hand:
+		if card != null and card.is_shot():
+			return card
+	return null
+
+
+## Combinations live on the stroke as it stands.
+func live_combinations() -> PackedStringArray:
+	var club := _staging_club()
+	if club == null or hole == null:
+		return PackedStringArray()
+	return _build_profile(club).fired_combos
+
+
+## Would playing this card right now set off a combination?
+##
+## Asked of every card in hand, every time the hand changes, so a pair is visible
+## *before* the focus is spent. A combination the player can only discover by
+## spending focus and comparing numbers afterwards is not a decision, and the
+## decision is the whole of what makes it a combo rather than a bonus.
+func would_combine(card: CardData) -> bool:
+	if card == null or card.is_shot() or hole == null:
+		return false
+	if not can_play(card):
+		return false
+	var club := _staging_club()
+	if club == null:
+		return false
+	var without := _build_profile(club).fired_combos.size()
+	var with_it := _build_profile(club, card.shot_modifiers()).fired_combos.size()
+	return with_it > without
 
 
 ## The single source of truth for whether a card can be played right now.
@@ -957,7 +1004,8 @@ func _emit_lie() -> void:
 
 
 func _emit_modifiers() -> void:
-	modifiers_changed.emit(pending_modifier_names.duplicate())
+	modifiers_changed.emit(pending_modifier_names.duplicate(),
+		live_combinations())
 
 
 func _describe_shot(shot: ShotResult) -> String:

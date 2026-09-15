@@ -28,7 +28,8 @@ var _club_count: int = 0
 
 ## `hand` is an Array[CardData]; `playable` is a matching array of bools decided
 ## by HoleView, so the hand never contradicts what a click will actually do.
-func set_hand(hand: Array, selected: int, playable: Array) -> void:
+func set_hand(hand: Array, selected: int, playable: Array,
+		combining: Array = []) -> void:
 	_ensure_view_count(hand.size())
 	_club_count = 0
 	for card in hand:
@@ -43,7 +44,9 @@ func set_hand(hand: Array, selected: int, playable: Array) -> void:
 		var card: CardData = hand[i]
 		view.show()
 		view.setup(card, i)
-		view.set_state(i == selected, bool(playable[i]) if i < playable.size() else true)
+		view.set_state(i == selected,
+			bool(playable[i]) if i < playable.size() else true,
+			bool(combining[i]) if i < combining.size() else false)
 
 	_layout(hand.size())
 

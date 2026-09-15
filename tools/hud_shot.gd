@@ -49,8 +49,15 @@ func _process(_delta: float) -> bool:
 				break
 			hole = HoleGenerator.generate(31337 + attempt, 2, 1)
 		print("woodland: %s" % hole.woodland)
-		_screen.setup(hole,
-			Deck.new(load("res://resources/decks/starting_deck.tres").build()))
+		# A bag that can actually combine, because the whole point of the
+		# conditional cards is whether the player can see one coming -- and no
+		# assertion anywhere can answer that.
+		var bag: Array[CardData] = load("res://resources/decks/starting_deck.tres").build()
+		for extra in [&"draw", &"follow_through", &"double_cross", &"up_and_down"]:
+			var got := CardLibrary.copy(extra)
+			if got != null:
+				bag.append(got)
+		_screen.setup(hole, Deck.new(bag))
 		root.add_child(_screen)
 		_screen.setup_run(carried, 0)
 		_screen.begin()
@@ -63,6 +70,25 @@ func _process(_delta: float) -> bool:
 		var camera: Camera2D = view.get_node("Camera2D")
 		camera.position = view.hole.pin_position
 		camera.zoom = Vector2(2.2, 2.2)
+	elif frames == FRAMES - 30:
+		# Staged late, once the hole has actually begun: anything done during the
+		# flyover is wiped when the first turn starts, and the hand is still
+		# sliding up from below the screen.
+		var view: HoleView = _screen.get_node("HoleView")
+		_play_by_id(view, &"draw")
+		if _card_by_id(view, &"double_cross") == null:
+			view.deck.hand.append(CardLibrary.copy(&"double_cross"))
+		var candidate := _card_by_id(view, &"double_cross")
+		print("in hand, double cross would combine: %s" % view.would_combine(candidate))
+		_select_a_club(view)
+	elif frames == FRAMES - 10:
+		# Armed but not spent: the card that answers the Draw is in hand wearing
+		# the gold. This is the state the whole feature exists for.
+		_grab("user://combo_armed.png")
+		var view: HoleView = _screen.get_node("HoleView")
+		_play_by_id(view, &"double_cross")
+		_select_a_club(view)
+		print("combining: %s" % str(view.live_combinations()))
 	elif frames == FRAMES:
 		var view: HoleView = _screen.get_node("HoleView")
 		print("hand %d, focus %d, equipment %d"
@@ -117,6 +143,36 @@ func _process(_delta: float) -> bool:
 		_grab("user://splash.png")
 		return true
 	return false
+
+
+## Pick up the first club in hand, so the swing panel and the staged profile are
+## both live for the photograph.
+func _select_a_club(view: HoleView) -> void:
+	for i in view.deck.hand.size():
+		if view.deck.hand[i].is_shot():
+			view.activate_card(i)
+			return
+
+
+## A card in hand, by id. Hands hold copies, so identity comparison never works.
+func _card_by_id(view: HoleView, id: StringName) -> CardData:
+	for card in view.deck.hand:
+		if card != null and card.id == id:
+			return card
+	return null
+
+
+## Play a named card out of hand, putting one there if the deal did not.
+func _play_by_id(view: HoleView, id: StringName) -> void:
+	if _card_by_id(view, id) == null:
+		var forced := CardLibrary.copy(id)
+		if forced == null:
+			return
+		view.deck.hand.append(forced)
+	for i in view.deck.hand.size():
+		if view.deck.hand[i].id == id:
+			view.activate_card(i)
+			return
 
 
 ## Eighteen holes with something of everything on them, so the card is looked at

@@ -34,6 +34,14 @@ signal swing_released()
 	%FadeButton]
 @onready var _power_title: Label = %PowerTitle
 @onready var _prep_label: Label = %PrepLabel
+## The swing meter, so the two lines above it can be kept off it. Its height
+## changes with whether the selected club can be worked, so a fixed offset gets
+## it wrong half the time -- and the prep line was already being drawn straight
+## across the meter before any of this.
+@onready var _power_panel: Control = $PowerPanel
+## Built here rather than in the scene so the prep line keeps its own layout and
+## this one simply sits above it.
+@onready var _combo_label: Label = _make_combo_label()
 @onready var _lie_label: Label = %LieLabel
 @onready var _lie_summary: Label = %LieSummary
 @onready var _slope_row: HBoxContainer = %SlopeRow
@@ -171,8 +179,9 @@ func set_shape(available: bool, shape: int, degrees: float) -> void:
 	_shape_buttons[2].text = "Fade %d°" % roundi(degrees)
 
 
-func set_hand(hand: Array, selected: int, playable: Array) -> void:
-	_hand_view.set_hand(hand, selected, playable)
+func set_hand(hand: Array, selected: int, playable: Array,
+		combining: Array = []) -> void:
+	_hand_view.set_hand(hand, selected, playable, combining)
 
 
 func set_piles(draw_count: int, discard_count: int) -> void:
@@ -184,14 +193,76 @@ func set_focus(focus: int, focus_max: int) -> void:
 	_focus_label.text = "FOCUS  %d / %d" % [focus, focus_max]
 
 
-## Techniques attached to the next stroke.
-func set_modifiers(names: Array) -> void:
-	if names.is_empty():
-		_prep_label.text = ""
+## Stack the prep line and the combination line above the swing meter.
+##
+## Both are anchored to the bottom of the screen, so an offset is measured from
+## there: position.y is parent_height + offset_top, which rearranges to the line
+## below. Done every time they are shown because the meter grows a row of shape
+## buttons on a club that can be worked.
+func _place_above_the_meter() -> void:
+	var parent := _prep_label.get_parent() as Control
+	if parent == null or _power_panel == null:
+		return
+	const LINE := 26.0
+	const GAP := 10.0
+	var prep_top := _power_panel.position.y - GAP - LINE - parent.size.y
+	_prep_label.offset_top = prep_top
+	_prep_label.offset_bottom = prep_top + LINE
+	_combo_label.offset_left = _prep_label.offset_left
+	_combo_label.offset_right = _prep_label.offset_right
+	_combo_label.offset_top = prep_top - LINE
+	_combo_label.offset_bottom = prep_top
+
+
+func _make_combo_label() -> Label:
+	var label := Label.new()
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_override("font", Typo.SEMIBOLD)
+	label.add_theme_font_size_override("font_size", Typo.SMALL)
+	label.add_theme_color_override("font_color", Palette.GOLD)
+	# Both lines are drawn straight onto the course, which is bright green in the
+	# middle of a fairway and near black under a tree. An outline is what makes
+	# them legible on either.
+	label.add_theme_color_override("font_outline_color", Color(0.05, 0.08, 0.05, 0.9))
+	label.add_theme_constant_override("outline_size", 5)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.hide()
+	_prep_label.get_parent().add_child(label)
+	# Same anchoring as the prep line; _place_above_the_meter does the rest.
+	label.anchor_left = _prep_label.anchor_left
+	label.anchor_right = _prep_label.anchor_right
+	label.anchor_top = _prep_label.anchor_top
+	label.anchor_bottom = _prep_label.anchor_bottom
+	label.grow_horizontal = _prep_label.grow_horizontal
+	return label
+
+
+## Techniques attached to the next stroke, and any combination they are setting
+## off between them.
+##
+## The combination line is the whole point of the conditional cards. Without it
+## they worked and nobody could tell: the prep line named the cards, the numbers
+## moved a little, and the game never said a combination had happened. It is
+## drawn in gold, on its own line, because it is a thing you made happen rather
+## than a thing you are carrying.
+func set_modifiers(names: Array, combinations: PackedStringArray = PackedStringArray()) -> void:
+	if names.is_empty() and combinations.is_empty():
 		_prep_label.hide()
-	else:
+		_combo_label.hide()
+		return
+
+	if _prep_label.get_theme_constant("outline_size") < 4:
+		_prep_label.add_theme_color_override("font_outline_color",
+			Color(0.05, 0.08, 0.05, 0.9))
+		_prep_label.add_theme_constant_override("outline_size", 5)
+	_place_above_the_meter()
+	_prep_label.visible = not names.is_empty()
+	if not names.is_empty():
 		_prep_label.text = "SHOT PREP:  " + "  +  ".join(names).to_upper()
-		_prep_label.show()
+
+	_combo_label.visible = not combinations.is_empty()
+	if not combinations.is_empty():
+		_combo_label.text = "COMBINING:  " + "   ·   ".join(combinations)
 
 
 ## Equipment carried into this hole, so a relic that fires on the third stroke

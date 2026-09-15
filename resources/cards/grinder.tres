@@ -7,6 +7,7 @@
 [sub_resource type="Resource" id="Sit_grinder"]
 script = ExtResource("2_sit")
 summary = "A steadier swing. On your third stroke of a hole or later, steadier again and easier to time."
+fired_label = "Grinding it out"
 needs = 1
 base_dispersion_multiplier = 0.96
 dispersion_multiplier = 0.82

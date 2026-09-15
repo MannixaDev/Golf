@@ -38,6 +38,7 @@ func _initialize() -> void:
 
 func _process(_delta: float) -> bool:
 	_check_the_game_tells_a_card_where_it_is()
+	_check_the_player_can_see_it_coming()
 
 	print("")
 	if failures == 0:
@@ -116,6 +117,47 @@ func _check_the_game_tells_a_card_where_it_is() -> void:
 			+ "every situation card is inert in the actual game")
 	_expect(profile.hole_par == view.hole.par,
 		"the profile was not told the par")
+
+
+## The half that was missing when the conditional cards first shipped: the game
+## worked and the player had no way of knowing.
+##
+## A combination you can only find by spending the focus and comparing numbers
+## afterwards is not a decision, and the decision is the whole of what separates
+## a combo from a bonus. So the hand has to advertise the pair *before* it is
+## played, and the heads-up display has to name it once it is.
+func _check_the_player_can_see_it_coming() -> void:
+	print("")
+	print("=== the player can see a combination coming ===")
+	var view: HoleView = screen.get_node("HoleView")
+	view.start_hole()
+
+	# A shaping technique on the stroke, and two techniques in hand: one that
+	# answers it and one that does not.
+	var draw := CardLibrary.copy(&"draw")
+	view.deck.hand.append(draw)
+	view.activate_card(view.deck.hand.find(draw))
+
+	var answers := CardLibrary.copy(&"double_cross")
+	var does_not := CardLibrary.copy(&"punch")
+	view.deck.hand.append(answers)
+	view.deck.hand.append(does_not)
+	print("  double cross would combine: %s" % view.would_combine(answers))
+	print("  punch would combine:        %s" % view.would_combine(does_not))
+	_expect(view.would_combine(answers),
+		"the hand does not advertise a card that would combine, so the pair is "
+			+ "invisible until the focus has already been spent")
+	_expect(not view.would_combine(does_not),
+		"a technique that combines with nothing is being advertised as if it did")
+
+	# And once it is played, the display has to say so.
+	view.activate_card(view.deck.hand.find(answers))
+	var live := view.live_combinations()
+	print("  after playing it, the display reads: %s" % str(live))
+	_expect(not live.is_empty(),
+		"nothing is reported as combining after a combination was played")
+	_expect(not view.would_combine(answers),
+		"a card already played is still being advertised")
 
 
 ## A spot on this hole that hurts a shot. Searched rather than assumed, because
