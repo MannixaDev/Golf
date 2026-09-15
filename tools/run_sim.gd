@@ -67,10 +67,13 @@ const MAX_STROKES := 20
 const PICK_UP_OVER_PAR := 5
 const STEP := 1.0 / 60.0
 
-## What a bag looks like once it has picked up the combination cards. Named
-## rather than pulled from the pool so the comparison is the same bag every time.
-const COMBO_CARDS: Array[StringName] = [&"follow_through", &"double_cross",
-	&"clean_contact", &"wind_it_up", &"soft_hands"]
+## What a bag looks like once it has picked up the conditional cards -- the five
+## that read the stroke and the four that read the hole. Named rather than pulled
+## from the pool so the comparison is the same bag every time.
+const COMBO_CARDS: Array[StringName] = [
+	&"follow_through", &"double_cross", &"clean_contact", &"wind_it_up",
+	&"soft_hands",
+	&"up_and_down", &"grinder", &"damage_limitation", &"in_the_groove"]
 
 const TIER_SAMPLES := 70
 const RUNS := 40
@@ -100,6 +103,8 @@ var deck: Deck
 var strokes := 0
 var shot_origin := Vector2.ZERO
 var pending: Array[CardEffect] = []
+## The club played on the previous stroke, for cards that read the sequence.
+var last_club: StringName = &""
 var holed := false
 var abandoned := 0
 ## Shots that finished beyond the white stakes, and holes played, so the rate
@@ -181,7 +186,7 @@ func _report_runs() -> void:
 	var shapes := [
 		{"legacy": true, "combos": false, "label": "one hand of five, kind-agnostic:"},
 		{"legacy": false, "combos": false, "label": "four clubs and two techniques:"},
-		{"legacy": false, "combos": true, "label": "four and two, combination cards in the bag:"},
+		{"legacy": false, "combos": true, "label": "four and two, conditional cards in the bag:"},
 	]
 	for shape in shapes:
 		legacy_hand = bool(shape["legacy"])
@@ -279,6 +284,7 @@ func _play_hole(new_hole: HoleData, new_deck: Deck) -> int:
 	ball.sampler = SurfaceSampler.new(hole)
 	ball.reset_to(hole.tee_position)
 	strokes = 0
+	last_club = &""
 	holes_played += 1
 	pending.clear()
 	holed = false
@@ -439,6 +445,7 @@ func _play_stroke() -> bool:
 			_timing_error(profile, power)),
 		hole.pixels_per_yard)
 
+	last_club = card.id
 	# Techniques are spent by the stroke they shaped, exactly as HoleView says.
 	# This was cleared once a hole rather than once a stroke, so a technique
 	# played on the tee was still bending the putt -- harmless while the robot
@@ -532,11 +539,13 @@ func _best_techniques(focus: int, club: CardData, remaining: float) -> Array[Car
 ## want one.
 func _score_of(cards: Array[CardData], club: CardData, remaining: float) -> float:
 	var profile := ShotProfile.from_card(club)
+	var lie := hole.surface_at(ball.position)
+	profile.set_situation(strokes + 1, hole.par, lie.modifies_play(), last_club)
 	var effects: Array = pending.duplicate()
 	for card in cards:
 		effects.append_array(card.shot_modifiers())
 	profile.apply_effects(effects)
-	hole.surface_at(ball.position).apply_to(profile)
+	lie.apply_to(profile)
 
 	var reach := profile.max_reach_yards()
 	var score := 0.0
@@ -577,8 +586,10 @@ func _deal() -> void:
 
 func _profile_for(card: CardData) -> ShotProfile:
 	var profile := ShotProfile.from_card(card)
+	var lie := hole.surface_at(ball.position)
+	profile.set_situation(strokes + 1, hole.par, lie.modifies_play(), last_club)
 	profile.apply_effects(pending)
-	hole.surface_at(ball.position).apply_to(profile)
+	lie.apply_to(profile)
 	return profile
 
 

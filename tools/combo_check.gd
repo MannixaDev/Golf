@@ -10,9 +10,15 @@
 ## ShotProfile.apply_effects: play a combination either way round and you should
 ## get the same shot. Folded in one pass a combo would only see the cards played
 ## before it, which makes a pair a sequencing puzzle rather than a combination.
+## The situation cards at the end are the other half: they read the hole rather
+## than the stroke, and everything they read is put on the profile by whoever
+## builds it. A caller that forgets leaves every one of them silently inert and
+## nothing about the game looks wrong, so the last check drives the real
+## HoleView instead of trusting arithmetic.
 extends SceneTree
 
 var failures := 0
+var screen: HoleScreen = null
 
 
 func _initialize() -> void:
@@ -20,6 +26,18 @@ func _initialize() -> void:
 	_check_order_does_not_matter()
 	_check_a_combo_cannot_feed_a_combo()
 	_check_the_base_effect_always_applies()
+	_check_each_situation_fires()
+	_check_trouble_pays_and_cruising_does_not()
+
+	# The real scene, for the one thing arithmetic here cannot prove.
+	screen = load("res://scenes/run/hole_screen.tscn").instantiate()
+	screen.setup(HoleGenerator.generate(7, 2, 1),
+		Deck.new(load("res://resources/decks/starting_deck.tres").build()))
+	root.add_child(screen)
+
+
+func _process(_delta: float) -> bool:
+	_check_the_game_tells_a_card_where_it_is()
 
 	print("")
 	if failures == 0:
@@ -27,6 +45,107 @@ func _initialize() -> void:
 	else:
 		print("%d CHECK(S) FAILED" % failures)
 	quit(1 if failures > 0 else 0)
+	return true
+
+
+## Every situation card, in and out of its situation.
+func _check_each_situation_fires() -> void:
+	print("")
+	print("=== every situation card reads the hole ===")
+	var cases := [
+		{"card": &"up_and_down", "stroke": 1, "par": 4, "trouble": true, "club": &""},
+		{"card": &"grinder", "stroke": 3, "par": 4, "trouble": false, "club": &""},
+		{"card": &"damage_limitation", "stroke": 4, "par": 4, "trouble": false, "club": &""},
+		{"card": &"in_the_groove", "stroke": 2, "par": 4, "trouble": false, "club": &"iron_5"},
+	]
+	for case in cases:
+		var cruising := _situated([case["card"]], 1, 4, false, &"")
+		var in_it := _situated([case["card"]], int(case["stroke"]),
+			int(case["par"]), bool(case["trouble"]), case["club"])
+		if cruising == null or in_it == null:
+			_expect(false, "%s is missing" % case["card"])
+			continue
+		print("  %-18s cruising spread %.2f   in the situation %.2f" % [
+			case["card"], cruising.dispersion_deg, in_it.dispersion_deg])
+		_expect(in_it.dispersion_deg < cruising.dispersion_deg - 0.001,
+			"%s does the same thing in its situation as out of it"
+				% case["card"])
+
+
+## The whole point of biasing these towards trouble: a hole that is going well
+## must not also pay a bonus, or good rounds run away from everybody.
+func _check_trouble_pays_and_cruising_does_not() -> void:
+	print("")
+	print("=== a good hole does not also pay a bonus ===")
+	for id in [&"up_and_down", &"grinder", &"damage_limitation"]:
+		var bare := ShotProfile.from_card(CardLibrary.template(&"iron_5"))
+		var cruising := _situated([id], 1, 4, false, &"")
+		if cruising == null:
+			_expect(false, "%s is missing" % id)
+			continue
+		# Its base half still applies -- it is never a dead card -- but the
+		# situation half must not.
+		var payout := bare.dispersion_deg * 0.90
+		print("  %-18s on a tee shot from the fairway: spread %.2f (floor %.2f)"
+			% [id, cruising.dispersion_deg, payout])
+		_expect(cruising.dispersion_deg > payout,
+			"%s pays out on a hole that is going perfectly well" % id)
+
+
+## The check that arithmetic cannot do: does the real game tell a card where the
+## ball is? Everything above would pass with set_situation deleted from HoleView.
+func _check_the_game_tells_a_card_where_it_is() -> void:
+	print("")
+	print("=== the real hole tells a card where it is ===")
+	var view: HoleView = screen.get_node("HoleView")
+	view.start_hole()
+
+	var trouble := _somewhere_awful(view.hole)
+	if trouble == Vector2.ZERO:
+		_expect(false, "no trouble anywhere on this hole to stand in")
+		return
+	view._ball.reset_to(trouble)
+	print("  stood in %s" % view.hole.surface_at(trouble).display_name)
+
+	var card := CardLibrary.template(&"iron_5")
+	var profile: ShotProfile = view._build_profile(card)
+	print("  the profile says lie_is_trouble = %s, stroke %d of a par %d" % [
+		profile.lie_is_trouble, profile.stroke_number, profile.hole_par])
+	_expect(profile.lie_is_trouble,
+		"HoleView built a profile that does not know the ball is in trouble, so "
+			+ "every situation card is inert in the actual game")
+	_expect(profile.hole_par == view.hole.par,
+		"the profile was not told the par")
+
+
+## A spot on this hole that hurts a shot. Searched rather than assumed, because
+## which hazards a generated hole has is up to the generator.
+func _somewhere_awful(hole: HoleData) -> Vector2:
+	var rect := hole.bounds
+	for step in 4000:
+		var at := Vector2(
+			rect.position.x + fposmod(float(step) * 97.0, rect.size.x),
+			rect.position.y + fposmod(float(step) * 61.0, rect.size.y))
+		if hole.is_in_bounds(at) and hole.surface_at(at).modifies_play():
+			return at
+	return Vector2.ZERO
+
+
+## A profile with these cards on it, played in a given situation.
+func _situated(ids: Array, stroke: int, par: int, trouble: bool,
+		last_club: StringName) -> ShotProfile:
+	var club := CardLibrary.template(&"iron_5")
+	var profile := ShotProfile.from_card(club)
+	profile.set_situation(stroke, par, trouble,
+		club.id if last_club != &"" else &"")
+	var effects: Array[CardEffect] = []
+	for id in ids:
+		var card := CardLibrary.template(id)
+		if card == null:
+			return null
+		effects.append_array(card.shot_modifiers())
+	profile.apply_effects(effects)
+	return profile
 
 
 ## Each combo card, with its condition met and unmet.

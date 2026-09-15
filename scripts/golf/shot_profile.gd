@@ -89,6 +89,34 @@ static func from_card(card: CardData, bag: BagStats = null) -> ShotProfile:
 	return profile
 
 
+## --- The situation ---------------------------------------------------------
+##
+## Where this stroke is being played from and what came before it, for cards
+## that read the hole rather than the stroke. Set in one call, before anything is
+## folded in, because the lie is applied *after* the effects and a card asking
+## "am I in trouble" during modify_profile would otherwise always hear no.
+##
+## A golf turn was already a combination -- club plus techniques onto one profile
+## -- so the unexplored axis was never within a stroke but between them. A hole
+## is a sequence, which is something most card games do not have.
+var stroke_number: int = 1
+var hole_par: int = 4
+var lie_is_trouble: bool = false
+## The club played on the stroke before this one, for rhythm.
+var last_club_id: StringName = &""
+
+
+## Tell the profile where it is. One call rather than four assignments, so a
+## caller cannot half-remember it -- and every situation card silently does
+## nothing when it is forgotten, which is the failure this project keeps having.
+func set_situation(stroke: int, par: int, in_trouble: bool,
+		previous_club: StringName = &"") -> void:
+	stroke_number = maxi(stroke, 1)
+	hole_par = maxi(par, 1)
+	lie_is_trouble = in_trouble
+	last_club_id = previous_club
+
+
 ## What is already on this stroke, for combo cards to read. Filled in as the
 ## ordinary techniques are folded in, so a combo sees the finished shot.
 var stroke_tags: Array[StringName] = []

@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/situation_effect.gd" id="2_sit"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_upgrade"]
+
+[sub_resource type="Resource" id="Sit_grinder"]
+script = ExtResource("2_sit")
+summary = "A steadier swing. On your third stroke of a hole or later, steadier again and easier to time."
+needs = 1
+base_dispersion_multiplier = 0.96
+dispersion_multiplier = 0.82
+sweet_spot_multiplier = 1.20
+
+[sub_resource type="Resource" id="Upgrade_grinder"]
+script = ExtResource("3_upgrade")
+summary = "Steadier still, the longer it goes on."
+dispersion_multiplier = 0.90
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"grinder"
+display_name = "Grinder"
+description = "Nothing about this hole has gone to plan. You are still here."
+type = 1
+rarity = 1
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Sit_grinder")])
+upgraded = false
+upgraded_name = "Bloody-Minded"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_grinder")])
+upgrade_cost_delta = 0
+upgrade_note = "Steadier still, the longer it goes on."

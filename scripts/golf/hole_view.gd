@@ -105,6 +105,9 @@ var _free_techniques: int = 0
 var pending_modifiers: Array[CardEffect] = []
 ## Card names behind those modifiers, for the HUD.
 var pending_modifier_names: Array[String] = []
+## The club played on the previous stroke of this hole, for cards that read the
+## sequence rather than the stroke. Cleared with the hole.
+var _last_club_id: StringName = &""
 
 var _finished: bool = false
 ## False on the tee: there is no stroke to take back yet.
@@ -220,6 +223,7 @@ func start_hole() -> void:
 
 	_finished = false
 	strokes = 0
+	_last_club_id = &""
 	_shot_origin = hole.tee_position
 	_can_rewind = false
 	_recoveries_used = 0
@@ -586,6 +590,10 @@ func _build_profile(card: CardData) -> ShotProfile:
 	# The bag goes on before anything is folded in, so a technique held over from
 	# earlier this turn can still scale itself on what you are carrying.
 	var profile := ShotProfile.from_card(card, BagStats.of(deck.cards))
+	# Before anything is folded in, because the lie goes on after the effects and
+	# a card asking whether it is in trouble has to be able to hear yes.
+	profile.set_situation(strokes + 1, hole.par, current_lie().modifies_play(),
+		_last_club_id)
 	profile.apply_effects(pending_modifiers)
 	_apply_relics(profile)
 	current_lie().apply_to(profile)
@@ -755,6 +763,10 @@ func _on_shot_requested(direction: Vector2, power_pct: float,
 
 	# Techniques are spent by the stroke they shaped.
 	_clear_modifiers()
+	# Remembered for the next stroke, so a card can ask whether you are still
+	# holding the club you just hit.
+	if profile.source_card != null:
+		_last_club_id = profile.source_card.id
 
 	var shot := ShotResolver.resolve(profile, power_pct, direction, _rng,
 		hole.wind_vector(), offline_deg)

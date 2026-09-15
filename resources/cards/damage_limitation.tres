@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/situation_effect.gd" id="2_sit"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_upgrade"]
+
+[sub_resource type="Resource" id="Sit_damage_limitation"]
+script = ExtResource("2_sit")
+summary = "Rolls out less. Once par is already gone on this hole: the ball cannot be lost, and it flies far straighter."
+needs = 2
+base_roll_multiplier = 0.90
+dispersion_multiplier = 0.75
+grants_ball_protection = true
+
+[sub_resource type="Resource" id="Upgrade_damage_limitation"]
+script = ExtResource("3_upgrade")
+summary = "Straighter again when it matters."
+dispersion_multiplier = 0.88
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"damage_limitation"
+display_name = "Damage Limitation"
+description = "Par has gone. Take your bogey and walk to the next tee."
+type = 1
+rarity = 2
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Sit_damage_limitation")])
+upgraded = false
+upgraded_name = "Cut Your Losses"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_damage_limitation")])
+upgrade_cost_delta = 0
+upgrade_note = "Straighter again when it matters."

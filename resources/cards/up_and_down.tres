@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/card_data.gd" id="1_carddata"]
+[ext_resource type="Script" path="res://scripts/cards/effects/situation_effect.gd" id="2_sit"]
+[ext_resource type="Script" path="res://scripts/cards/effects/profile_tweak_effect.gd" id="3_upgrade"]
+
+[sub_resource type="Resource" id="Sit_up_and_down"]
+script = ExtResource("2_sit")
+summary = "Slightly straighter. Out of rough, sand or worse: far straighter, stops quickly, and shrugs off the lie."
+needs = 0
+base_dispersion_multiplier = 0.95
+dispersion_multiplier = 0.68
+roll_multiplier = 0.70
+lie_resistance = 0.45
+
+[sub_resource type="Resource" id="Upgrade_up_and_down"]
+script = ExtResource("3_upgrade")
+summary = "Cleaner still out of the bad stuff."
+dispersion_multiplier = 0.88
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"up_and_down"
+display_name = "Up and Down"
+description = "Everyone remembers the putt. Nobody remembers the lie it came out of."
+type = 1
+rarity = 2
+cost = 1
+distance_multiplier = 1.0
+dispersion_multiplier = 1.0
+roll_multiplier = 1.0
+effects = Array[CardEffect]([SubResource("Sit_up_and_down")])
+upgraded = false
+upgraded_name = "Short Game"
+upgrade_effects = Array[CardEffect]([SubResource("Upgrade_up_and_down")])
+upgrade_cost_delta = 0
+upgrade_note = "Cleaner still out of the bad stuff."
