@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="Rule_0"]
 script = ExtResource("id_0")
-summary = ""One fewer club in hand.""
-hand_size_delta = -1
+summary = "One fewer technique in hand."
+extra_hand_delta = -1
 
 [resource]
 script = ExtResource("1_set")

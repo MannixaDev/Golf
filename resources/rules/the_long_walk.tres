@@ -5,7 +5,7 @@
 
 [sub_resource type="Resource" id="Rule_0"]
 script = ExtResource("id_0")
-summary = ""No focus for technique. Clubs only.""
+summary = "No focus for technique. Clubs only."
 focus_delta = -2
 
 [resource]

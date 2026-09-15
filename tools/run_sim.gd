@@ -57,7 +57,8 @@ static func field() -> Array:
 		Golfer.new("weekend golfer", 6.8, 0.20, 140.0, 0.30),
 	]
 
-const HAND_SIZE := 5
+const CLUB_HAND := 4
+const EXTRA_HAND := 2
 const FOCUS_MAX := 3
 ## A hole this long has gone wrong; stop rather than loop forever.
 const MAX_STROKES := 20
@@ -74,6 +75,13 @@ var deck_list: DeckList
 var ball: Ball
 ## Who is playing. Set before any stroke is struck.
 var golfer: Golfer = tour()
+## Deal one hand of five, kind-agnostic, the way the game did before clubs and
+## techniques were split. Only ever true inside the comparison report.
+var legacy_hand: bool = false
+## Techniques actually played, and strokes struck, so "the robot refuses
+## everything" is visible rather than inferred.
+var techniques_played: int = 0
+var strokes_struck: int = 0
 
 # State for the hole being played.
 var hole: HoleData
@@ -153,8 +161,13 @@ func _report_runs() -> void:
 	print("  %-16s %8s %8s %8s %8s" % [
 		"golfer", "average", "best", "worst", "cut"])
 	var missed := 0
-	for who in field():
-		missed += _runs_for(who)
+	for shape in [true, false]:
+		legacy_hand = shape
+		print("  %s" % ("one hand of five, kind-agnostic:"
+			if shape else "four clubs and two techniques:"))
+		for who in field():
+			missed += _runs_for(who)
+	legacy_hand = false
 	print("")
 	if missed == 0:
 		print("  Nobody missed a cut. Either the field is too weak or the cut")
@@ -173,6 +186,8 @@ func _report_runs() -> void:
 func _runs_for(who: Golfer) -> int:
 	golfer = who
 	rng.seed = 20240107
+	techniques_played = 0
+	strokes_struck = 0
 	var cut := 0
 	var total_score := 0
 	var total_holes := 0
@@ -217,9 +232,10 @@ func _runs_for(who: Golfer) -> int:
 		best = mini(best, run.score_to_par())
 		worst = maxi(worst, run.score_to_par())
 
-	print("  %-16s %+8.1f %+8d %+8d %7.0f%%" % [
+	print("    %-14s %+8.1f %+8d %+8d %7.0f%%   %.2f techniques a stroke" % [
 		who.label, float(total_score) / RUNS, best, worst,
-		100.0 * cut / RUNS])
+		100.0 * cut / RUNS,
+		float(techniques_played) / maxf(strokes_struck, 1)])
 	return cut
 
 
@@ -346,16 +362,33 @@ func _timing_error(profile: ShotProfile, power: float) -> float:
 
 ## Returns false if the robot genuinely could not find anything to hit.
 func _play_stroke() -> bool:
-	deck.draw_up_to(HAND_SIZE)
+	_deal()
 	shot_origin = ball.position
-	_spend_support(FOCUS_MAX)
 
+	# Club first, then how to shape it, which is the order a golfer decides in
+	# and the only order in which "does this technique help?" is answerable.
+	#
+	# It used to spend focus before choosing, and played anything it could
+	# afford in hand order. That was harmless while techniques were rare, and
+	# became nonsense the moment the split hand dealt two of them every stroke:
+	# the robot put a Fade and a Draw on every shot it hit, sprayed the ball, and
+	# the sim reported thirteen times the balls out of bounds and twelve holes
+	# picked up. None of that was the game getting worse. It was the robot being
+	# bad at something new, for the fourth time on this project.
 	var remaining := hole.to_yards(shot_origin.distance_to(hole.pin_position))
 	var slot := _pick_card(remaining)
+	if slot >= 0:
+		# Hold the card itself, not its index: spending focus plays techniques
+		# out of the hand and every slot after them shifts down.
+		var intended: CardData = deck.hand[slot]
+		_spend_support(FOCUS_MAX, intended, remaining)
+		slot = deck.hand.find(intended)
+		if slot < 0:
+			slot = _pick_card(remaining)
 	if slot < 0:
 		# Nothing legal in hand: rummage, exactly as HoleView does.
 		deck.discard_hand()
-		deck.draw_up_to(HAND_SIZE)
+		_deal()
 		slot = _pick_card(remaining)
 		if slot < 0:
 			return false
@@ -371,17 +404,36 @@ func _play_stroke() -> bool:
 
 	deck.play_from_hand(slot)
 	strokes += 1
+	strokes_struck += 1
 	ball.launch(ShotResolver.resolve(profile, power, aim, rng, hole.wind_vector(),
 			_timing_error(profile, power)),
 		hole.pixels_per_yard)
+
+	# Techniques are spent by the stroke they shaped, exactly as HoleView says.
+	# This was cleared once a hole rather than once a stroke, so a technique
+	# played on the tee was still bending the putt -- harmless while the robot
+	# rarely held one, and enormous the moment the split hand dealt it two every
+	# stroke: ten stacked modifiers by the fifth shot, and thirteen times the
+	# balls out of bounds. The sim was modelling something the game has never
+	# done.
+	pending.clear()
 	return true
 
 
-func _spend_support(focus: int) -> void:
+## Techniques worth putting on this particular shot.
+##
+## `club` is what is about to be played and `remaining` how far away the target
+## is, because whether a technique helps is only answerable against a specific
+## shot: a Draw is a good idea when you need to bend one round a corner and a
+## poor one when you are already aimed at the flag.
+func _spend_support(focus: int, club: CardData, remaining: float) -> void:
 	var index := 0
 	while index < deck.hand.size() and focus > 1:
 		var card: CardData = deck.hand[index]
 		if card.is_shot() or card.cost > focus - 1:
+			index += 1
+			continue
+		if not _technique_helps(card, club, remaining):
 			index += 1
 			continue
 
@@ -401,12 +453,67 @@ func _spend_support(focus: int) -> void:
 			continue
 
 		focus -= card.cost
+		techniques_played += 1
 		pending.append_array(card.shot_modifiers())
 		deck.play_from_hand(index)
 		if ctx.move_ball_to != null:
 			ball.reset_to(ctx.move_ball_to)
 		if ctx.stroke_delta != 0:
 			strokes = maxi(0, strokes + ctx.stroke_delta)
+
+
+## Fill the hand, in whichever shape is being measured.
+func _deal() -> void:
+	if not legacy_hand:
+		deck.deal_up_to(CLUB_HAND, EXTRA_HAND)
+		return
+	# The old deal: five cards off the top, kind-agnostic, respecting the copy
+	# caps. Rebuilt here rather than kept on Deck, because it exists only to be
+	# the thing the split hand is measured against -- and without it there is no
+	# honest before-and-after, only two numbers from different instruments.
+	var target := CLUB_HAND + EXTRA_HAND - 1
+	var guard := 0
+	while deck.hand.size() < target and guard < 60:
+		guard += 1
+		if deck.draw_pile.is_empty():
+			deck.recycle_discard_into_draw()
+		if deck.draw_pile.is_empty():
+			break
+		var card: CardData = deck.draw_pile.pop_back()
+		var limit := 1 if card.is_shot() else 2
+		if deck.copies_in_hand(card.id) >= limit:
+			deck.draw_pile.push_front(card)
+			continue
+		deck.hand.append(card)
+
+
+## Would this technique make the shot better or worse?
+##
+## Deliberately a do-no-harm test rather than a clever one. The robot is meant to
+## be a plausible golfer, not an optimal one: it takes anything that tightens the
+## shot or lengthens it when length is short, and refuses anything that bends the
+## ball off line, because a shot shape is only worth having when there is
+## something to bend around and the robot cannot see corners.
+func _technique_helps(card: CardData, club: CardData, remaining: float) -> bool:
+	var before := _profile_for(club)
+	var after := ShotProfile.from_card(club)
+	var trial: Array = pending.duplicate()
+	trial.append_array(card.shot_modifiers())
+	after.apply_effects(trial)
+	hole.surface_at(ball.position).apply_to(after)
+
+	# Never take something that puts the target out of range.
+	if before.max_reach_yards() >= remaining and after.max_reach_yards() < remaining:
+		return false
+	# Never take something that bends a shot the robot has no reason to bend.
+	if absf(after.offline_deg()) > absf(before.offline_deg()) + 0.01:
+		return false
+	if after.dispersion_deg > before.dispersion_deg + 0.01:
+		return false
+	# Otherwise: worth it if it tightens the shot, or lengthens one that is short.
+	if after.dispersion_deg < before.dispersion_deg - 0.01:
+		return true
+	return after.max_reach_yards() > before.max_reach_yards() + 0.01 		and before.max_reach_yards() < remaining
 
 
 func _profile_for(card: CardData) -> ShotProfile:

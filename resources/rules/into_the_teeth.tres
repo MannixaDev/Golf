@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="Rule_0"]
 script = ExtResource("id_0")
-summary = ""The wind takes the distance out of everything.""
-announcement = ""Dead into it. Take at least one more club.""
+summary = "The wind takes the distance out of everything."
+announcement = "Dead into it. Take at least one more club."
 distance_multiplier = 0.82
 roll_multiplier = 1.5
 

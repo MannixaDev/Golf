@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="Rule_0"]
 script = ExtResource("id_0")
-summary = ""A bad lie is mostly forgiven.""
-announcement = ""Preferred lies today. Roll it out of anything ugly.""
+summary = "A bad lie is mostly forgiven."
+announcement = "Preferred lies today. Roll it out of anything ugly."
 lie_resistance = 0.65
 
 [resource]

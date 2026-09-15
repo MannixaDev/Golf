@@ -11,7 +11,8 @@ extends SceneTree
 const HUMAN_POWER_ERROR := 0.06
 ## Nobody aims to the degree with a mouse.
 const HUMAN_AIM_ERROR_DEG := 1.5
-const HAND_SIZE := 5
+const CLUB_HAND := 4
+const EXTRA_HAND := 2
 const FOCUS_MAX := 3
 const ROUNDS := 40
 
@@ -107,7 +108,7 @@ func _next_round() -> bool:
 
 func _play_shot() -> void:
 	# Top the hand back up, exactly as HoleView does.
-	deck.draw_up_to(HAND_SIZE)
+	deck.deal_up_to(CLUB_HAND, EXTRA_HAND)
 
 	shot_origin = ball.position
 	var lie := hole.surface_at(ball.position)

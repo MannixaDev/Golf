@@ -19,6 +19,7 @@ func _initialize() -> void:
 	_check_events()
 	_check_the_ground_plays_differently()
 	_check_every_rule_class_is_used()
+	_check_every_rule_says_what_it_does()
 
 	print("")
 	if failures == 0:
@@ -368,17 +369,49 @@ func _check_every_rule_class_is_used() -> void:
 		if rule_set == null:
 			_expect(false, "'%s' is gone" % id)
 			continue
-		var bag := BagRules.new(5, 3)
+		var bag := BagRules.new(4, 3, 2)
 		for rule in rule_set.rules:
 			if rule is BagRestrictionRule:
 				(rule as BagRestrictionRule).modify_bag(bag)
 		bag.clamped()
-		print("  %-20s hand %d, focus %d" % [rule_set.display_name,
-			bag.hand_size, bag.focus])
-		_expect(bag.hand_size >= 1 and bag.focus >= 1,
+		print("  %-20s %d clubs, %d extras, focus %d" % [rule_set.display_name,
+			bag.club_hand, bag.extra_hand, bag.focus])
+		_expect(bag.club_hand >= 1 and bag.focus >= 1,
 			"%s leaves you a hole you cannot play" % rule_set.display_name)
-		_expect(bag.hand_size < 5 or bag.focus < 3,
+		_expect(bag.club_hand < 4 or bag.extra_hand < 2 or bag.focus < 3,
 			"%s claims to restrict the bag and does not" % rule_set.display_name)
+
+
+## Every rule has to say what it does, out loud.
+##
+## Seven of the fourteen rule sets shipped with an empty summary and four with an
+## empty announcement, because a .tres written by script came out as ""text"" --
+## which Godot parses as the empty string and then quietly ignores the rest of
+## the line. The rules worked perfectly; they simply never told anybody what they
+## were. Nothing here was looking at the words, only at the numbers.
+func _check_every_rule_says_what_it_does() -> void:
+	print("")
+	print("=== rules text ===")
+	var blank := 0
+	for rule_set in CourseRuleLibrary.all():
+		_expect(rule_set.display_name.strip_edges() != "",
+			"a rule set with no name")
+		_expect(rule_set.description.strip_edges() != "",
+			"%s has no description" % rule_set.display_name)
+		for rule in rule_set.rules:
+			if rule == null:
+				continue
+			if rule.describe().strip_edges() == "":
+				blank += 1
+				_expect(false, "%s has a rule with no summary"
+					% rule_set.display_name)
+			# Stray quote marks are the other half of the same bug: a string that
+			# survived but arrived wearing its own punctuation.
+			_expect(not rule.describe().begins_with("\""),
+				"%s has a summary wrapped in quote marks"
+					% rule_set.display_name)
+	print("  %d rule sets, %d with nothing to say" % [
+		CourseRuleLibrary.all().size(), blank])
 
 
 func _ground_profile(rule_id: StringName) -> ShotProfile:

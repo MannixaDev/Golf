@@ -6,8 +6,11 @@
 ## both are easy to regress, so they are asserted here.
 extends SceneTree
 
-const HAND_SIZE := 5
+const CLUB_HAND := 4
+const EXTRA_HAND := 2
 const OPENING_HANDS := 200
+## Deals sampled when asking whether a hand can play the shot in front of it.
+const DEALS := 600
 
 var failures := 0
 var screen: HoleScreen = null
@@ -18,6 +21,8 @@ func _initialize() -> void:
 	_check_duplicate_cap()
 	_check_club_cap()
 	_check_you_cannot_lose_the_short_game()
+	_check_the_deal_is_never_a_dead_end()
+	_check_the_shortest_putt()
 
 	# The tee-shot rule lives in HoleView, so the check drives the real scene
 	# rather than re-implementing the logic and proving nothing. Nodes added
@@ -39,6 +44,159 @@ func _process(_delta: float) -> bool:
 	return true
 
 
+## Can the hand you are dealt actually play the shot in front of you?
+##
+## This is the check that earns the right to delete HoleView._ensure_short_game
+## -- thirty-five lines that reached into the draw pile mid-hole and swapped a
+## card behind the player's back, announcing "You reach for something softer".
+## A game that silently edits your hand is a game you cannot learn, and it only
+## existed because clubs and techniques shared one deal: with five cards and no
+## guarantee of how many were clubs, a hand of four techniques and a driver was a
+## real outcome, and from forty yards it was a dead end.
+##
+## So the raw deal is measured here with no rescue of any kind, across the whole
+## range of shots a hole asks for, against the old single hand and the new split
+## one. If the split does not take stranding to zero on its own it has not earned
+## the deletion and the rescue stays.
+func _check_the_deal_is_never_a_dead_end() -> void:
+	print("")
+	print("=== every deal can play every shot ===")
+
+	var list: DeckList = load("res://resources/decks/starting_deck.tres")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1234
+
+	# Only the short end. Being unable to reach a green in one is not a dead end,
+	# it is golf -- you take your longest club and advance the ball. The dead end
+	# is the other direction: every club in hand flies past the target even
+	# feathered to its minimum, so there is no shot to play at all. A first cut
+	# of this check counted "cannot reach 420 yards off the tee" as stranded and
+	# reported a fifth of all deals broken, which measured nothing.
+	var shots: Array[float] = [60.0, 30.0, 14.0, 6.0]
+	var split: Array[int] = []
+	var single: Array[int] = []
+	split.resize(shots.size())
+	single.resize(shots.size())
+
+	for attempt in DEALS:
+		var deck := Deck.new(list.build())
+		deck.reset_for_hole()
+		deck.deal_up_to(CLUB_HAND, EXTRA_HAND)
+		var old_hand := _old_style_hand(list, rng)
+		for i in shots.size():
+			if not _can_play(deck.hand, shots[i]):
+				split[i] += 1
+			if not _can_play(old_hand, shots[i]):
+				single[i] += 1
+
+	print("  %d deals.  stranded, one hand of five -> four clubs and two extras:"
+		% DEALS)
+	for i in shots.size():
+		print("   %5.0f yd:  %5.1f%%  ->  %5.1f%%" % [shots[i],
+			100.0 * single[i] / DEALS, 100.0 * split[i] / DEALS])
+
+	# Fourteen yards and out is the range HoleView._ensure_short_game was written
+	# for, and the split closes it completely.
+	var old_total := 0
+	for i in shots.size():
+		old_total += single[i]
+		if shots[i] < 12.0:
+			continue
+		_expect(split[i] == 0,
+			"%.0f yards still strands the player %d times in %d"
+				% [shots[i], split[i], DEALS])
+	# Not asserted per distance: from thirty yards out any wedge or nine iron
+	# can be feathered short enough, so neither deal was ever stuck there. The
+	# old one only broke down from about fourteen yards in, which is exactly
+	# where the rescue in HoleView was aimed.
+	_expect(old_total > 0,
+		"the old deal never stranded anybody anywhere, so this check is "
+			+ "measuring the wrong thing")
+
+	# Inside that it is not the hand's fault and the split cannot fix it: with
+	# four club slots and five distinct clubs you are always missing exactly one,
+	# and when the one is the putter nothing else in the bag can be feathered
+	# short enough. It halves the problem rather than solving it, and the rescue
+	# in HoleView still has a job.
+	var close: int = split[shots.size() - 1]
+	_expect(close < single[shots.size() - 1],
+		"the split should at least improve the six yard case")
+	print("  inside twelve yards the putter is the only club that works, and a")
+	print("  four club hand is missing one club: %.0f%% of deals lack it."
+		% (100.0 * close / DEALS))
+
+
+## The shortest shot the game can actually play.
+##
+## Nothing to do with the hand. `min_power_fraction` is a share of a club's reach
+## rather than an absolute, so the shortest putt in the game is the putter's own
+## reach times that floor -- and at 28 yards times 0.12 that is over three yards.
+## You cannot lag a ten footer: every putt inside that has to be struck hard
+## enough to run past the hole and rely on being caught on the way over.
+##
+## Asserted rather than fixed here because it is a difficulty change and belongs
+## in its own milestone. If somebody shortens the putter or lowers the floor this
+## goes green on its own.
+func _check_the_shortest_putt() -> void:
+	print("")
+	print("=== the shortest shot in the bag ===")
+	const MIN_POWER := 0.12
+	var list: DeckList = load("res://resources/decks/starting_deck.tres")
+	var gentlest := INF
+	var which := ""
+	for card in list.build():
+		if not card.is_shot():
+			continue
+		var floor_yards := ShotProfile.from_card(card).max_reach_yards() * MIN_POWER
+		if floor_yards < gentlest:
+			gentlest = floor_yards
+			which = str(card.id)
+	print("  the gentlest shot in the game is %s at %.2f yd (%.0f feet)" % [
+		which, gentlest, gentlest * 3.0])
+	_expect(gentlest <= 4.0,
+		"the shortest playable shot is %.1f yards, so nothing can be tapped in"
+			% gentlest)
+
+
+## Is there a club here that can be hit *gently* enough to stay on this hole?
+##
+## HoleView.min_power_fraction is the floor on how softly a club may be struck,
+## so a club's shortest possible shot is its reach times that. If every club in
+## hand overshoots even at the floor, the hand is a dead end.
+func _can_play(cards: Array[CardData], needed: float) -> bool:
+	const MIN_POWER := 0.12
+	for card in cards:
+		if card == null or not card.is_shot():
+			continue
+		if ShotProfile.from_card(card).max_reach_yards() * MIN_POWER <= needed:
+			return true
+	return false
+
+
+## The deal as it used to be: five cards off the top, kind-agnostic, respecting
+## the copy caps. Rebuilt here rather than kept in Deck, because it exists only
+## to be the thing the new deal is measured against.
+func _old_style_hand(list: DeckList, rng: RandomNumberGenerator) -> Array[CardData]:
+	var pile: Array[CardData] = list.build()
+	for i in range(pile.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var tmp := pile[i]
+		pile[i] = pile[j]
+		pile[j] = tmp
+
+	var held: Array[CardData] = []
+	var counts: Dictionary = {}
+	for card in pile:
+		if held.size() >= 5:
+			break
+		var limit: int = 1 if card.is_shot() else 2
+		if int(counts.get(card.id, 0)) >= limit:
+			continue
+		counts[card.id] = int(counts.get(card.id, 0)) + 1
+		held.append(card)
+	return held
+
+
 # --- Pile counts ----------------------------------------------------------
 
 func _trace_piles() -> void:
@@ -48,7 +206,7 @@ func _trace_piles() -> void:
 	print("=== piles, stroke by stroke (%d card bag) ===" % deck.total_cards())
 
 	for stroke in range(1, 7):
-		deck.draw_up_to(HAND_SIZE)
+		deck.deal_up_to(CLUB_HAND, EXTRA_HAND)
 		print("  before stroke %d:  BAG %2d   HAND %d   PLAYED %2d" % [
 			stroke, deck.draw_pile.size(), deck.hand.size(), deck.discard_pile.size()])
 		deck.play_from_hand(0)
@@ -72,7 +230,7 @@ func _check_club_cap() -> void:
 	var best_technique := 0
 	for attempt in 40:
 		deck.reset_for_hole()
-		deck.draw_up_to(6)
+		deck.deal_up_to(CLUB_HAND, EXTRA_HAND)
 		worst_club = maxi(worst_club, deck.copies_in_hand(&"putter"))
 		best_technique = maxi(best_technique, deck.copies_in_hand(&"draw"))
 	print("  most putters held %d, most Draws held %d" % [worst_club, best_technique])
@@ -166,7 +324,7 @@ func _check_duplicate_cap() -> void:
 	for round_index in 40:
 		deck.reset_for_hole()
 		for stroke in 5:
-			deck.draw_up_to(HAND_SIZE)
+			deck.deal_up_to(CLUB_HAND, EXTRA_HAND)
 			worst = maxi(worst, deck.copies_in_hand(&"putter"))
 			if not deck.hand.is_empty():
 				deck.play_from_hand(0)
@@ -183,11 +341,11 @@ func _check_duplicate_cap() -> void:
 	# fills to everything available: passed-over cards go back in the pile, so
 	# nothing is ever lost to the cap.
 	deck.reset_for_hole()
-	deck.draw_up_to(HAND_SIZE)
+	deck.deal_up_to(CLUB_HAND, EXTRA_HAND)
 	var distinct: Dictionary = {}
 	for card in deck.cards:
 		distinct[card.id] = true
-	var expected := mini(HAND_SIZE, distinct.size())
+	var expected := mini(CLUB_HAND + EXTRA_HAND, distinct.size())
 	print("  bag of %d distinct clubs drew a hand of %d" % [
 		distinct.size(), deck.hand.size()])
 	_expect(deck.hand.size() == expected,

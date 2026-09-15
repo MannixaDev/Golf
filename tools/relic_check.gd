@@ -177,10 +177,13 @@ func _check_the_bag() -> void:
 
 	var view: HoleView = _screen.get_node("HoleView")
 	_screen.begin()
-	print("  dealt %d cards, %d focus (base %d and %d)" % [
-		view.deck.hand.size(), view.focus, view.hand_size, view.focus_max])
-	_expect(view.deck.hand.size() == view.hand_size + 1,
+	print("  dealt %d clubs and %d extras, %d focus (base %d, %d and %d)" % [
+		view.deck.clubs_in_hand(), view.deck.extras_in_hand(), view.focus,
+		view.club_hand, view.extra_hand, view.focus_max])
+	_expect(view.deck.clubs_in_hand() == view.club_hand + 1,
 		"the fourteenth slot deals one more club")
+	_expect(view.deck.extras_in_hand() == view.extra_hand,
+		"and leaves the techniques alone -- it is a club relic")
 	_expect(view.focus == view.focus_max,
 		"and leaves focus alone")
 

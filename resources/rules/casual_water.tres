@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="Rule_0"]
 script = ExtResource("id_0")
-summary = ""Nothing runs. Nothing releases. Fly it there.""
-announcement = ""Sodden. The ball is going to sit down where it lands.""
+summary = "Nothing runs. Nothing releases. Fly it there."
+announcement = "Sodden. The ball is going to sit down where it lands."
 roll_multiplier = 0.12
 distance_multiplier = 0.94
 

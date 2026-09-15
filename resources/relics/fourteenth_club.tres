@@ -6,7 +6,7 @@
 [sub_resource type="Resource" id="Effect_fourteenth"]
 script = ExtResource("2_effect")
 summary = "Hold one more club."
-hand_size_delta = 1
+club_hand_delta = 1
 
 [resource]
 script = ExtResource("1_relic")

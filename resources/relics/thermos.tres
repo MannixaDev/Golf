@@ -7,7 +7,7 @@
 script = ExtResource("2_effect")
 summary = "One more focus each stroke, one fewer club in hand."
 focus_delta = 1
-hand_size_delta = -1
+club_hand_delta = -1
 
 [resource]
 script = ExtResource("1_relic")

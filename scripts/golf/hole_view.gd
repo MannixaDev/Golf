@@ -40,10 +40,12 @@ signal rules_announced(rule_set: CourseRuleSet)
 signal shape_changed(available: bool, shape: int, degrees: float)
 
 @export var hole: HoleData
-## Cards held in hand. Topped back up to this before every shot.
-## Base hand. What is dealt is `_bag.hand_size`: this, after the equipment
-## has had its say.
-@export var hand_size: int = 5
+## Clubs held. What is actually dealt is `_bag.club_hand`: this, after the
+## equipment and the course rules have had their say.
+@export var club_hand: int = 4
+## Techniques held, likewise. Kept at focus minus one, which is exactly how many
+## you can afford to play once the shot card has taken its focus.
+@export var extra_hand: int = 2
 ## If true, unplayed cards are binned after every shot. Off by default: a hole
 ## only lasts a few strokes, so burning five cards a stroke cycled the whole deck
 ## twice a hole and made it meaningless. Keeping the hand also fits golf -- it is
@@ -268,7 +270,7 @@ func _begin_shot_turn() -> void:
 	if discard_hand_each_shot:
 		deck.discard_hand()
 	_run_stroke_rules()
-	deck.draw_up_to(_bag.hand_size)
+	deck.deal_up_to(_bag.club_hand, _bag.extra_hand)
 	_ensure_playable_hand()
 	_ensure_tee_shot()
 	_ensure_short_game()
@@ -354,7 +356,7 @@ func _play_support_card(index: int) -> void:
 	deck.play_from_hand(index)
 	# Support cards replace themselves, so spending focus digs through the bag
 	# rather than thinning your options.
-	deck.draw_up_to(_bag.hand_size)
+	deck.deal_up_to(_bag.club_hand, _bag.extra_hand)
 
 	# Keep the player's shot selection pointing at the same card.
 	if selected_index == index:
@@ -391,7 +393,7 @@ func _ensure_playable_hand() -> void:
 				status_message.emit("Nothing you can play from here. A quick rummage in the bag.")
 			return
 		deck.discard_hand()
-		deck.draw_up_to(_bag.hand_size)
+		deck.deal_up_to(_bag.club_hand, _bag.extra_hand)
 
 
 ## Only ever fires on the tee shot. Later in the hole a short hand is a real
@@ -644,7 +646,7 @@ func _apply_rules_to_profile(profile: ShotProfile) -> void:
 ## Done here rather than per stroke so a relic cannot change the hand out from
 ## under a player mid-hole.
 func _settle_bag() -> void:
-	_bag = BagRules.new(hand_size, focus_max)
+	_bag = BagRules.new(club_hand, focus_max, extra_hand)
 	var ctx := _relic_context()
 	for relic in relics:
 		for effect in relic.effects:

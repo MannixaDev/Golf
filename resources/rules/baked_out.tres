@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="Rule_0"]
 script = ExtResource("id_0")
-summary = ""Everything runs, and keeps running.""
-announcement = ""The ground is rock hard. Everything is going to release.""
+summary = "Everything runs, and keeps running."
+announcement = "The ground is rock hard. Everything is going to release."
 roll_multiplier = 2.6
 
 [resource]

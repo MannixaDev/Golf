@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="Rule_0"]
 script = ExtResource("id_0")
-summary = ""Three clubs in the bag, and no focus to spare.""
-hand_size_delta = -2
+summary = "Two clubs in hand, and no focus to spare."
+club_hand_delta = -2
 focus_delta = -2
 
 [resource]

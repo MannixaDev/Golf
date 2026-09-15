@@ -115,43 +115,77 @@ func shuffle_draw_pile() -> void:
 		draw_pile[j] = tmp
 
 
-## Draw up to `count` cards. Recycles the discard pile when the draw pile runs
-## dry, and simply stops if there is genuinely nothing left.
+## Top both hands back up, from the one bag.
 ##
-## Cards that would break the per-hand duplicate cap are passed over and returned
-## to the bottom of the pile, so they come round again later rather than being
-## lost.
-func draw(count: int) -> Array[CardData]:
+## A club is mandatory and a technique is optional -- you play exactly one club
+## every stroke and you need never play a technique at all -- and dealing them
+## from a single shared hand meant the mandatory one sometimes did not turn up.
+## "No legal move" is not difficulty, it is a dead end, and the game had grown
+## four separate mechanisms to paper over it: a per-hand cap on club copies, a
+## guarantee on your last putter, a shop rescue for it, and a routine in HoleView
+## that reached into this pile mid-hole and swapped a card behind the player's
+## back. Two hands and the problem is gone rather than hidden.
+##
+## Still one deck and one draw pile. What changed is only that a club you have
+## not drawn can no longer be crowded out by a technique you have.
+func deal_up_to(clubs: int, extras: int) -> Array[CardData]:
 	var drawn: Array[CardData] = []
-	var passed_over: Array[CardData] = []
+	drawn.append_array(_draw_kind(true, clubs - clubs_in_hand()))
+	drawn.append_array(_draw_kind(false, extras - extras_in_hand()))
+	if not drawn.is_empty():
+		changed.emit()
+	return drawn
 
-	for _i in count:
-		var card := _draw_one(passed_over)
+
+func clubs_in_hand() -> int:
+	return _held(true)
+
+
+func extras_in_hand() -> int:
+	return _held(false)
+
+
+func _held(shots: bool) -> int:
+	var count := 0
+	for card in hand:
+		if card != null and card.is_shot() == shots:
+			count += 1
+	return count
+
+
+func _draw_kind(shots: bool, count: int) -> Array[CardData]:
+	var drawn: Array[CardData] = []
+	for _i in maxi(count, 0):
+		var card := _take_one(shots)
 		if card == null:
 			break
 		hand.append(card)
 		drawn.append(card)
-
-	for skipped in passed_over:
-		draw_pile.push_front(skipped)
-
-	changed.emit()
 	return drawn
 
 
-func _draw_one(passed_over: Array[CardData]) -> CardData:
-	# Bounded: a pile made entirely of cards you already hold would otherwise
-	# spin forever.
-	for attempt in 60:
-		if draw_pile.is_empty():
+## The topmost card of this kind, lifted out of the pile where it lies.
+##
+## Deliberately not pop-and-put-back. The old draw took from the top and pushed
+## anything it could not use to the bottom, which is fine when every card is a
+## candidate -- but filling a four club hand that way would shove every technique
+## in the pile underneath them, and the extras hand would starve by the second
+## hole. Taking the card out from where it sits leaves the rest of the order
+## exactly as it was.
+func _take_one(shots: bool) -> CardData:
+	# Twice: once through the pile as it stands, and once more after taking the
+	# discard back, for the hole where every wedge you own is already played.
+	for pass_number in 2:
+		for i in range(draw_pile.size() - 1, -1, -1):
+			var card: CardData = draw_pile[i]
+			if card == null or card.is_shot() != shots:
+				continue
+			if copies_in_hand(card.id) >= _copy_limit(card):
+				continue
+			draw_pile.remove_at(i)
+			return card
+		if pass_number == 0:
 			recycle_discard_into_draw()
-		if draw_pile.is_empty():
-			return null
-		var card: CardData = draw_pile.pop_back()
-		if copies_in_hand(card.id) >= _copy_limit(card):
-			passed_over.append(card)
-			continue
-		return card
 	return null
 
 
@@ -163,14 +197,15 @@ func copies_in_hand(id: StringName) -> int:
 	return count
 
 
-## Top the hand back up to `target` cards, leaving whatever is already held.
 ## How many of this card the hand will hold at once.
+##
+## Clubs stay capped at one copy even now they have a hand of their own: you play
+## exactly one club a stroke, so a second putter is not a worse option, it is a
+## quarter of your club hand spent on no option at all.
 func _copy_limit(card: CardData) -> int:
 	return MAX_CLUB_COPIES_IN_HAND if card.is_shot() else MAX_COPIES_IN_HAND
 
 
-func draw_up_to(target: int) -> Array[CardData]:
-	return draw(maxi(0, target - hand.size()))
 
 
 func recycle_discard_into_draw() -> void:
