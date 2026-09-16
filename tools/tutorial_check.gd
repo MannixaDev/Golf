@@ -11,7 +11,7 @@
 extends SceneTree
 
 const LESSON := "res://resources/tutorial/first_lesson.tres"
-const BAG := "res://resources/decks/tutorial_deck.tres"
+const BAG := "res://resources/tutorial/tutorial_deck.tres"
 
 var failures := 0
 var screen: HoleScreen = null

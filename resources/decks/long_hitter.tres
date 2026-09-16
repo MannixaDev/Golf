@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DeckList" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/deck_list.gd" id="1_decklist"]
+
+[resource]
+script = ExtResource("1_decklist")
+display_name = "The Long Hitter"
+blurb = "Two hundred and ninety off the tee and nothing between there and a wedge. You will be laying up a lot."
+billing = 1
+card_ids = PackedStringArray("driver", "driver", "wood_3", "wood_3", "hybrid", "hybrid", "wedge", "wedge", "putter", "putter", "full_send", "draw", "big_hitter", "mulligan")

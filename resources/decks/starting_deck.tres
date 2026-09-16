@@ -4,5 +4,7 @@
 
 [resource]
 script = ExtResource("1_decklist")
-display_name = "Weekend Hacker"
+display_name = "The Weekend Hacker"
+blurb = "Everything you need and nothing you want. A club for every distance and no ideas."
+billing = 0
 card_ids = PackedStringArray("driver", "driver", "iron_5", "iron_5", "iron_9", "iron_9", "iron_9", "wedge", "wedge", "putter", "putter", "putter", "draw", "punch", "mulligan")

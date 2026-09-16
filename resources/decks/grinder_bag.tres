@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DeckList" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/deck_list.gd" id="1_decklist"]
+
+[resource]
+script = ExtResource("1_decklist")
+display_name = "The Grinder"
+blurb = "Never been past two-fifty. Never three-putted either. You will be here a while."
+billing = 2
+card_ids = PackedStringArray("wood_3", "iron_5", "iron_7", "iron_7", "iron_9", "iron_9", "wedge", "wedge", "chipper", "putter", "putter", "putter", "punch", "quiet_hands", "die_it_in", "mulligan")

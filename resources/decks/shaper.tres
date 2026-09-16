@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DeckList" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/deck_list.gd" id="1_decklist"]
+
+[resource]
+script = ExtResource("1_decklist")
+display_name = "The Shaper"
+blurb = "Four clubs and a head full of shapes. Works it both ways, whether you asked or not."
+billing = 3
+card_ids = PackedStringArray("driver", "iron_5", "iron_9", "wedge", "putter", "putter", "draw", "draw", "fade", "fade", "punch", "thread_it", "high_ball", "mulligan")

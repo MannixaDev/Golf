@@ -155,6 +155,17 @@ func _boot() -> void:
 			_expect(main._current_screen is TitleScreen, "settings returns to the title")
 		9:
 			main._current_screen.round_chosen.emit(MapGenerator.HOLES_PER_NINE)
+			# Choosing a round no longer starts one: it asks which bag first.
+			# Walked rather than skipped, because the picker is now on the only
+			# path into the game and a broken one locks everybody out of it.
+			if _expect(main._current_screen is GolferScreen,
+					"choosing a round asks which golfer"):
+				_grab_next = "m9_golfers.png"
+				var bags := DeckLibrary.all()
+				_expect(not bags.is_empty(), "the picker has no bags to offer")
+				main._current_screen.chosen.emit(bags[0])
+				_expect(main.deck != null and main.deck.total_cards() > 0,
+					"the chosen bag did not become the deck")
 			# Everything after this point reads main.run and main.map, so if the
 			# round did not start there is nothing to test and saying so is the
 			# only honest outcome.

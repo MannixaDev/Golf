@@ -139,7 +139,16 @@ func _process(_delta: float) -> bool:
 		_screen.queue_free()
 		_screen = SPLASH_SCREEN.instantiate()
 		root.add_child(_screen)
+	elif frames == FRAMES + 120:
+		# The golfer picker. Built entirely in code from however many bags the
+		# folder holds, so a photograph is the only way to know it lays out.
+		_screen.queue_free()
+		_screen = GolferScreen.new()
+		root.add_child(_screen)
+	elif frames == FRAMES + 132:
+		_grab("user://golfers.png")
 	elif frames == FRAMES + 150:
+		_screen.queue_free()
 		# The guided hole, at the step that does the most work: a technique on the
 		# stroke, a card gone gold, and the lesson explaining why. No assertion
 		# can tell whether a panel of prose over a golf hole is readable.
@@ -147,7 +156,7 @@ func _process(_delta: float) -> bool:
 		var lesson: TutorialLesson = load("res://resources/tutorial/first_lesson.tres")
 		var hole := HoleGenerator.generate(
 			TutorialDirector.HOLE_SEED, TutorialDirector.HOLE_TIER, 1)
-		var bag: DeckList = load("res://resources/decks/tutorial_deck.tres")
+		var bag: DeckList = load("res://resources/tutorial/tutorial_deck.tres")
 		_screen = HOLE_SCREEN.instantiate()
 		_screen.setup(hole, Deck.new(bag.build()))
 		root.add_child(_screen)

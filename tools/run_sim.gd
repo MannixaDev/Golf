@@ -183,19 +183,25 @@ func _report_runs() -> void:
 	print("  %-16s %8s %8s %8s %8s" % [
 		"golfer", "average", "best", "worst", "cut"])
 	var missed := 0
-	var shapes := [
-		{"legacy": true, "combos": false, "label": "one hand of five, kind-agnostic:"},
-		{"legacy": false, "combos": false, "label": "four clubs and two techniques:"},
-		{"legacy": false, "combos": true, "label": "four and two, conditional cards in the bag:"},
-	]
-	for shape in shapes:
-		legacy_hand = bool(shape["legacy"])
-		carry_combos = bool(shape["combos"])
-		print("  %s" % shape["label"])
-		for who in field():
-			missed += _runs_for(who)
+	# Every bag a run can start from, against every band.
+	#
+	# This used to compare hand shapes -- one hand of five against four clubs and
+	# two techniques -- which was the live question while the split was being
+	# made and is history now that it has shipped. The live question is whether
+	# the bags somebody chooses between are actually balanced, because a bag is
+	# the one piece of content a player cannot route around.
+	#
+	# Conditional cards deliberately left out of the bag here: those are prizes
+	# and shop stock, and this is a comparison of what you *start* with.
 	legacy_hand = false
 	carry_combos = false
+	var chosen := deck_list
+	for bag in DeckLibrary.all():
+		deck_list = bag
+		print("  %s:" % bag.display_name)
+		for who in field():
+			missed += _runs_for(who)
+	deck_list = chosen
 	print("")
 	if missed == 0:
 		print("  Nobody missed a cut. Either the field is too weak or the cut")

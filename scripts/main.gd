@@ -115,10 +115,29 @@ func _show_title() -> void:
 	# The quick buttons play whatever rung you last earned, so the ladder never
 	# stands between you and a round you just want to play.
 	screen.round_chosen.connect(func(holes: int) -> void:
-		start_run(holes, TourLibrary.by_rung(TourLibrary.unlocked_rung)))
+		_choose_golfer(holes, TourLibrary.by_rung(TourLibrary.unlocked_rung)))
 	screen.lesson_opened.connect(_play_lesson)
 	screen.tour_opened.connect(_show_tours)
 	screen.settings_opened.connect(_show_settings)
+
+
+## Which bag, before anything is dealt.
+##
+## Sits between choosing a round and starting one, on both routes in -- the quick
+## buttons and the ladder -- because the bag is a decision about the run and not
+## about the tour.
+func _choose_golfer(holes: int, tour: TourSpec) -> void:
+	var bags := DeckLibrary.all()
+	if bags.size() <= 1:
+		# Nothing to choose between. Do not make somebody click through a menu of
+		# one to get to a round they have already asked for twice.
+		start_run(holes, tour, bags[0] if not bags.is_empty() else null)
+		return
+	var screen := GolferScreen.new()
+	_swap_screen(screen)
+	screen.chosen.connect(func(bag: DeckList) -> void:
+		start_run(holes, tour, bag))
+	screen.closed.connect(_show_title)
 
 
 ## The guided hole.
@@ -131,7 +150,7 @@ func _play_lesson() -> void:
 	var lesson: TutorialLesson = load("res://resources/tutorial/first_lesson.tres")
 	var hole := HoleGenerator.generate(
 		TutorialDirector.HOLE_SEED, TutorialDirector.HOLE_TIER, 1)
-	var bag: DeckList = load("res://resources/decks/tutorial_deck.tres")
+	var bag: DeckList = load("res://resources/tutorial/tutorial_deck.tres")
 
 	var screen: HoleScreen = HOLE_SCREEN.instantiate()
 	screen.setup(hole, Deck.new(bag.build()))
@@ -154,7 +173,7 @@ func _show_tours() -> void:
 	var screen: TourScreen = TOUR_SCREEN.instantiate()
 	_swap_screen(screen)
 	screen.tour_chosen.connect(func(tour: TourSpec, holes: int) -> void:
-		start_run(holes, tour))
+		_choose_golfer(holes, tour))
 	screen.closed.connect(_show_title)
 
 
@@ -167,10 +186,10 @@ func _show_settings() -> void:
 # --- Run lifecycle --------------------------------------------------------
 
 func start_run(holes: int = MapGenerator.HOLES_PER_NINE,
-		tour: TourSpec = null) -> void:
+		tour: TourSpec = null, bag: DeckList = null) -> void:
 	rng.randomize()
 	_tour = tour if tour != null else TourLibrary.opening()
-	deck = _build_deck()
+	deck = _build_deck(bag)
 	run = RunState.new()
 	_round_holes = maxi(holes, MapGenerator.HOLES_PER_NINE)
 	run.round_holes = _round_holes
@@ -196,11 +215,21 @@ func _begin_nine() -> void:
 	_show_map()
 
 
-func _build_deck() -> Deck:
-	if starting_deck == null:
-		push_error("Main: no starting DeckList assigned.")
+## The bag this run begins from.
+##
+## The chosen one, then whatever the scene was authored with, then the first in
+## the folder. Three fallbacks because a run with no cards is not a run, and the
+## scene export is the only one of the three that can be empty in a real build.
+func _build_deck(bag: DeckList = null) -> Deck:
+	var chosen := bag
+	if chosen == null:
+		chosen = starting_deck
+	if chosen == null:
+		chosen = DeckLibrary.default_bag()
+	if chosen == null:
+		push_error("Main: no DeckList anywhere to start a run from.")
 		return Deck.new()
-	return Deck.new(starting_deck.build())
+	return Deck.new(chosen.build())
 
 
 # --- Screens --------------------------------------------------------------
