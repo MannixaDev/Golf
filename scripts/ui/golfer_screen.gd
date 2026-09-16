@@ -20,22 +20,29 @@ signal closed()
 
 const CARD_WIDTH := 300.0
 const GAP := 22.0
-## Room for everything above the club list: the name, the blurb, the two little
-## captions and the panel's own margins.
-const PANEL_CHROME := 196.0
+## Room for everything that is not a club line: the name, the wrapped blurb, the
+## two captions, the separation between all of them and the panel's own margins.
+## Measured up from 196 after the Grinder's seven clubs pushed its card count out
+## through the bottom border a second time.
+const PANEL_CHROME := 252.0
 ## One line per club.
 const CLUB_LINE := 24.0
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	# Anchors *and* offsets. Every other screen is a .tscn with anchors_preset
+	# 15, which sets both; set_anchors_preset alone left this one at zero size,
+	# so the backdrop drew nothing and the row of golfers packed itself into the
+	# top left corner rather than centring. It looked centred in a screenshot
+	# only because the row happens to be most of the width of the screen.
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_backdrop()
 
 	var column := VBoxContainer.new()
-	column.set_anchors_preset(Control.PRESET_FULL_RECT)
 	column.add_theme_constant_override("separation", 18)
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
 	add_child(column)
+	column.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	# A little air at the top: with the column centred and the panels as tall as
 	# they are, the heading was being clipped by the edge of the screen.
@@ -74,12 +81,18 @@ func _ready() -> void:
 	column.add_child(back)
 
 
+## The same ground every other screen stands on. This was a flat ColorRect when
+## the picker was written, which made it the one screen in the game sitting on a
+## void rather than on a golf course.
 func _backdrop() -> void:
-	var panel := ColorRect.new()
-	panel.color = Palette.SHADE
-	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(panel)
+	var turf := TurfBackdrop.new()
+	turf.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(turf)
+	# Anchors *and* offsets, after parenting. set_anchors_preset alone left the
+	# rect at zero size, so the backdrop drew nothing at all and the picker sat
+	# on a flat void -- which measured as a background with no pixel variation
+	# whatever while every other screen's ran from 28 to 250.
+	turf.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
 ## One golfer: who they are, how they talk about themselves, and the clubs they
