@@ -29,6 +29,9 @@ func _ready() -> void:
 
 func setup(map: RunMap, run: RunState, deck: Deck) -> void:
 	_map_view.set_map(map)
+	# The map draws the cut, so it has to be told where it falls. Taken from the
+	# run rather than from a constant: an eighteen cuts later than a nine.
+	_map_view.cut_after_hole = run.cut_hole() if run != null else 0
 	refresh(run, deck)
 
 

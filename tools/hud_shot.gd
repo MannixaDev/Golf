@@ -139,15 +139,35 @@ func _process(_delta: float) -> bool:
 		_screen.queue_free()
 		_screen = SPLASH_SCREEN.instantiate()
 		root.add_child(_screen)
-	elif frames == FRAMES + 120:
+	elif frames == FRAMES + 150:
+		# The route. Looked at rather than asserted, because "the map screen
+		# looks bad" is not a thing any check can tell you.
+		_screen.queue_free()
+		var run := RunState.new()
+		run.round_holes = MapGenerator.HOLES_PER_NINE
+		run.tour = TourLibrary.by_rung(0)
+		run.leaderboard = Leaderboard.new(99, 0.0)
+		run.record_hole(4, 4)
+		run.record_hole(5, 4)
+		var map := MapGenerator.generate(20250916)
+		map.begin()
+		map.travel_to(map.available_ids()[0])
+		_screen = load("res://scenes/run/map_screen.tscn").instantiate()
+		root.add_child(_screen)
+		_screen.course_name = "THE OPEN QUALIFIER"
+		_screen.setup(map, run,
+			Deck.new(DeckLibrary.default_bag().build()))
+	elif frames == FRAMES + 225:
+		_grab("user://map.png")
+	elif frames == FRAMES + 232:
 		# The golfer picker. Built entirely in code from however many bags the
 		# folder holds, so a photograph is the only way to know it lays out.
 		_screen.queue_free()
 		_screen = GolferScreen.new()
 		root.add_child(_screen)
-	elif frames == FRAMES + 132:
+	elif frames == FRAMES + 248:
 		_grab("user://golfers.png")
-	elif frames == FRAMES + 150:
+	elif frames == FRAMES + 258:
 		_screen.queue_free()
 		# The guided hole, at the step that does the most work: a technique on the
 		# stroke, a card gone gold, and the lesson explaining why. No assertion
@@ -165,10 +185,11 @@ func _process(_delta: float) -> bool:
 		_play_by_id(view, &"draw")
 		_select_a_club(view)
 		_screen.set_lesson(lesson.playable_steps()[4].text)
-	elif frames == FRAMES + 182:
+	elif frames == FRAMES + 300:
 		_grab("user://lesson.png")
-	elif frames >= FRAMES + 200:
+	elif frames == FRAMES + 146:
 		_grab("user://splash.png")
+	elif frames >= FRAMES + 320:
 		return true
 	return false
 

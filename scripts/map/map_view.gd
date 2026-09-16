@@ -16,7 +16,11 @@ const LABEL_OFFSET := 40.0
 ## pale track underneath and a thinner line on top of it. A map that looks like a
 ## node diagram tells the player they are reading a flowchart; the same
 ## information drawn as ground tells them they are walking a golf course.
-const PATH_LOCKED := Color(0.949, 0.961, 0.925, 0.07)
+## The route you have not walked yet still has to be *readable*: this screen's
+## whole job is "choose your route", and at 0.07 the tracks were invisible
+## against the turf. You could not follow a line with your eye to see where a
+## stop led, which is the one thing the map is for.
+const PATH_LOCKED := Color(0.949, 0.961, 0.925, 0.20)
 const PATH_OPEN := Color(0.941, 0.784, 0.376, 0.62)
 const PATH_WALKED := Color(0.902, 0.878, 0.784, 0.55)
 const COL_LOCKED := Color(0.26, 0.33, 0.26, 0.72)
@@ -32,6 +36,9 @@ const REVEAL_TIME := 0.55
 const REVEAL_STAGGER := 0.4
 
 var map: RunMap = null
+## Holes played before the field is cut. Zero hides the marker, which is what a
+## round with no cut in it should do.
+var cut_after_hole: int = 0
 var _hovered_id: int = -1
 var _pulse: float = 0.0
 ## Counts up once when the route appears, so the map draws itself in column by
@@ -110,9 +117,97 @@ func _draw() -> void:
 	if map == null:
 		return
 	_draw_edges()
+	_draw_the_cut()
 	_draw_start_marker()
 	for node in map.nodes:
 		_draw_node(node)
+
+
+## What a stop is called on the map.
+##
+## A golf stop gets its hole number, because which hole it is is the only thing
+## that distinguishes it from the other eight. Everything else keeps the name its
+## spec came with: a range is a range wherever it sits.
+func _label_for(node: MapNode, spec: MapNodeSpec) -> String:
+	if not node.plays_hole():
+		return spec.short_label
+	var number := _hole_number_of(node)
+	return spec.short_label if number <= 0 else "%s %d" % [spec.short_label, number]
+
+
+## Which hole this is, counting golf columns from the tee.
+func _hole_number_of(node: MapNode) -> int:
+	var holes := 0
+	for layer_index in map.layers.size():
+		if layer_index >= map.kinds.size() or not bool(map.kinds[layer_index]):
+			continue
+		holes += 1
+		if (map.layers[layer_index] as Array).has(node.id):
+			return holes
+	return 0
+
+
+## Where the field gets cut, drawn across the route.
+##
+## The top bar has always said "top 8 make the cut" and the map never said
+## *when*. It is the most consequential moment in a run -- play badly before it
+## and there is no after it -- and it was information the player had to hold in
+## their head while planning against a map that did not mention it.
+func _draw_the_cut() -> void:
+	if cut_after_hole <= 0 or map == null:
+		return
+	var x := _cut_line_x()
+	if x <= 0.0:
+		return
+
+	# A dashed line rather than a solid one: it is a boundary in the tournament,
+	# not a fence on the course.
+	var top := 70.0
+	var bottom := size.y - 190.0
+	var y := top
+	while y < bottom:
+		draw_line(Vector2(x, y), Vector2(x, minf(y + 13.0, bottom)),
+			Color(Palette.DANGER, 0.42), 2.0, true)
+		y += 22.0
+
+	var font := Typo.SEMIBOLD
+	if font == null:
+		return
+	# At the foot of the line, not the head: the top bar runs across the head and
+	# the label was printed underneath it, which is the one place on this screen
+	# guaranteed to already have something in it.
+	var label := "THE CUT"
+	var measured := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1,
+		Typo.MICRO)
+	var at := Vector2(x - measured.x * 0.5, bottom + 20.0)
+	draw_string(font, at + Vector2(1.0, 1.0), label, HORIZONTAL_ALIGNMENT_LEFT,
+		-1, Typo.MICRO, Color(0.0, 0.0, 0.0, 0.55))
+	draw_string(font, at, label, HORIZONTAL_ALIGNMENT_LEFT, -1, Typo.MICRO,
+		Color(Palette.DANGER, 0.9))
+
+
+## Halfway between the last hole before the cut and whatever comes next.
+##
+## Counted in golf columns rather than in columns, because the services in
+## between are not holes and the cut falls after a number of holes played.
+func _cut_line_x() -> float:
+	var holes := 0
+	var last_x := -1.0
+	for layer_index in map.layers.size():
+		if layer_index >= map.kinds.size() or not bool(map.kinds[layer_index]):
+			continue
+		holes += 1
+		var ids: Array = map.layers[layer_index]
+		if ids.is_empty():
+			continue
+		var at: MapNode = map.node_by_id(ids[0])
+		if at == null:
+			continue
+		if holes == cut_after_hole:
+			last_x = at.position.x
+		elif holes == cut_after_hole + 1 and last_x > 0.0:
+			return (last_x + at.position.x) * 0.5
+	return -1.0
 
 
 func _draw_edges() -> void:
@@ -208,9 +303,16 @@ func _draw_node(node: MapNode) -> void:
 	var visited := node.state == MapNode.State.VISITED
 	var current := node.id == map.current_id
 
+	# A stop you cannot reach yet keeps its own colour, dimmed, rather than being
+	# painted the same grey as every other stop you cannot reach yet. Every kind
+	# of stop arrives with a colour in its spec and the map was throwing all of
+	# them away: thirty markers in one muted green, told apart only by small
+	# shapes. Planning a route means seeing at a glance where the shops and the
+	# hard holes are, and that is a colour job.
 	var colour: Color = spec.colour
 	if not available and not visited:
-		colour = COL_LOCKED
+		colour = spec.colour.darkened(0.42)
+		colour.a = 0.85
 	elif visited:
 		colour = spec.colour.darkened(0.35)
 
@@ -257,15 +359,19 @@ func _draw_node(node: MapNode) -> void:
 		return
 	var label_colour := COL_TEXT if (available or visited) else Color(Palette.INK, 0.32)
 	label_colour.a *= grown
-	var label_size := font.get_string_size(spec.short_label,
+	# Nine stops all labelled HOLE tell you nothing about which one you are
+	# looking at. Numbered, the map becomes a card you can read your position off
+	# -- "the shop is after the fourth" rather than "the shop is over there".
+	var text := _label_for(node, spec)
+	var label_size := font.get_string_size(text,
 		HORIZONTAL_ALIGNMENT_LEFT, -1, Typo.SMALL)
 	var at := node.position + Vector2(-label_size.x * 0.5, LABEL_OFFSET)
 	# Labels sit over textured ground now, so they need their own shadow to stay
 	# readable wherever they land.
-	draw_string(font, at + Vector2(1.0, 1.0), spec.short_label,
+	draw_string(font, at + Vector2(1.0, 1.0), text,
 		HORIZONTAL_ALIGNMENT_LEFT, -1, Typo.SMALL,
 		Color(0.0, 0.0, 0.0, 0.5 * grown))
-	draw_string(font, at, spec.short_label, HORIZONTAL_ALIGNMENT_LEFT, -1,
+	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1,
 		Typo.SMALL, label_colour)
 
 
