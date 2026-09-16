@@ -6,12 +6,12 @@
 
 [sub_resource type="Resource" id="Combo_wind_it_up"]
 script = ExtResource("2_combo")
-summary = "Runs a touch more. On a stroke already being hit hard: another twelve per cent, and it sprays."
-fired_label = "Everything at it"
+summary = "Runs a touch more. On a shot already hit hard, it never stops rolling."
+combination_name = "THE RUNNER"
 needs = 3
 base_roll_multiplier = 1.10
-distance_multiplier = 1.12
-dispersion_multiplier = 1.20
+roll_multiplier = 3.20
+dispersion_multiplier = 1.15
 
 [sub_resource type="Resource" id="Upgrade_wind_it_up"]
 script = ExtResource("3_upgrade")

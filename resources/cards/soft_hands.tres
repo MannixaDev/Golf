@@ -6,12 +6,12 @@
 
 [sub_resource type="Resource" id="Combo_soft_hands"]
 script = ExtResource("2_combo")
-summary = "Lands a little softer. On a stroke already under control: it stops dead and holds its line on the green."
-fired_label = "Stops dead"
+summary = "Lands softer. On a shot already under control, it stops dead and holds its line."
+combination_name = "THE SPINNER"
 needs = 4
 base_roll_multiplier = 0.88
-roll_multiplier = 0.45
-slope_resistance = 0.45
+roll_multiplier = 0.06
+slope_resistance = 1.0
 
 [sub_resource type="Resource" id="Upgrade_soft_hands"]
 script = ExtResource("3_upgrade")

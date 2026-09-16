@@ -6,12 +6,12 @@
 
 [sub_resource type="Resource" id="Combo_clean_contact"]
 script = ExtResource("2_combo")
-summary = "A steadier swing. On a stroke nothing is bending: much straighter, and far easier to time."
-fired_label = "Flushed -- dead straight"
+summary = "A steadier swing. On a shot nothing is bending, the window to catch it doubles."
+combination_name = "FLUSHED"
 needs = 2
 base_sweet_spot_multiplier = 1.10
-dispersion_multiplier = 0.70
-sweet_spot_multiplier = 1.25
+sweet_spot_multiplier = 2.20
+dispersion_multiplier = 0.82
 
 [sub_resource type="Resource" id="Upgrade_clean_contact"]
 script = ExtResource("3_upgrade")

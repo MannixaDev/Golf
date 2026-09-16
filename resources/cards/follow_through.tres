@@ -6,11 +6,12 @@
 
 [sub_resource type="Resource" id="Combo_follow_through"]
 script = ExtResource("2_combo")
-summary = "A little further on its own. With anything else on the shot, ten per cent further again."
-fired_label = "Ten per cent further"
+summary = "A little further alone. Paired with anything, the lie stops mattering and it flies."
+combination_name = "THE FLIER"
 needs = 0
 base_distance_multiplier = 1.04
-distance_multiplier = 1.10
+distance_multiplier = 1.12
+lie_resistance = 1.0
 
 [sub_resource type="Resource" id="Upgrade_follow_through"]
 script = ExtResource("3_upgrade")

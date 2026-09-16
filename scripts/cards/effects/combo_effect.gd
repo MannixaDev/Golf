@@ -28,10 +28,13 @@ enum Needs {
 ## Rules text for the card face. Say the condition out loud: a combo the player
 ## has to discover by experiment is a combo they will never play on purpose.
 @export_multiline var summary: String = ""
-## A few words shown on the heads-up display the moment this fires, so the
-## player can see the combination land rather than infer it from the numbers.
-## Falls back to the full summary, which is better than silence but too long.
-@export var fired_label: String = ""
+## What the combination is called.
+##
+## A name, not a description. "THE HOLD-OFF" is a thing a player can remember,
+## look for and build towards; "bend taken out, +15 yd" is a receipt. The card
+## face already carries the numbers, and the moment a combination lands is the
+## wrong moment to be reading them.
+@export var combination_name: String = ""
 @export var needs: Needs = Needs.ANOTHER_TECHNIQUE
 
 @export_group("What it always does")
@@ -55,6 +58,16 @@ enum Needs {
 @export var straightens: bool = false
 @export var sweet_spot_multiplier: float = 1.0
 @export var slope_resistance: float = 0.0
+## Deliberately no arc lever here. Raising the apex looks like it should be the
+## qualitative payoff -- fly it over the trees -- and measurement says otherwise:
+## a full shot already spends more than half its carry above the sixteen yard
+## canopy, a feathered one passes underneath the trunks, and the band in between
+## is narrow. Nearly doubling the arc bought forty per cent more time over the
+## top, which is a decimal wearing a hat. See combo_check for the numbers.
+## How much of a bad lie this shrugs off. At one it plays as if from a fairway.
+@export var lie_resistance: float = 0.0
+## The ball cannot be lost on this stroke.
+@export var grants_ball_protection: bool = false
 
 
 func describe() -> String:
@@ -86,12 +99,16 @@ func modify_profile(profile: ShotProfile) -> void:
 
 	if not _fires(profile):
 		return
-	profile.fired_combos.append(fired_label if fired_label != "" else summary)
+	profile.fired_combos.append(
+		combination_name if combination_name != "" else summary)
 	profile.carry_yards_max *= distance_multiplier
 	profile.dispersion_deg *= dispersion_multiplier
 	profile.roll_ratio *= roll_multiplier
 	profile.sweet_spot_multiplier *= sweet_spot_multiplier
 	profile.slope_resistance = maxf(profile.slope_resistance, slope_resistance)
+	profile.lie_resistance = maxf(profile.lie_resistance, lie_resistance)
+	if grants_ball_protection:
+		profile.protects_ball = true
 	if straightens:
 		profile.curve_deg = 0.0
 		profile.conceal_shape = false

@@ -6,8 +6,8 @@
 
 [sub_resource type="Resource" id="Sit_damage_limitation"]
 script = ExtResource("2_sit")
-summary = "Rolls out less. Once par is already gone on this hole: the ball cannot be lost, and it flies far straighter."
-fired_label = "Cannot be lost"
+summary = "Rolls out less. Once par has gone here: the ball cannot be lost, and it flies straighter."
+combination_name = "CUT YOUR LOSSES"
 needs = 2
 base_roll_multiplier = 0.90
 dispersion_multiplier = 0.75

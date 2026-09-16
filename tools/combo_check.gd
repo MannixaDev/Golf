@@ -23,6 +23,8 @@ var screen: HoleScreen = null
 
 func _initialize() -> void:
 	_check_each_combo_fires()
+	_check_the_payoffs_are_shots_not_percentages()
+	_check_every_combination_has_a_name()
 	_check_order_does_not_matter()
 	_check_a_combo_cannot_feed_a_combo()
 	_check_the_base_effect_always_applies()
@@ -220,6 +222,97 @@ func _check_each_combo_fires() -> void:
 				% case["card"])
 
 
+## The half of this that was fair criticism: a combination should change what
+## kind of shot you are hitting, not add ten per cent to it.
+##
+## Each of these is a thing a golfer would name, so each is checked against the
+## system it is supposed to change -- the canopy for the high ball, the timing
+## window for the flush, the roll for the runner and the spinner. A payoff that
+## can only be seen in a decimal is the thing this check exists to refuse.
+func _check_the_payoffs_are_shots_not_percentages() -> void:
+	print("")
+	print("=== a combination changes the shot, not the decimals ===")
+
+	# THE FLIER: a ball out of light rough that comes off with no spin and goes
+	# further than it has any right to. Qualitative because the lie stops
+	# mattering, which is a fact you can check rather than a percentage.
+	#
+	# It replaced a high ball that tried to fly the trees. Raising the apex reads
+	# like the obvious payoff and measures as a weak one: a full shot already
+	# spends 55% of its carry above the sixteen yard canopy, and nearly doubling
+	# the arc took that to 77%. Forty per cent more time over the top is not a
+	# different shot.
+	var rough := SurfaceLibrary.by_id(&"rough")
+	var fairway := SurfaceLibrary.by_id(&"fairway")
+	var clean := _profile([&"draw"])
+	fairway.apply_to(clean)
+	var stuck := _profile([&"draw"])
+	rough.apply_to(stuck)
+	var flier := _profile([&"draw", &"follow_through"])
+	rough.apply_to(flier)
+	print("  the flier: %.0f yd off the fairway, %.0f from the rough, %.0f as a flier"
+		% [clean.carry_yards_max, stuck.carry_yards_max, flier.carry_yards_max])
+	_expect(stuck.carry_yards_max < clean.carry_yards_max * 0.95,
+		"the rough is not costing anything, so shrugging it off proves nothing")
+	_expect(flier.carry_yards_max > clean.carry_yards_max,
+		"a flier out of the rough should beat an ordinary shot off the fairway")
+
+	# FLUSHED: the window you have to catch it right in.
+	var loose := _profile([&"clean_contact", &"draw"])
+	var flush := _profile([&"clean_contact"])
+	print("  flushed: timing window x%.2f -> x%.2f"
+		% [loose.sweet_spot_scale(), flush.sweet_spot_scale()])
+	_expect(flush.sweet_spot_scale() > loose.sweet_spot_scale() * 1.6,
+		"flushing it should roughly double the window, not nudge it")
+
+	# THE RUNNER and THE SPINNER: the two ends of what a ball does on landing.
+	var runner := _profile([&"full_send", &"wind_it_up"])
+	var spinner := _profile([&"draw", &"soft_hands"])
+	var ordinary := _profile([])
+	print("  the runner: roll %.2f of carry, against %.2f ordinarily"
+		% [runner.roll_ratio, ordinary.roll_ratio])
+	print("  the spinner: roll %.2f of carry -- it stops where it pitches"
+		% spinner.roll_ratio)
+	_expect(runner.roll_ratio > ordinary.roll_ratio * 2.5,
+		"the runner barely runs further than an ordinary shot")
+	_expect(spinner.roll_ratio < ordinary.roll_ratio * 0.25,
+		"the spinner does not stop")
+	_expect(spinner.slope_resistance >= 0.99,
+		"the spinner should hold its line on any slope")
+
+
+## Every combination has to be called something, or the display reads back a
+## sentence of arithmetic at the moment it should be naming a shot.
+func _check_every_combination_has_a_name() -> void:
+	print("")
+	print("=== every combination is called something ===")
+	var named := 0
+	for id in [&"follow_through", &"double_cross", &"clean_contact",
+			&"wind_it_up", &"soft_hands", &"up_and_down", &"grinder",
+			&"damage_limitation", &"in_the_groove"]:
+		var card := CardLibrary.template(id)
+		if card == null:
+			_expect(false, "%s is missing" % id)
+			continue
+		for effect in card.shot_modifiers():
+			var name := ""
+			if effect is ComboEffect:
+				name = (effect as ComboEffect).combination_name
+			elif effect is SituationEffect:
+				name = (effect as SituationEffect).combination_name
+			else:
+				continue
+			named += 1
+			print("  %-18s %s" % [id, name if name != "" else "UNNAMED"])
+			_expect(name.strip_edges() != "",
+				"%s fires without a name, so the display reads back its rules "
+					% id + "text instead")
+			_expect(name == name.to_upper(),
+				"%s is named '%s'; the readout upper-cases, so author it that way"
+					% [id, name])
+	_expect(named == 9, "expected nine conditional cards, found %d" % named)
+
+
 ## Either order, the same shot.
 func _check_order_does_not_matter() -> void:
 	print("")
@@ -277,9 +370,21 @@ func _check_the_base_effect_always_applies() -> void:
 			"%s does nothing at all unless it combines" % id)
 
 
-## A 5 iron with these techniques folded onto it.
-func _profile(ids: Array) -> ShotProfile:
-	var profile := ShotProfile.from_card(CardLibrary.template(&"iron_5"))
+## How much of the carry this shot spends above a given height.
+##
+## The ball flies as apex * sin(pi * t), so it is over `height` between the two
+## points where that crosses it. This is the same question the aiming reticle
+## asks when it turns red, in closed form.
+func _share_above(profile: ShotProfile, height: float) -> float:
+	var apex := profile.apex_yards(1.0)
+	if apex <= height:
+		return 0.0
+	return 1.0 - 2.0 * asin(clampf(height / apex, 0.0, 1.0)) / PI
+
+
+## A club with these techniques folded onto it.
+func _profile(ids: Array, club_id: StringName = &"iron_5") -> ShotProfile:
+	var profile := ShotProfile.from_card(CardLibrary.template(club_id))
 	var effects: Array[CardEffect] = []
 	for id in ids:
 		var card := CardLibrary.template(id)

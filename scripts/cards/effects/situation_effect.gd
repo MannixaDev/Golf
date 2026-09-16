@@ -27,10 +27,9 @@ enum Needs {
 
 ## Rules text for the card face.
 @export_multiline var summary: String = ""
-## A few words shown on the heads-up display the moment this fires, so the
-## player can see the combination land rather than infer it from the numbers.
-## Falls back to the full summary, which is better than silence but too long.
-@export var fired_label: String = ""
+## What this is called when it fires. A name rather than a description, for the
+## same reason as ComboEffect: the display is not the place to read numbers.
+@export var combination_name: String = ""
 @export var needs: Needs = Needs.FROM_TROUBLE
 
 @export_group("What it always does")
@@ -81,7 +80,8 @@ func modify_profile(profile: ShotProfile) -> void:
 
 	if not _fires(profile):
 		return
-	profile.fired_combos.append(fired_label if fired_label != "" else summary)
+	profile.fired_combos.append(
+		combination_name if combination_name != "" else summary)
 	profile.carry_yards_max *= distance_multiplier
 	profile.dispersion_deg *= dispersion_multiplier
 	profile.roll_ratio *= roll_multiplier

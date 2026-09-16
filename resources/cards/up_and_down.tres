@@ -6,8 +6,8 @@
 
 [sub_resource type="Resource" id="Sit_up_and_down"]
 script = ExtResource("2_sit")
-summary = "Slightly straighter. Out of rough, sand or worse: far straighter, stops quickly, and shrugs off the lie."
-fired_label = "Out of trouble clean"
+summary = "Slightly straighter. Out of rough or sand: far straighter, stops quickly, ignores the lie."
+combination_name = "UP AND DOWN"
 needs = 0
 base_dispersion_multiplier = 0.95
 dispersion_multiplier = 0.68

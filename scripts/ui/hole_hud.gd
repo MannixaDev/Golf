@@ -326,7 +326,8 @@ func set_modifiers(names: Array, combinations: PackedStringArray = PackedStringA
 
 	_combo_label.visible = not combinations.is_empty()
 	if not combinations.is_empty():
-		_combo_label.text = "COMBINING:  " + "   ·   ".join(combinations)
+		# Names, so they read as things that happened rather than as arithmetic.
+		_combo_label.text = "COMBINING:  " + "   ·   ".join(combinations).to_upper()
 
 
 ## Equipment carried into this hole, so a relic that fires on the third stroke

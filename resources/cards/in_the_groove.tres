@@ -6,8 +6,8 @@
 
 [sub_resource type="Resource" id="Sit_in_the_groove"]
 script = ExtResource("2_sit")
-summary = "A touch straighter. Playing the same club as your last stroke: you have the feel of it, and it shows."
-fired_label = "Same club, same feel"
+summary = "A touch straighter. Playing the same club as your last stroke: you have the feel of it."
+combination_name = "IN THE GROOVE"
 needs = 3
 base_dispersion_multiplier = 0.96
 dispersion_multiplier = 0.78
