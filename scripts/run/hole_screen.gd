@@ -88,6 +88,12 @@ func setup_rules(rules: CourseRuleSet, rule_seed: int) -> void:
 	$HoleView.setup_rules(rules, rule_seed)
 
 
+## Passed straight through to the display. The screen does not care that there is
+## a lesson running; it just has somewhere to put the words.
+func set_lesson(text: String) -> void:
+	_hud.set_lesson(text)
+
+
 func begin() -> void:
 	_reported = false
 	_hud.set_relics(_carried)

@@ -42,6 +42,11 @@ signal swing_released()
 ## Built here rather than in the scene so the prep line keeps its own layout and
 ## this one simply sits above it.
 @onready var _combo_label: Label = _make_combo_label()
+## The lesson's panel. Built here rather than in the scene because it only exists
+## during the tutorial, and a node the other ninety-nine per cent of the game
+## carries around hidden is a node somebody will eventually wonder about.
+var _lesson_panel: PanelContainer = null
+var _lesson_label: Label = null
 @onready var _lie_label: Label = %LieLabel
 @onready var _lie_summary: Label = %LieSummary
 @onready var _slope_row: HBoxContainer = %SlopeRow
@@ -235,6 +240,65 @@ func _make_combo_label() -> Label:
 	label.anchor_bottom = _prep_label.anchor_bottom
 	label.grow_horizontal = _prep_label.grow_horizontal
 	return label
+
+
+## What the tutorial is saying, or "" to take the panel away.
+##
+## Persistent on purpose, unlike set_status, which fades after two and a half
+## seconds. A status message is commentary on something that already happened; a
+## lesson is an instruction that has to stay put until it is followed.
+func set_lesson(text: String) -> void:
+	if _lesson_panel == null:
+		_build_lesson_panel()
+	var wanted := text.strip_edges() != ""
+	_lesson_label.text = text
+	if wanted == _lesson_panel.visible:
+		return
+	_lesson_panel.visible = wanted
+	# Faded in rather than snapped, so a new line reads as a new line.
+	if wanted:
+		_lesson_panel.modulate.a = 0.0
+		create_tween().tween_property(_lesson_panel, "modulate:a", 1.0, 0.35)
+
+
+func _build_lesson_panel() -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.09, 0.06, 0.93)
+	style.border_color = Color(Palette.GOLD, 0.55)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(7)
+	style.content_margin_left = 22.0
+	style.content_margin_right = 22.0
+	style.content_margin_top = 15.0
+	style.content_margin_bottom = 15.0
+
+	_lesson_panel = PanelContainer.new()
+	_lesson_panel.add_theme_stylebox_override("panel", style)
+	_lesson_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_lesson_panel.hide()
+	add_child(_lesson_panel)
+
+	_lesson_label = Label.new()
+	_lesson_label.add_theme_font_override("font", Typo.REGULAR)
+	_lesson_label.add_theme_font_size_override("font_size", Typo.STAT)
+	_lesson_label.add_theme_color_override("font_color", Palette.INK)
+	_lesson_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_lesson_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_lesson_label.custom_minimum_size = Vector2(660.0, 0.0)
+	_lesson_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_lesson_panel.add_child(_lesson_label)
+
+	# Below the status line rather than above it. At 92 the panel ran straight
+	# through StatusLabel, which sits at 116 -- so "Draw played." printed across
+	# the sentence telling you to play Draw. Under it there is nothing until the
+	# swing meter, which lives near the bottom of the screen.
+	_lesson_panel.anchor_left = 0.5
+	_lesson_panel.anchor_right = 0.5
+	_lesson_panel.anchor_top = 0.0
+	_lesson_panel.anchor_bottom = 0.0
+	_lesson_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_lesson_panel.grow_vertical = Control.GROW_DIRECTION_END
+	_lesson_panel.offset_top = 162.0
 
 
 ## Techniques attached to the next stroke, and any combination they are setting

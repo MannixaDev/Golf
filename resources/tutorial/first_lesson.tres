@@ -1,0 +1,77 @@
+[gd_resource type="Resource" script_class="TutorialLesson" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/tutorial/tutorial_lesson.gd" id="1_lesson"]
+[ext_resource type="Script" path="res://scripts/tutorial/tutorial_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_1"]
+script = ExtResource("2_step")
+text = "Three hundred and twenty yards, par four. Your bag is along the bottom: four clubs and two techniques, dealt fresh before every shot.
+
+Pick up the Driver."
+wait = 1
+card_id = &"driver"
+
+[sub_resource type="Resource" id="Step_2"]
+script = ExtResource("2_step")
+text = "Point where you want it to go. Hold the button to build power and let go to set it, then click once more to time the strike.
+
+The meter will tell you what it wants."
+wait = 4
+strokes = 1
+
+[sub_resource type="Resource" id="Step_3"]
+script = ExtResource("2_step")
+text = "One stroke gone. Wherever it finished, that is where you play from, and the ground you land on changes the next shot.
+
+Now the part no scorecard shows you."
+wait = 0
+linger = 5.5
+
+[sub_resource type="Resource" id="Step_4"]
+script = ExtResource("2_step")
+text = "You have three focus a shot. The club costs one; the rest buys technique.
+
+Play Draw. It bends the ball right to left, and it costs you nothing to look."
+wait = 2
+card_id = &"draw"
+
+[sub_resource type="Resource" id="Step_5"]
+script = ExtResource("2_step")
+text = "SHOT PREP shows what is riding on this stroke.
+
+Look at Double Cross: it has gone gold. A card lights up when it would combine with what is already on the ball. Play it."
+wait = 2
+card_id = &"double_cross"
+
+[sub_resource type="Resource" id="Step_6"]
+script = ExtResource("2_step")
+text = "COMBINING, in gold: the bend taken out and fifteen yards gained. Two cards doing something neither does alone.
+
+Now pick a club and hit it."
+wait = 4
+strokes = 2
+
+[sub_resource type="Resource" id="Step_7"]
+script = ExtResource("2_step")
+text = "Keep going until you are on the green. Techniques come back every shot, so there is always something to spend focus on."
+wait = 5
+
+[sub_resource type="Resource" id="Step_8"]
+script = ExtResource("2_step")
+text = "On the putting surface. The arrow shows which way it falls, and pace and line are the same decision: hit it hard and it holds its line, die it at the hole and the slope takes it.
+
+Hole out."
+wait = 6
+
+[sub_resource type="Resource" id="Step_9"]
+script = ExtResource("2_step")
+text = "That is the whole game. Nine of those against a field, and the bottom third go home after halfway.
+
+The course is the enemy. Good luck."
+wait = 0
+linger = 7.0
+
+[resource]
+script = ExtResource("1_lesson")
+display_name = "The First Hole"
+steps = Array[ExtResource("2_step")]([SubResource("Step_1"), SubResource("Step_2"), SubResource("Step_3"), SubResource("Step_4"), SubResource("Step_5"), SubResource("Step_6"), SubResource("Step_7"), SubResource("Step_8"), SubResource("Step_9")])

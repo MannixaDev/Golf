@@ -116,8 +116,38 @@ func _show_title() -> void:
 	# stands between you and a round you just want to play.
 	screen.round_chosen.connect(func(holes: int) -> void:
 		start_run(holes, TourLibrary.by_rung(TourLibrary.unlocked_rung)))
+	screen.lesson_opened.connect(_play_lesson)
 	screen.tour_opened.connect(_show_tours)
 	screen.settings_opened.connect(_show_settings)
+
+
+## The guided hole.
+##
+## Deliberately outside the run machinery: no RunState, no leaderboard, no cut,
+## no map. It is one hole with a fixed seed and a six card bag, and somebody
+## talking over the top of it. Nothing that happens here is recorded, so a player
+## can take the lesson twice without it costing them a career.
+func _play_lesson() -> void:
+	var lesson: TutorialLesson = load("res://resources/tutorial/first_lesson.tres")
+	var hole := HoleGenerator.generate(
+		TutorialDirector.HOLE_SEED, TutorialDirector.HOLE_TIER, 1)
+	var bag: DeckList = load("res://resources/decks/tutorial_deck.tres")
+
+	var screen: HoleScreen = HOLE_SCREEN.instantiate()
+	screen.setup(hole, Deck.new(bag.build()))
+	_swap_screen(screen)
+
+	var director := TutorialDirector.new()
+	screen.add_child(director)
+	director.setup(screen.get_node("HoleView"), lesson.playable_steps())
+	director.prompt_changed.connect(screen.set_lesson)
+	director.finished.connect(func() -> void: Settings.note_learned())
+	# However the hole ends -- holed out, picked up, or given up on -- the lesson
+	# hands you back to the menu rather than into a run you did not ask for.
+	screen.finished.connect(func(_strokes: int, _par: int) -> void:
+		Settings.note_learned()
+		_show_title())
+	screen.begin()
 
 
 func _show_tours() -> void:

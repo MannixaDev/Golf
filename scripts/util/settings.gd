@@ -26,6 +26,10 @@ static var swing_accuracy: bool = true
 static var volume: float = 0.8
 static var sound_enabled: bool = true
 static var fullscreen: bool = false
+## Whether the guided hole has ever been finished. Only decides where the menu
+## puts the keyboard focus -- the lesson stays on the menu for ever, because
+## somebody coming back after a month has every right to be reminded.
+static var learned: bool = false
 static var _loaded := false
 
 
@@ -41,6 +45,7 @@ static func ensure_loaded() -> void:
 	volume = clampf(float(config.get_value(SECTION, "volume", volume)), 0.0, 1.0)
 	sound_enabled = bool(config.get_value(SECTION, "sound_enabled", sound_enabled))
 	fullscreen = bool(config.get_value(SECTION, "fullscreen", fullscreen))
+	learned = bool(config.get_value(SECTION, "learned", learned))
 
 
 static func save() -> void:
@@ -49,7 +54,22 @@ static func save() -> void:
 	config.set_value(SECTION, "volume", volume)
 	config.set_value(SECTION, "sound_enabled", sound_enabled)
 	config.set_value(SECTION, "fullscreen", fullscreen)
+	config.set_value(SECTION, "learned", learned)
 	config.save(PATH)
+
+
+static func has_learned() -> bool:
+	ensure_loaded()
+	return learned
+
+
+## Remember that the guided hole has been played through.
+static func note_learned() -> void:
+	ensure_loaded()
+	if learned:
+		return
+	learned = true
+	save()
 
 
 ## Volume as decibels for an AudioStreamPlayer.

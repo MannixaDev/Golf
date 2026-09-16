@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DeckList" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards/deck_list.gd" id="1_decklist"]
+
+[resource]
+script = ExtResource("1_decklist")
+display_name = "The Lesson"
+card_ids = PackedStringArray("driver", "iron_9", "wedge", "putter", "draw", "double_cross")
